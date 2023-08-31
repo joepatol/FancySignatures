@@ -16,6 +16,16 @@ FuncT = TypeVar("FuncT", bound=Callable[..., Any])
 
 
 def arg(*, validators: list[Validator] | None = None, default: Default | None = None, required: bool = True) -> UnTypedArgField:
+    """A function argument
+
+    Args:
+        validators (list[Validator] | None, optional): Validators to apply to this argument. Defaults to None.
+        default (Default | None, optional): Default value for this argument. Defaults to None.
+        required (bool, optional): Whether the argument is required, if not it will default to __EmptyArg__(). Defaults to True.
+
+    Returns:
+        UnTypedArgField: Container class for processing the field when the decorated function is called
+    """
     default = default if default is not None else DefaultValue()
     validators = validators if validators is not None else []
     return UnTypedArgField(required, default=default, validators=validators)
@@ -25,9 +35,11 @@ def validate(__func: FuncT | None = None, *, related: list[Related] | None = Non
     """Validate the functions annotated parameters with the provided 'Validators'. 
 
     Args:
+        __func (FuncT, optional): The decorated callable
         lazy (bool, optional): Whether to raise an error on the first parameter one occurs,
-        or whether to validate all parameters and raise an ExceptionGroup with the errors found per parameter
-        default = False
+        or whether to validate all parameters and raise an ExceptionGroup with the errors found per parameter.
+        Defaults to False.
+        Related (list[Related], optional): Related validators that apply a validation function on two or more arguments. Defaults to None
 
     Raises:
         ValidationError: error that occurred during validation of parameters
@@ -72,7 +84,6 @@ class _FunctionWrapper:
         self._related = related_validators
     
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        # Construct kwargs only from the signature and the args
         for i, param_name in enumerate(self._func_params):
             if param_name not in kwargs:
                 if i < len(args):
