@@ -55,7 +55,7 @@ class _FunctionWrapper:
     def __init__(self, wrapped_func: FuncT, related_validators: list[Related], lazy: bool) -> None:
         annotations_dict = wrapped_func.__annotations__
         signature = inspect.signature(wrapped_func)
-        _ = annotations_dict.pop('return')
+        _ = annotations_dict.pop('return', Any)
         named_fields: dict[str, TypedArgField] = {}
         
         for name, parameter in signature.parameters.items():
