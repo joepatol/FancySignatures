@@ -1,0 +1,33 @@
+from typing import Any, TypeVar, Callable
+
+from ..core.interface import Default
+from ..core.types import __EmptyArg__
+
+
+T = TypeVar("T")
+FactoryFunc = Callable[[], Any]
+
+
+class DefaultValue(Default[T]):
+    def __init__(self, value: Any = __EmptyArg__()) -> None:
+        self._value = value
+        
+    def __call__(self, value: T) -> T:
+        if isinstance(value, __EmptyArg__):
+            return self._value
+        return value
+
+
+class IntDefault(DefaultValue[int]): pass
+class FloatDefault(DefaultValue[float]): pass
+class StringDefault(DefaultValue[str]): pass
+
+
+class DefaultFactory(Default[T]):
+    def __init__(self, factory_func: FactoryFunc = __EmptyArg__) -> None:
+        self._factory = factory_func
+    
+    def __call__(self, value: Any) -> T:
+        if isinstance(value, __EmptyArg__):
+            return self._factory()
+        return value
