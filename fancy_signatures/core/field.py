@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any
 
 from .interface import TypeCaster, Default, Validator
-from .exceptions import TypeCastError, ValidationErrorGroup
+from .exceptions import ValidationError, ValidationErrorGroup, TypeValidationError, TypeCastError
 from .types import __EmptyArg__
 
 
@@ -21,16 +21,18 @@ class TypedArgField(UnTypedArgField):
         self._typecaster = typecaster
         super().__init__(required, default, validators)
 
-    def execute(self, name: str, value: Any, lazy: bool) -> Any:
+    def execute(self, name: str, value: Any, lazy: bool, strict: bool) -> Any:
         value_or_default = self._default(value)
         
         if self._required and isinstance(value_or_default, __EmptyArg__):
             raise ValueError(f"Parameter '{name} is required and no default was provided")
-        
+    
         try:
-            typecasted_value = self._typecaster(value_or_default)
+            typecasted_value = self._typecaster(value_or_default, strict)
+        except TypeValidationError as e:
+            raise ValidationError(f"Type validation failed. message {e}", name)
         except Exception as e:
-            raise TypeCastError(f"Couldn't cast to correct type. Message: {e}", name)
+            raise TypeCastError(f"Couldn't cast to the correct type. message: {e}", name)
         
         for validator in self._validators:
             errors: list[BaseException] = []

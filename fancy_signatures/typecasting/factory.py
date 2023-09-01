@@ -9,7 +9,7 @@ from ..core.interface import TypeCaster
 
 def typecaster_factory(type_hint: GenericAlias | type) -> TypeCaster:
     if type_hint == Any:
-        return TypeCaster(lambda x: x)
+        return TypeCaster(lambda x, _: x)
     if isinstance(type_hint, GenericAlias):
         return handle_generic_alias_hints(type_hint)
     if isinstance(type_hint, UnionType):

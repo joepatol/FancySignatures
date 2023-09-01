@@ -4,4 +4,5 @@ class ValidationError(Exception):
 
 
 class TypeCastError(ValidationError): pass
+class TypeValidationError(TypeError): pass
 class ValidationErrorGroup(ExceptionGroup, ValidationError): pass

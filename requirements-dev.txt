@@ -1,3 +1,5 @@
 pytest
 pydantic
 numpy
+black 
+mypy

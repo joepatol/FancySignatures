@@ -2,4 +2,4 @@ from typing import Callable, Any
 
 
 class __EmptyArg__: pass
-TypeCastFunc = Callable[[Any], Any]
+TypeCastFunc = Callable[[Any, bool], Any]

@@ -1,18 +1,11 @@
 from typing import TypeVar, Any, Generic
+from types import GenericAlias
 from abc import ABC, abstractmethod
 
 from .types import TypeCastFunc
 
 
 T = TypeVar("T")
-
-
-class TypeCaster:
-    def __init__(self, handler: TypeCastFunc) -> None:
-        self._handler = handler
-    
-    def __call__(self, param_value: Any) -> Any:
-        return self._handler(param_value)
 
 
 class Validator(Generic[T], ABC):
@@ -23,3 +16,11 @@ class Validator(Generic[T], ABC):
 class Default(Generic[T], ABC):
     @abstractmethod
     def __call__(self, value: Any) -> T: ...
+
+
+class TypeCaster:
+    def __init__(self, handler: TypeCastFunc) -> None:
+        self._handler = handler
+    
+    def __call__(self, param_value: Any, strict: bool) -> Any:
+        return self._handler(param_value, strict)

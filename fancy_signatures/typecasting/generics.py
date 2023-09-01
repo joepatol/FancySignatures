@@ -2,33 +2,39 @@ from typing import Any, get_args, Callable
 from types import GenericAlias
 
 from ..core.interface import TypeCaster
+from ..core.exceptions import TypeValidationError
 
 
-GenericAliasTypecasterFunc = Callable[[type | GenericAlias], TypeCaster]
+GenericAliasTypecasterFunc = Callable[[GenericAlias], TypeCaster]
 
 
-def handle_generic_alias_hints(type_hint: GenericAlias | type) -> TypeCaster:
+def handle_generic_alias_hints(type_hint: GenericAlias) -> TypeCaster:
     return GenericAliasTypecaster.build(type_hint)
 
 
-def _handle_list_or_tuple_generic(origin_hint: type | GenericAlias) -> TypeCaster:
+def _handle_list_or_tuple_generic(origin_hint: GenericAlias) -> TypeCaster:
     next_hint = get_args(origin_hint)[0]
-    def _handler_func(value: list[Any]) -> list[Any]:
-        from .factory import typecaster_factory
+    origin = origin_hint.__origin__
+    def _handler_func(value: list[Any], strict: bool) -> list[Any]:
+        if strict and not isinstance(value, origin):
+            raise TypeValidationError(f"Incorrect type, should be '{origin}'")
         
-        return origin_hint([typecaster_factory(next_hint)(x) for x in value])
+        from .factory import typecaster_factory
+        return origin_hint([typecaster_factory(next_hint)(x, strict) for x in value])
     return TypeCaster(_handler_func)
 
 
-def _handle_dict_generic(origin_hint: type | GenericAlias) -> TypeCaster:
+def _handle_dict_generic(origin_hint: GenericAlias) -> TypeCaster:
     next_hint = get_args(origin_hint)
     key_hint = next_hint[0]
     value_hint = next_hint[1]
-    def _handler_func(value: dict[Any, Any]) -> dict[Any, Any]:
-        from .factory import typecaster_factory
+    def _handler_func(value: Any, strict: bool) -> dict[Any, Any]:
+        if strict and not isinstance(value, dict):
+            raise TypeValidationError(f"Incorrect type, should be '{dict}'")
         
+        from .factory import typecaster_factory
         return {
-            typecaster_factory(key_hint)(k): typecaster_factory(value_hint)(v) 
+            typecaster_factory(key_hint)(k, strict): typecaster_factory(value_hint)(v, strict) 
             for k, v in value.items()
         }
     return TypeCaster(_handler_func)

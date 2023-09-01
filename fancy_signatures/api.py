@@ -31,7 +31,7 @@ def arg(*, validators: list[Validator] | None = None, default: Default | None = 
     return UnTypedArgField(required, default=default, validators=validators)
 
 
-def validate(__func: FuncT | None = None, *, related: list[Related] | None = None, lazy: bool = False) -> Callable[[FuncT], FuncT]:
+def validate(__func: FuncT | None = None, *, related: list[Related] | None = None, lazy: bool = False, type_strict: bool = False) -> Callable[[FuncT], FuncT]:
     """Validate the functions annotated parameters with the provided 'Validators'. 
 
     Args:
@@ -40,6 +40,7 @@ def validate(__func: FuncT | None = None, *, related: list[Related] | None = Non
         or whether to validate all parameters and raise an ExceptionGroup with the errors found per parameter.
         Defaults to False.
         Related (list[Related], optional): Related validators that apply a validation function on two or more arguments. Defaults to None
+        type_strict (bool, optional): Whether to raise an error if a typecheck fails, or attempt a typecast first
 
     Raises:
         ValidationError: error that occurred during validation of parameters
@@ -53,7 +54,7 @@ def validate(__func: FuncT | None = None, *, related: list[Related] | None = Non
         
     def wrapper(func: FuncT) -> FuncT:
         return functools.update_wrapper(
-            wrapper=_FunctionWrapper(func, related, lazy),
+            wrapper=_FunctionWrapper(func, related, lazy, type_strict),
             wrapped=func
         )
         
@@ -64,7 +65,7 @@ def validate(__func: FuncT | None = None, *, related: list[Related] | None = Non
 
 
 class _FunctionWrapper:
-    def __init__(self, wrapped_func: FuncT, related_validators: list[Related], lazy: bool) -> None:
+    def __init__(self, wrapped_func: FuncT, related_validators: list[Related], lazy: bool, type_strict: bool) -> None:
         annotations_dict = wrapped_func.__annotations__
         signature = inspect.signature(wrapped_func)
         _ = annotations_dict.pop('return', Any)
@@ -82,6 +83,7 @@ class _FunctionWrapper:
         self._func_params = signature.parameters
         self._fields = named_fields
         self._related = related_validators
+        self._strict = type_strict
     
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         for i, param_name in enumerate(self._func_params):
@@ -99,7 +101,7 @@ class _FunctionWrapper:
                 raise TypeError(f"Unrecognized argument '{name}' for '{self._wrapped_func.__name__}'")
             
             try:
-                kwargs[name] = field.execute(name, value, self._lazy)
+                kwargs[name] = field.execute(name, value, self._lazy, self._strict)
             except Exception as e:
                 if self._lazy: errors.append(e)
                 else: raise e
