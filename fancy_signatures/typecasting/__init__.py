@@ -1,2 +1,2 @@
 from .factory import typecaster_factory  # noqa
-from .generics import GenericAliasTypecaster  # noqa
+from .generics_alias import GenericAliasTypecaster  # noqa
