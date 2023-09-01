@@ -48,7 +48,7 @@ class GenericAliasTypecaster:
     }
 
     @classmethod
-    def build(cls, annotation: GenericAlias) -> GenericAliasTypecasterFunc:
+    def build(cls, annotation: GenericAlias) -> TypeCaster:
         try:
             handler = cls._handlers[annotation.__origin__]
         except KeyError:

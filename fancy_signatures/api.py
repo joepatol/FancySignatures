@@ -1,4 +1,4 @@
-from typing import TypeVar, Callable, Any
+from typing import TypeVar, Callable, Any, cast
 import functools
 import inspect
 
@@ -53,10 +53,10 @@ def validate(__func: FuncT | None = None, *, related: list[Related] | None = Non
         related = []
         
     def wrapper(func: FuncT) -> FuncT:
-        return functools.update_wrapper(
+        return cast(FuncT, functools.update_wrapper(
             wrapper=_FunctionWrapper(func, related, lazy, type_strict),
             wrapped=func
-        )
+        ))
         
     if __func is None:
         return wrapper

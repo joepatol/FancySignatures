@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, List
 
 import pytest
 from fancy_signatures.typecasting.factory import typecaster_factory
@@ -100,3 +100,11 @@ def test__strict_union_generic_alias_custom_type() -> None:
     
     with pytest.raises(TypeValidationError):
         caster(invalid_inp, True)
+
+
+# def test__strict_alias() -> None:
+#     caster = typecaster_factory(List[int])
+#     caster([1, 2], True)
+    
+#     with pytest.raises(TypeValidationError):
+#         caster([1, "2"], True)
