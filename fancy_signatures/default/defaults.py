@@ -1,7 +1,5 @@
 from typing import Any, TypeVar, Callable
 
-from fancy_signatures.core.types import __EmptyArg__
-
 from ..core.interface import Default
 from ..core.types import __EmptyArg__
 

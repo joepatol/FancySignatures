@@ -17,5 +17,5 @@ class AnyTypeCaster(TypeCaster[Any]):
     def cast(self, param_value: Any) -> Any: return param_value
     
 
-register_handler(type_hint=str, handler=StringTypeCaster, strict=True)
-register_handler(type_hint=Any, handler=AnyTypeCaster, strict=True)
+register_handler(type_hints=[str], handler=StringTypeCaster, strict=True)
+register_handler(type_hints=[Any], handler=AnyTypeCaster, strict=True)

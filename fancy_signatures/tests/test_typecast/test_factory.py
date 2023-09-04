@@ -1,6 +1,8 @@
 from dataclasses import dataclass
-from typing import Any, List
+import typing
 from contextlib import nullcontext as does_not_raise
+
+from pydantic import BaseModel
 
 import pytest
 from fancy_signatures.typecasting.factory import typecaster_factory
@@ -13,6 +15,65 @@ class _CustomType:
     b: str
 
 
+class _PydanticType(BaseModel):
+    a: int
+    c: str
+
+
+@pytest.mark.parametrize(
+    "value, context",
+    [
+        pytest.param(
+            {"custom": [_CustomType(1, "b")], "pydantic": [_PydanticType(a=1, c="b")], "builtin": 2.2}, 
+            does_not_raise(), 
+            id="ok"
+        ),
+        pytest.param(
+            {"custom": [_CustomType(1, "b")], "pydantic": [_PydanticType(a=2, c="b")], "builtin": [1, 2]}, 
+            pytest.raises(TypeValidationError),
+            id="fail builtin"
+        ),
+        pytest.param(
+            {"custom": (_CustomType(1, "b")), "pydantic": [_PydanticType(a=2, c="b")], "builtin": 1.2}, 
+            pytest.raises(TypeValidationError),
+            id="fail not list"
+        )
+    ]
+)
+def test__strict_complex(value: typing.Any, context: typing.ContextManager):
+    caster = typecaster_factory(dict[str, list[_CustomType] | list[_PydanticType] | float])
+    
+    with context:
+        caster(value, True)
+        
+        
+def test__correct_cast_complex() -> None:
+    caster = typecaster_factory(dict[str, list[_CustomType] | list[_PydanticType] | float])
+    
+    input_value = {
+        "custom": [{"a": 1, "b": "b"}], 
+        "pydantic": [{"a": 3, "c": "c"}], 
+        "builtin": "1.2"
+    }
+    
+    result = caster(input_value, False)
+    assert result == {'custom': [_CustomType(a=1, b="b")], 'pydantic': [_PydanticType(a=3, c='c')], 'builtin': 1.2}
+    
+
+@pytest.mark.parametrize(
+    "strict, context",
+    [
+        pytest.param(True, pytest.raises(TypeValidationError), id="strict"),
+        pytest.param(False, does_not_raise(), id="Not strict")
+    ]
+)
+def test__pydantic(strict: bool, context: typing.ContextManager) -> None:
+    caster = typecaster_factory(_PydanticType)
+    
+    with context:
+        caster({"a": 1, "c": "2"}, strict)
+     
+
 @pytest.mark.parametrize(
     "input_value",
     [
@@ -21,7 +82,7 @@ class _CustomType:
         pytest.param([1, 2], id="list")
     ]
 )
-def test__basic_typecast(input_value: Any) -> None:
+def test__basic_typecast(input_value: typing.Any) -> None:
     caster = typecaster_factory(str)
     r = caster(input_value, False)
     assert isinstance(r, str)
@@ -104,7 +165,7 @@ def test__strict_union_generic_alias_custom_type() -> None:
 
 
 def test__strict_alias() -> None:
-    caster = typecaster_factory(List[int])
+    caster = typecaster_factory(typing.List[int])
     caster([1, 2], True)
     
     with pytest.raises(TypeValidationError):
@@ -119,8 +180,8 @@ def test__strict_alias() -> None:
         pytest.param([1, 2], id="list")
     ]
 )
-def test__strict_any(value: Any) -> None:
-    caster = typecaster_factory(Any)
+def test__strict_any(value: typing.Any) -> None:
+    caster = typecaster_factory(typing.Any)
     
     with does_not_raise():
         caster(value, True)
@@ -134,8 +195,23 @@ def test__strict_any(value: Any) -> None:
         pytest.param([1, 2], list, id="list")
     ]
 )
-def test___any(value: Any, output_type: type) -> None:
-    caster = typecaster_factory(Any)
+def test___any(value: typing.Any, output_type: type) -> None:
+    caster = typecaster_factory(typing.Any)
     
     result = caster(value, False)
     assert isinstance(result, output_type)
+
+
+@pytest.mark.parametrize(
+    "value, context",
+    [
+        pytest.param("a", does_not_raise(), id="string"),
+        pytest.param(None, does_not_raise(), id="None"),
+        pytest.param(1,  pytest.raises(TypeValidationError), id="invalid value")
+    ]
+)
+def test__strict_optional(value: typing.Any, context: typing.ContextManager) -> None:
+    caster = typecaster_factory(typing.Optional[str])
+    
+    with context:
+        caster(value, True)

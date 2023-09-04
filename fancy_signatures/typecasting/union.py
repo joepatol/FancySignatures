@@ -1,4 +1,4 @@
-from typing import Any, TypeAlias, get_origin, get_args
+from typing import Any, TypeAlias, get_args, Union
 from types import UnionType
 
 from ..core.interface import TypeCaster
@@ -25,4 +25,4 @@ class UnionTypeCaster(TypeCaster[UnionType]):
         raise TypeError(f"Unable to cast to any of the types {self._origins}")
 
 
-register_handler(type_hint=UnionType, handler=UnionTypeCaster, strict=True)
+register_handler(type_hints=[Union, UnionType], handler=UnionTypeCaster, strict=True)

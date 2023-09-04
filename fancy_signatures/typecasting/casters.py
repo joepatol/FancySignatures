@@ -7,8 +7,10 @@ _STRICT_CUSTOM_HANDLERS: dict[TypeAlias, TypeCaster] = {}  # Type should exactly
 _CUSTOM_HANDLERS: dict[TypeAlias, TypeCaster] = {}  # Exact match or subclass
 
 
-def register_handler(type_hint: TypeAlias, handler: TypeCaster, strict: bool) -> None:
+def register_handler(type_hints: list[TypeAlias], handler: TypeCaster, strict: bool) -> None:
     if strict:
-        _STRICT_CUSTOM_HANDLERS[type_hint] = handler
+        for hint in type_hints:
+            _STRICT_CUSTOM_HANDLERS[hint] = handler
     else:
-        _CUSTOM_HANDLERS[type_hint] = handler
+        for hint in type_hints:
+            _CUSTOM_HANDLERS[hint] = handler

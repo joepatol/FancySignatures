@@ -5,7 +5,7 @@ from .factory import typecaster_factory
 from .casters import register_handler
 
 
-class IterableTypeCaster(TypeCaster[Iterable]):
+class BuiltInIterableTypeCaster(TypeCaster[list | tuple | set]):
     def __init__(self, expected_type: TypeAlias) -> None:
         super().__init__(expected_type)
         self._origin = get_origin(expected_type)
@@ -45,5 +45,5 @@ class DictTypeCaster(TypeCaster[dict]):
         }
 
 
-register_handler(type_hint=Iterable, handler=IterableTypeCaster, strict=False)
-register_handler(type_hint=dict, handler=DictTypeCaster, strict=True)
+register_handler(type_hints=[list, tuple, set], handler=BuiltInIterableTypeCaster, strict=False)
+register_handler(type_hints=[dict], handler=DictTypeCaster, strict=True)
