@@ -1,4 +1,4 @@
-from typing import Iterable, Any, TypeAlias, get_origin, get_args
+from typing import Iterable, Any, TypeAlias, get_origin, get_args, cast, Type
 
 from ..core.interface import TypeCaster
 from .factory import typecaster_factory
@@ -6,9 +6,9 @@ from .casters import register_handler
 
 
 class BuiltInIterableTypeCaster(TypeCaster[list | tuple | set]):
-    def __init__(self, expected_type: TypeAlias) -> None:
+    def __init__(self, expected_type: list | tuple | set) -> None:
         super().__init__(expected_type)
-        self._origin = get_origin(expected_type)
+        self._origin: Type = cast(Type[list] | Type[tuple] | Type[set], get_origin(expected_type))
         self._arg = get_args(expected_type)[0]
     
     def validate(self, param_value: Any) -> bool:
@@ -17,7 +17,7 @@ class BuiltInIterableTypeCaster(TypeCaster[list | tuple | set]):
                 return True
         return False
 
-    def cast(self, param_value: Any) -> Iterable:
+    def cast(self, param_value: Any) -> list | tuple | set:
         casted_value = self._origin(param_value)
         return self._origin([typecaster_factory(self._arg).cast(x) for x in casted_value])
     
@@ -37,7 +37,7 @@ class DictTypeCaster(TypeCaster[dict]):
                 return True
         return False
 
-    def cast(self, param_value: Any) -> Iterable:
+    def cast(self, param_value: Any) -> dict:
         casted_value = dict(param_value)        
         return {
             typecaster_factory(self._key_hint).cast(k): typecaster_factory(self._value_hint).cast(v) 

@@ -10,7 +10,7 @@ class StringTypeCaster(TypeCaster[str]):
     
     def cast(self, param_value: Any) -> str:
         return str(param_value)
-    
+
 
 class AnyTypeCaster(TypeCaster[Any]):
     def validate(self, _: Any) -> bool: return True

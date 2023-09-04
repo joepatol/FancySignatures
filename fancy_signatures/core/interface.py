@@ -22,7 +22,7 @@ class Default(Generic[T], ABC):
 
 
 class TypeCaster(Generic[T], ABC):
-    def __init__(self, expected_type: TypeAlias) -> None:
+    def __init__(self, expected_type: T) -> None:
         self._type = expected_type 
     @abstractmethod
     def validate(self, param_value: Any) -> bool: ...

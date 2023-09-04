@@ -1,4 +1,4 @@
-from typing import get_origin, TypeAlias
+from typing import get_origin, TypeAlias, ParamSpec
 
 from ..core.interface import TypeCaster
 from .origins import OriginsTypeCaster
@@ -21,6 +21,9 @@ def typecaster_factory(type_hint: TypeAlias) -> TypeCaster:
     """
     raw_origin = get_origin(type_hint)
     origin = raw_origin if raw_origin is not None else type_hint
+    
+    if isinstance(origin, ParamSpec):
+        raise NotImplementedError("Support for 'ParamSpec' is not implemented.")
     
     if origin in _STRICT_CUSTOM_HANDLERS:
         return _STRICT_CUSTOM_HANDLERS[origin](type_hint)

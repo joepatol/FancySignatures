@@ -17,5 +17,5 @@ class Related:
             self._func(**function_kwargs)
         except Exception as e:
             raise ValidationError(str(e), 
-                str(self._func_args + list(self._func_kwargs.values()))
+                str(list(self._func_args) + list(self._func_kwargs.values()))
             )
