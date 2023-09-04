@@ -1,6 +1,7 @@
 from .factory import typecaster_factory  # noqa
+from .casters import register_handler  # noqa
 from . import generic_alias  # noqa
 from . import union  # noqa
 from . import special_origins  # noqa
 
-__all__ = ["typecaster_factory"]
+__all__ = ["typecaster_factory", "register_handler"]

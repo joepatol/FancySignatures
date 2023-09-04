@@ -25,9 +25,13 @@ def typecaster_factory(type_hint: TypeAlias) -> TypeCaster:
     if origin in _STRICT_CUSTOM_HANDLERS:
         return _STRICT_CUSTOM_HANDLERS[origin](type_hint)
     
+    # Paramspec fails subbclass check and is not implemented by default (as of now)
+    # so if we get here and it's ParamSpec, we can't continue. Hint to user that they can
+    # implement support if they require it.
     if isinstance(origin, ParamSpec):
         raise NotImplementedError(
-            "Support for 'ParamSpec' is not implemented. Implement it by adding it as a strict handler"
+            "Support for 'ParamSpec' is not implemented. Implement it by adding it as a strict handler,"
+            "see `fancy_signatures.typecasting.register_handler`."
         )
 
     for type_for_handler in _CUSTOM_HANDLERS:

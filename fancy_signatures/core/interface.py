@@ -1,4 +1,4 @@
-from typing import TypeVar, Any, Generic, TypeAlias
+from typing import TypeVar, Any, Generic
 from abc import ABC, abstractmethod
 
 from .exceptions import TypeValidationError
