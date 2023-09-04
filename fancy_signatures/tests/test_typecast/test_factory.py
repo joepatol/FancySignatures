@@ -200,13 +200,9 @@ def test__strict_optional(value: typing.Any, context: typing.ContextManager) -> 
 
 
 @pytest.mark.parametrize(
-    "value, expectation",
-    [
-        pytest.param(3, False, id="integer"),
-        pytest.param("3", True, id="string")
-    ]
+    "value, expectation", [pytest.param(3, False, id="integer"), pytest.param("3", True, id="string")]
 )
 def test__annotated_validate(value: typing.Any, expectation: bool) -> None:
     caster = typecaster_factory(typing.Annotated[str, "metadata"])
-    
+
     assert caster.validate(value) == expectation
