@@ -1,32 +1,28 @@
-from types import UnionType, GenericAlias
-from typing import get_args, Any
+from typing import Any, TypeAlias, get_origin, get_args
+from types import UnionType
 
 from ..core.interface import TypeCaster
-from ..core.exceptions import TypeValidationError
+from .factory import typecaster_factory
+from .casters import register_handler
 
 
-def handle_union_type_hints(type_hint: UnionType) -> TypeCaster:
-    origins = get_args(type_hint)
-    def _handler_func(value: Any, strict: bool) -> Any:
-        from .factory import typecaster_factory
-        for origin in origins:
-            # If it's a genericAlias and the origin is the type of the value
-            # it's assummed this is the type we want and we call the factory again
-            if isinstance(origin, GenericAlias):
-                if isinstance(value, origin.__origin__):
-                    return typecaster_factory(origin)(value, strict)
-            # If it's not a genericAlias, directly check if the type is correct
-            elif isinstance(value, origin):
-                return value
-        if strict:
-            # There is no instance check that matches any of the origins, so strict check fails
-            raise TypeValidationError(f"Invalid type, should be one of {origins}")
-        # If all else fails, try to cast for each of the origins,
-        # the first one that doesn't raise an exception will be returned
-        for origin in origins:
+class UnionTypeCaster(TypeCaster[UnionType]):
+    def __init__(self, expected_type: TypeAlias) -> None:
+        super().__init__(expected_type)
+        self._origins = get_args(expected_type)
+    
+    def validate(self, param_value: Any) -> bool:
+        for origin in self._origins:
+            if typecaster_factory(origin).validate(param_value): return True
+        return False
+    
+    def cast(self, param_value: Any) -> UnionType:
+        for origin in self._origins:
             try:
-                return typecaster_factory(origin)(value, strict)
+                return typecaster_factory(origin).cast(param_value)
             except Exception as e:
                 pass
-        raise TypeError(f"Unable to cast to any of the types {origins}")
-    return TypeCaster(_handler_func)
+        raise TypeError(f"Unable to cast to any of the types {self._origins}")
+
+
+register_handler(type_hint=UnionType, handler=UnionTypeCaster, strict=True)

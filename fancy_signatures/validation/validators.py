@@ -50,7 +50,7 @@ class Min(Validator[MinT]):
     def __init__(self, value: MinT) -> None:
         self._min = value
         
-    def __call__(self, name: str, obj: MinT) -> MinT:
+    def validate(self, name: str, obj: MinT) -> MinT:
         if obj < self._min:
             raise ValidationError(f"Value(s) should be greater than {self._min}", name)
         return obj
@@ -60,7 +60,7 @@ class Max(Validator[MaxT]):
     def __init__(self, value: MaxT) -> None:
         self._max = value
         
-    def __call__(self, name: str, obj: MaxT) -> MaxT:
+    def validate(self, name: str, obj: MaxT) -> MaxT:
         if obj > self._max:
             raise ValidationError(f"Value(s) should be smaller than {self._max}", name)
         return obj
@@ -79,7 +79,7 @@ class StrLength(Validator[str]):
         self._min = min
         self._max = max
         
-    def __call__(self, name: str, obj: str) -> str:
+    def validate(self, name: str, obj: str) -> str:
         if self._min and len(obj) < self._min:
             raise ValidationError("String is to short.", name)
         if self._max and len(obj) > self._max:
@@ -91,7 +91,7 @@ class MaxLength(Validator[SizedIterable], ValidateContentMixin):
     def __init__(self, max: int) -> None:
         self._max = max
         
-    def __call__(self, name: str, obj: SizedIterable) -> SizedIterable:
+    def validate(self, name: str, obj: SizedIterable) -> SizedIterable:
         if len(obj) > self._max:
             raise ValidationError("Length too large", name)
         self._validate_content(name, obj)
@@ -102,7 +102,7 @@ class MinLength(Validator[SizedIterable], ValidateContentMixin):
     def __init__(self, min: int) -> None:
         self._min = min
         
-    def __call__(self, name: str, obj: SizedIterable) -> SizedIterable:
+    def validate(self, name: str, obj: SizedIterable) -> SizedIterable:
         if len(obj) < self._min:
             raise ValidationError("Length too small", name)
         self._validate_content(name, obj)

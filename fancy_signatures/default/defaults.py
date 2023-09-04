@@ -14,7 +14,7 @@ class DefaultValue(Default[T]):
     def __init__(self, value: Any = __EmptyArg__()) -> None:
         self._value = value
         
-    def __call__(self, value: T) -> T:
+    def get(self, value: T) -> T:
         if isinstance(value, __EmptyArg__):
             return self._value
         return value
@@ -29,7 +29,7 @@ class DefaultFactory(Default[T]):
     def __init__(self, factory_func: FactoryFunc = __EmptyArg__) -> None:
         self._factory = factory_func
     
-    def __call__(self, value: T) -> T:
+    def get(self, value: T) -> T:
         if isinstance(value, __EmptyArg__):
             return self._factory()
         return value

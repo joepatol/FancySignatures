@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Any, List
+from contextlib import nullcontext as does_not_raise
 
 import pytest
 from fancy_signatures.typecasting.factory import typecaster_factory
@@ -102,9 +103,39 @@ def test__strict_union_generic_alias_custom_type() -> None:
         caster(invalid_inp, True)
 
 
-# def test__strict_alias() -> None:
-#     caster = typecaster_factory(List[int])
-#     caster([1, 2], True)
+def test__strict_alias() -> None:
+    caster = typecaster_factory(List[int])
+    caster([1, 2], True)
     
-#     with pytest.raises(TypeValidationError):
-#         caster([1, "2"], True)
+    with pytest.raises(TypeValidationError):
+        caster([1, "2"], True)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        pytest.param(1, id="integer"),
+        pytest.param(2.0, id="float"),
+        pytest.param([1, 2], id="list")
+    ]
+)
+def test__strict_any(value: Any) -> None:
+    caster = typecaster_factory(Any)
+    
+    with does_not_raise():
+        caster(value, True)
+
+
+@pytest.mark.parametrize(
+    "value, output_type",
+    [
+        pytest.param(1, int, id="integer"),
+        pytest.param(2.0, float, id="float"),
+        pytest.param([1, 2], list, id="list")
+    ]
+)
+def test___any(value: Any, output_type: type) -> None:
+    caster = typecaster_factory(Any)
+    
+    result = caster(value, False)
+    assert isinstance(result, output_type)
