@@ -15,7 +15,9 @@ T = TypeVar("T")
 FuncT = TypeVar("FuncT", bound=Callable[..., Any])
 
 
-def arg(*, validators: list[Validator] | None = None, default: Default | None = None, required: bool = True) -> UnTypedArgField:
+def arg(
+    *, validators: list[Validator] | None = None, default: Default | None = None, required: bool = True
+) -> UnTypedArgField:
     """A function argument
 
     Args:
@@ -31,8 +33,10 @@ def arg(*, validators: list[Validator] | None = None, default: Default | None = 
     return UnTypedArgField(required, default=default, validators=validators)
 
 
-def validate(__func: FuncT | None = None, *, related: list[Related] | None = None, lazy: bool = False, type_strict: bool = False) -> Callable[[FuncT], FuncT]:
-    """Validate the functions annotated parameters with the provided 'Validators'. 
+def validate(
+    __func: FuncT | None = None, *, related: list[Related] | None = None, lazy: bool = False, type_strict: bool = False
+) -> Callable[[FuncT], FuncT]:
+    """Validate the functions annotated parameters with the provided 'Validators'.
 
     Args:
         __func (FuncT, optional): The decorated callable
@@ -51,13 +55,12 @@ def validate(__func: FuncT | None = None, *, related: list[Related] | None = Non
     """
     if related is None:
         related = []
-        
+
     def wrapper(func: FuncT) -> FuncT:
-        return cast(FuncT, functools.update_wrapper(
-            wrapper=_FunctionWrapper(func, related, lazy, type_strict),
-            wrapped=func
-        ))
-        
+        return cast(
+            FuncT, functools.update_wrapper(wrapper=_FunctionWrapper(func, related, lazy, type_strict), wrapped=func)
+        )
+
     if __func is None:
         return wrapper
     else:
@@ -68,23 +71,23 @@ class _FunctionWrapper:
     def __init__(self, wrapped_func: FuncT, related_validators: list[Related], lazy: bool, type_strict: bool) -> None:
         annotations_dict = wrapped_func.__annotations__
         signature = inspect.signature(wrapped_func)
-        _ = annotations_dict.pop('return', Any)
+        _ = annotations_dict.pop("return", Any)
         named_fields: dict[str, TypedArgField] = {}
-        
+
         for name, parameter in signature.parameters.items():
             typecaster = typecaster_factory(type_hint=annotations_dict.get(name, Any))
             if isinstance(parameter.default, UnTypedArgField):
                 named_fields[name] = parameter.default.to_typed_argfield(typecaster)
             else:
                 named_fields[name] = arg().to_typed_argfield(typecaster)
-        
+
         self._lazy = lazy
         self._wrapped_func = wrapped_func
         self._func_params = signature.parameters
         self._fields = named_fields
         self._related = related_validators
         self._strict = type_strict
-    
+
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         for i, param_name in enumerate(self._func_params):
             if param_name not in kwargs:
@@ -92,37 +95,35 @@ class _FunctionWrapper:
                     kwargs[param_name] = args[i]
                 else:
                     kwargs[param_name] = __EmptyArg__()
-        
+
         errors: list[BaseException] = []
         for name, value in kwargs.items():
             try:
                 field = self._fields[name]
             except KeyError:
                 raise TypeError(f"Unrecognized argument '{name}' for '{self._wrapped_func.__name__}'")
-            
+
             try:
                 kwargs[name] = field.execute(name, value, self._lazy, self._strict)
             except Exception as e:
-                if self._lazy: errors.append(e)
-                else: raise e
-        
+                if self._lazy:
+                    errors.append(e)
+                else:
+                    raise e
+
         if errors:
-            raise ValidationErrorGroup(
-                f"Parameter validation for {self._wrapped_func.__name__} failed", 
-                errors
-            )
-            
+            raise ValidationErrorGroup(f"Parameter validation for {self._wrapped_func.__name__} failed", errors)
+
         for related_validator in self._related:
             try:
                 related_validator(**kwargs)
             except Exception as e:
-                if self._lazy: errors.append(e)
-                else: raise e
-                
+                if self._lazy:
+                    errors.append(e)
+                else:
+                    raise e
+
         if errors:
-            raise ValidationErrorGroup(
-                f"Related parameter validation for {self._wrapped_func.__name__} failed", 
-                errors
-            )
+            raise ValidationErrorGroup(f"Related parameter validation for {self._wrapped_func.__name__} failed", errors)
 
         return self._wrapped_func(**kwargs)

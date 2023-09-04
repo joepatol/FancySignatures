@@ -3,7 +3,7 @@ from typing import TypeAlias, Type
 from ..core.interface import TypeCaster
 
 
-_STRICT_CUSTOM_HANDLERS: dict[TypeAlias, Type[TypeCaster]] = {}  # Type should exactly match 
+_STRICT_CUSTOM_HANDLERS: dict[TypeAlias, Type[TypeCaster]] = {}  # Type should exactly match
 _CUSTOM_HANDLERS: dict[TypeAlias, Type[TypeCaster]] = {}  # Exact match or subclass
 
 

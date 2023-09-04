@@ -8,7 +8,7 @@ class Related:
         self._func_args = args
         self._func_kwargs = kwargs
         self._func = func
-        
+
     def __call__(self, **kwargs: Any) -> Any:
         function_kwargs = {k: v for k, v in kwargs.items() if k in self._func_args}
         for validation_func_arg_name, kwarg_name in self._func_kwargs.items():
@@ -16,6 +16,4 @@ class Related:
         try:
             self._func(**function_kwargs)
         except Exception as e:
-            raise ValidationError(str(e), 
-                str(list(self._func_args) + list(self._func_kwargs.values()))
-            )
+            raise ValidationError(str(e), str(list(self._func_args) + list(self._func_kwargs.values())))

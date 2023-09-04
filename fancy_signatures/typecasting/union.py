@@ -10,12 +10,13 @@ class UnionTypeCaster(TypeCaster[UnionType]):
     def __init__(self, expected_type: TypeAlias) -> None:
         super().__init__(expected_type)
         self._origins = get_args(expected_type)
-    
+
     def validate(self, param_value: Any) -> bool:
         for origin in self._origins:
-            if typecaster_factory(origin).validate(param_value): return True
+            if typecaster_factory(origin).validate(param_value):
+                return True
         return False
-    
+
     def cast(self, param_value: Any) -> UnionType:
         for origin in self._origins:
             try:
