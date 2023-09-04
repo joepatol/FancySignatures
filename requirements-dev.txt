@@ -1,5 +1,5 @@
-pytest
+pytest==7.4.0
 pydantic
 numpy
-black 
-mypy
+black==21.5b1
+mypy==1.5.1

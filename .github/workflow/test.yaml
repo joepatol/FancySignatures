@@ -1,23 +1,33 @@
-name: tests
-on: [push]
+name: Lint & test
+
+on: 
+  push:
+    branches:
+      - '*'
+
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
         uses: actions/checkout@v3
-      - name: black
-        uses: psf/black@stable
+
+      - name: Install Python
+        uses: actions/setup-python@v2
         with:
-          options: "--check --verbose --line-length 120"
-          src: "./fancy_signatures"
-          version: "21.5b1"
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade-pip
+          pip install -r requirements-dev.txt
+      
+      - name: black
+        run: python -m black --check --line-length 120 fancy_signatures
+
       - name: mypy
-        run: pip install mypy==1.5.1
-        run: mypy fancy_signatures --ignore-missing-imports
-  test:
-      - name: checkout
-      - uses: actions/checkout@v3
-      - name: run pytest
-        run: pip install pytest==7.4.0
-        run: pytest fancy_signatures/tests
+        run: python -m mypy fancy_signatures --ignore-missing-imports
+
+      - name: test
+        run: python -m pytest fancy_signatures/tests
