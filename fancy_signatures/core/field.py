@@ -30,7 +30,7 @@ class TypedArgField(UnTypedArgField):
         try:
             typecasted_value = self._typecaster(value_or_default, strict)
         except TypeValidationError as e:
-            raise ValidationError(f"Type validation failed. message {e}", name)
+            raise ValidationError(f"Type validation failed. message: {e}", name)
         except Exception as e:
             raise TypeCastError(f"Couldn't cast to the correct type. message: {e}", name)
         
