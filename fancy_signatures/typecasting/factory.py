@@ -1,4 +1,4 @@
-from typing import get_origin, TypeAlias, ParamSpec, Annotated
+from typing import get_origin, TypeAlias, ParamSpec
 
 from ..core.interface import TypeCaster
 from .origins import OriginsTypeCaster
