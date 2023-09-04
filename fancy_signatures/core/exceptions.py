@@ -3,5 +3,13 @@ class ValidationError(Exception):
         super().__init__(f"Parameter '{param}' is invalid. {message}.")
 
 
-class TypeCastError(ValidationError): pass
-class ValidationErrorGroup(ExceptionGroup, ValidationError): pass
+class TypeCastError(ValidationError):
+    pass
+
+
+class TypeValidationError(TypeError):
+    pass
+
+
+class ValidationErrorGroup(ExceptionGroup, ValidationError):
+    pass

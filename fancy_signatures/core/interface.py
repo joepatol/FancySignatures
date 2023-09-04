@@ -1,25 +1,46 @@
 from typing import TypeVar, Any, Generic
 from abc import ABC, abstractmethod
 
-from .types import TypeCastFunc
+from .exceptions import TypeValidationError
 
 
 T = TypeVar("T")
 
 
-class TypeCaster:
-    def __init__(self, handler: TypeCastFunc) -> None:
-        self._handler = handler
-    
-    def __call__(self, param_value: Any) -> Any:
-        return self._handler(param_value)
-
-
 class Validator(Generic[T], ABC):
     @abstractmethod
-    def __call__(self, name: str, obj: T) -> T: ...
+    def validate(self, name: str, obj: T) -> T:
+        ...
+
+    def __call__(self, name: str, obj: T) -> T:
+        return self.validate(name, obj)
 
 
 class Default(Generic[T], ABC):
     @abstractmethod
-    def __call__(self, value: Any) -> T: ...
+    def get(self, value: Any) -> T:
+        ...
+
+    def __call__(self, value: Any) -> T:
+        return self.get(value)
+
+
+class TypeCaster(Generic[T], ABC):
+    def __init__(self, expected_type: T) -> None:
+        self._type = expected_type
+
+    @abstractmethod
+    def validate(self, param_value: Any) -> bool:
+        ...
+
+    @abstractmethod
+    def cast(self, param_value: Any) -> T:
+        ...
+
+    def __call__(self, param_value: Any, strict: bool) -> Any:
+        if not self.validate(param_value):
+            if strict:
+                raise TypeValidationError(f"Invalid type, should be {self._type}")
+            else:
+                return self.cast(param_value)
+        return param_value
