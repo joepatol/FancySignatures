@@ -1,5 +1,6 @@
-from typing import Any, get_origin, get_args, cast, Type
+from typing import Any, get_origin, get_args
 
+from ..core.exceptions import TypeCastError
 from ..core.interface import TypeCaster
 from .factory import typecaster_factory
 from .handlers import register_handler
@@ -7,13 +8,13 @@ from .handlers import register_handler
 
 class ListTupleSetTypeCaster(TypeCaster[list | tuple | set]):
     def __init__(self, expected_type: type[list | tuple | set]) -> None:
-        super().__init__(expected_type)
-        self._origin: Type = cast(Type[list] | Type[tuple] | Type[set], get_origin(expected_type) or expected_type)
+        _origin = get_origin(expected_type) or expected_type
+        super().__init__(_origin)
         _args = get_args(expected_type)
         self._arg = get_args(expected_type)[0] if len(_args) > 0 else Any
 
     def validate(self, param_value: Any) -> bool:
-        if issubclass(type(param_value), self._origin):
+        if issubclass(type(param_value), self._type):
             if all([typecaster_factory(self._arg).validate(val) for val in param_value]):
                 return True
         return False
@@ -21,8 +22,11 @@ class ListTupleSetTypeCaster(TypeCaster[list | tuple | set]):
     def cast(self, param_value: Any) -> list | tuple | set:
         if isinstance(param_value, str):
             param_value = eval(param_value)
-        casted_value = self._origin(param_value)
-        return self._origin([typecaster_factory(self._arg).cast(x) for x in casted_value])
+        try:
+            casted_value = self._type(param_value)
+        except TypeError:
+            raise TypeCastError(self._type)
+        return self._type([typecaster_factory(self._arg).cast(x) for x in casted_value])
 
 
 class DictTypeCaster(TypeCaster[dict]):
@@ -43,7 +47,10 @@ class DictTypeCaster(TypeCaster[dict]):
     def cast(self, param_value: Any) -> dict:
         if isinstance(param_value, str):
             param_value = eval(param_value)
-        casted_value = dict(param_value)
+        try:
+            casted_value = dict(param_value)
+        except TypeError:
+            raise TypeCastError(dict)
         return {
             typecaster_factory(self._key_hint).cast(k): typecaster_factory(self._value_hint).cast(v)
             for k, v in casted_value.items()

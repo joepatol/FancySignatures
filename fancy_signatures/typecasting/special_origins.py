@@ -1,6 +1,7 @@
 from typing import Any, get_args, Annotated
 from typing_extensions import _AnnotatedAlias
 
+from ..core.exceptions import TypeCastError
 from ..core.interface import TypeCaster
 from .factory import typecaster_factory
 from .handlers import register_handler
@@ -11,7 +12,10 @@ class StringTypeCaster(TypeCaster[str]):
         return isinstance(param_value, str)
 
     def cast(self, param_value: Any) -> str:
-        return str(param_value)
+        try:
+            return str(param_value)
+        except TypeError:
+            raise TypeCastError(str)
 
 
 class AnyTypeCaster(TypeCaster[Any]):

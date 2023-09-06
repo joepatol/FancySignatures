@@ -1,6 +1,7 @@
 import pytest
 import typing
 from fancy_signatures.typecasting.generic_alias import ListTupleSetTypeCaster, DictTypeCaster
+from fancy_signatures.core.exceptions import TypeCastError
 
 
 @pytest.mark.parametrize("origin", [list, typing.List])
@@ -145,5 +146,5 @@ def test__dict_caster_cast(origin: type, value: dict, expectation: bool) -> None
 def test__list_tuple_set_cast_fail(origin: type, value: typing.Any) -> None:
     caster = ListTupleSetTypeCaster(origin)
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeCastError):
         caster.cast(value)

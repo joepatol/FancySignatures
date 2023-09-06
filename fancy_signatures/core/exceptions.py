@@ -1,3 +1,6 @@
+from typing import Any
+
+
 class ValidationError(Exception):
     def __init__(self, message: str, param: str | list[str]) -> None:
         if isinstance(param, list):
@@ -7,7 +10,12 @@ class ValidationError(Exception):
         super().__init__(msg)
 
 
-class TypeCastError(ValidationError):
+class TypeCastError(TypeError):
+    def __init__(self, expected_type: type | tuple[Any, ...]) -> None:
+        super().__init__(f"Couldn't cast to correct type: {expected_type}")
+
+
+class ValidatorFailed(ValueError):
     pass
 
 

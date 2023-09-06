@@ -1,6 +1,7 @@
 from typing import Any, get_args, Union
 from types import UnionType
 
+from ..core.exceptions import TypeCastError
 from ..core.interface import TypeCaster
 from .factory import typecaster_factory
 from .handlers import register_handler
@@ -23,7 +24,7 @@ class UnionTypeCaster(TypeCaster[UnionType]):
                 return typecaster_factory(origin).cast(param_value)
             except Exception:
                 pass
-        raise TypeError(f"Unable to cast to any of the types {self._origins}")
+        raise TypeCastError(self._origins)
 
 
 register_handler(type_hints=[Union, UnionType], handler=UnionTypeCaster, strict=True)

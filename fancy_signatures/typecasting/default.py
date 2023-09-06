@@ -1,6 +1,7 @@
 from typing import Any
 
 from ..core.interface import TypeCaster
+from ..core.exceptions import TypeCastError
 
 
 class DefaultTypeCaster(TypeCaster[Any]):
@@ -14,8 +15,11 @@ class DefaultTypeCaster(TypeCaster[Any]):
         return isinstance(param_value, self._type)
 
     def cast(self, param_value: Any) -> Any:
-        if isinstance(param_value, dict):
-            return self._type(**param_value)
-        if isinstance(param_value, (tuple, list)):
-            return self._type(*param_value)
-        return self._type(param_value)
+        try:
+            if isinstance(param_value, dict):
+                return self._type(**param_value)
+            if isinstance(param_value, (tuple, list)):
+                return self._type(*param_value)
+            return self._type(param_value)
+        except TypeError:
+            raise TypeCastError(self._type)

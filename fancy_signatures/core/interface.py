@@ -1,7 +1,7 @@
 from typing import TypeVar, Any, Generic
 from abc import ABC, abstractmethod
 
-from .exceptions import TypeValidationError
+from .exceptions import TypeValidationError, ValidationError, ValidatorFailed
 
 
 T = TypeVar("T")
@@ -9,11 +9,14 @@ T = TypeVar("T")
 
 class Validator(Generic[T], ABC):
     @abstractmethod
-    def validate(self, name: str, obj: T) -> T:  # pragma: no cover
+    def validate(self, obj: T) -> T:  # pragma: no cover
         ...
 
     def __call__(self, name: str, obj: T) -> T:
-        return self.validate(name, obj)
+        try:
+            return self.validate(obj)
+        except ValidatorFailed as e:
+            raise ValidationError(str(e), name)
 
 
 class Default(Generic[T], ABC):
