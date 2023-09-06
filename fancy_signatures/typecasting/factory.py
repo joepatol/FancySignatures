@@ -1,7 +1,7 @@
 from typing import get_origin, TypeAlias, ParamSpec
 
 from ..core.interface import TypeCaster
-from .origins import OriginsTypeCaster
+from .default import DefaultTypeCaster
 from .handlers import _STRICT_CUSTOM_HANDLERS, _CUSTOM_HANDLERS
 
 
@@ -39,4 +39,4 @@ def typecaster_factory(type_hint: TypeAlias) -> TypeCaster:
         if issubclass(origin, type_for_handler):
             return _CUSTOM_HANDLERS[type_for_handler](type_hint)
 
-    return OriginsTypeCaster(expected_type=origin)
+    return DefaultTypeCaster(expected_type=origin)

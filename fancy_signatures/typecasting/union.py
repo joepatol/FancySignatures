@@ -1,4 +1,4 @@
-from typing import Any, TypeAlias, get_args, Union
+from typing import Any, get_args, Union
 from types import UnionType
 
 from ..core.interface import TypeCaster
@@ -7,7 +7,7 @@ from .handlers import register_handler
 
 
 class UnionTypeCaster(TypeCaster[UnionType]):
-    def __init__(self, expected_type: TypeAlias) -> None:
+    def __init__(self, expected_type: type[UnionType]) -> None:
         super().__init__(expected_type)
         self._origins = get_args(expected_type)
 
