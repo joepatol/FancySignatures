@@ -35,7 +35,7 @@ class TypedArgField(UnTypedArgField):
             raise ValidationError(f"Couldn't cast to the correct type. message: {e}", name)
 
         for validator in self._validators:
-            errors: list[BaseException] = []
+            errors: list[ValidationError] = []
             try:
                 validator(name, typecasted_value)
             except ValidationError as e:

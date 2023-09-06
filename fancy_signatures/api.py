@@ -98,7 +98,7 @@ class _FunctionWrapper:
                 else:
                     kwargs[param_name] = __EmptyArg__()
 
-        errors: list[BaseException] = []
+        errors: list[ValidationError | ValidationErrorGroup] = []
         for name, value in kwargs.items():
             try:
                 field = self._fields[name]
