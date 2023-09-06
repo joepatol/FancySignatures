@@ -1,4 +1,4 @@
-from typing import Iterable, Any, TypeAlias, get_origin, get_args, cast, Type
+from typing import Any, TypeAlias, get_origin, get_args, cast, Type
 
 from ..core.interface import TypeCaster
 from .factory import typecaster_factory
@@ -9,7 +9,8 @@ class BuiltInIterableTypeCaster(TypeCaster[list | tuple | set]):
     def __init__(self, expected_type: list | tuple | set) -> None:
         super().__init__(expected_type)
         self._origin: Type = cast(Type[list] | Type[tuple] | Type[set], get_origin(expected_type))
-        self._arg = get_args(expected_type)[0]
+        _args = get_args(expected_type)
+        self._arg = get_args(expected_type)[0] if len(_args) > 0 else Any
 
     def validate(self, param_value: Any) -> bool:
         if issubclass(type(param_value), self._origin):
@@ -18,6 +19,8 @@ class BuiltInIterableTypeCaster(TypeCaster[list | tuple | set]):
         return False
 
     def cast(self, param_value: Any) -> list | tuple | set:
+        if isinstance(param_value, str):
+            param_value = eval(param_value)
         casted_value = self._origin(param_value)
         return self._origin([typecaster_factory(self._arg).cast(x) for x in casted_value])
 
@@ -26,8 +29,8 @@ class DictTypeCaster(TypeCaster[dict]):
     def __init__(self, expected_type: TypeAlias) -> None:
         super().__init__(expected_type)
         next_hint = get_args(self._type)
-        self._key_hint = next_hint[0]
-        self._value_hint = next_hint[1]
+        self._key_hint = next_hint[0] if len(next_hint) > 0 else Any
+        self._value_hint = next_hint[1] if len(next_hint) > 0 else Any
 
     def validate(self, param_value: Any) -> bool:
         if isinstance(param_value, dict):
@@ -38,6 +41,8 @@ class DictTypeCaster(TypeCaster[dict]):
         return False
 
     def cast(self, param_value: Any) -> dict:
+        if isinstance(param_value, str):
+            param_value = eval(param_value)
         casted_value = dict(param_value)
         return {
             typecaster_factory(self._key_hint).cast(k): typecaster_factory(self._value_hint).cast(v)
