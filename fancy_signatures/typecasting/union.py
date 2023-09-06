@@ -22,7 +22,7 @@ class UnionTypeCaster(TypeCaster[UnionType]):
         for origin in self._origins:
             try:
                 return typecaster_factory(origin).cast(param_value)
-            except Exception:
+            except TypeError:
                 pass
         raise TypeCastError(self._origins)
 

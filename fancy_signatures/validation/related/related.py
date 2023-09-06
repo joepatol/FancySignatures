@@ -1,6 +1,6 @@
 from typing import Any, Callable
 
-from fancy_signatures.core.exceptions import ValidationError
+from fancy_signatures.core.exceptions import ValidationError, ValidatorFailed
 
 
 class Related:
@@ -15,5 +15,5 @@ class Related:
             function_kwargs[validation_func_arg_name] = kwargs[kwarg_name]
         try:
             self._func(**function_kwargs)
-        except Exception as e:
+        except ValidatorFailed as e:
             raise ValidationError(str(e), list(self._func_args) + list(self._func_kwargs.values()))

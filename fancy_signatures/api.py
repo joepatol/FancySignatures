@@ -7,7 +7,7 @@ from .typecasting import typecaster_factory
 from .default import DefaultValue
 from .core.field import UnTypedArgField, TypedArgField
 from .core.interface import Validator, Default
-from .core.exceptions import ValidationErrorGroup, ValidationError, ValidatorFailed
+from .core.exceptions import ValidationErrorGroup, ValidationError
 from .core.types import __EmptyArg__
 
 
@@ -119,7 +119,7 @@ class _FunctionWrapper:
         for related_validator in self._related:
             try:
                 related_validator(**kwargs)
-            except ValidatorFailed as e:
+            except ValidationError as e:
                 if self._lazy:
                     errors.append(e)
                 else:
