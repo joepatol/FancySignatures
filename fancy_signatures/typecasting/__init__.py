@@ -1,5 +1,5 @@
 from .factory import typecaster_factory  # noqa
-from .casters import register_handler  # noqa
+from .handlers import register_handler  # noqa
 from . import generic_alias  # noqa
 from . import union  # noqa
 from . import special_origins  # noqa

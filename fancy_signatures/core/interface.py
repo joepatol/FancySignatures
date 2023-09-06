@@ -9,7 +9,7 @@ T = TypeVar("T")
 
 class Validator(Generic[T], ABC):
     @abstractmethod
-    def validate(self, name: str, obj: T) -> T:
+    def validate(self, name: str, obj: T) -> T:  # pragma: no cover
         ...
 
     def __call__(self, name: str, obj: T) -> T:
@@ -18,7 +18,7 @@ class Validator(Generic[T], ABC):
 
 class Default(Generic[T], ABC):
     @abstractmethod
-    def get(self, value: Any) -> T:
+    def get(self, value: Any) -> T:  # pragma: no cover
         ...
 
     def __call__(self, value: Any) -> T:
@@ -26,15 +26,15 @@ class Default(Generic[T], ABC):
 
 
 class TypeCaster(Generic[T], ABC):
-    def __init__(self, expected_type: T) -> None:
+    def __init__(self, expected_type: type[T]) -> None:
         self._type = expected_type
 
     @abstractmethod
-    def validate(self, param_value: Any) -> bool:
+    def validate(self, param_value: Any) -> bool:  # pragma: no cover
         ...
 
     @abstractmethod
-    def cast(self, param_value: Any) -> T:
+    def cast(self, param_value: Any) -> T:  # pragma: no cover
         ...
 
     def __call__(self, param_value: Any, strict: bool) -> Any:

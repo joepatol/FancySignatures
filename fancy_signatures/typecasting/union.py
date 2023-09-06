@@ -3,7 +3,7 @@ from types import UnionType
 
 from ..core.interface import TypeCaster
 from .factory import typecaster_factory
-from .casters import register_handler
+from .handlers import register_handler
 
 
 class UnionTypeCaster(TypeCaster[UnionType]):

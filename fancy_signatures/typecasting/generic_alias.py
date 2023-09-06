@@ -1,14 +1,14 @@
-from typing import Any, TypeAlias, get_origin, get_args, cast, Type
+from typing import Any, get_origin, get_args, cast, Type
 
 from ..core.interface import TypeCaster
 from .factory import typecaster_factory
-from .casters import register_handler
+from .handlers import register_handler
 
 
-class BuiltInIterableTypeCaster(TypeCaster[list | tuple | set]):
-    def __init__(self, expected_type: list | tuple | set) -> None:
+class ListTupleSetTypeCaster(TypeCaster[list | tuple | set]):
+    def __init__(self, expected_type: type[list | tuple | set]) -> None:
         super().__init__(expected_type)
-        self._origin: Type = cast(Type[list] | Type[tuple] | Type[set], get_origin(expected_type))
+        self._origin: Type = cast(Type[list] | Type[tuple] | Type[set], get_origin(expected_type) or expected_type)
         _args = get_args(expected_type)
         self._arg = get_args(expected_type)[0] if len(_args) > 0 else Any
 
@@ -26,7 +26,7 @@ class BuiltInIterableTypeCaster(TypeCaster[list | tuple | set]):
 
 
 class DictTypeCaster(TypeCaster[dict]):
-    def __init__(self, expected_type: TypeAlias) -> None:
+    def __init__(self, expected_type: type[dict]) -> None:
         super().__init__(expected_type)
         next_hint = get_args(self._type)
         self._key_hint = next_hint[0] if len(next_hint) > 0 else Any
@@ -50,5 +50,5 @@ class DictTypeCaster(TypeCaster[dict]):
         }
 
 
-register_handler(type_hints=[list, tuple, set], handler=BuiltInIterableTypeCaster, strict=False)
+register_handler(type_hints=[list, tuple, set], handler=ListTupleSetTypeCaster, strict=False)
 register_handler(type_hints=[dict], handler=DictTypeCaster, strict=True)

@@ -4,3 +4,5 @@ numpy
 black>=22.3.0
 mypy==1.5.1
 pre-commit
+coverage
+pytest-cov
