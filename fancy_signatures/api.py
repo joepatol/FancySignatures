@@ -23,7 +23,8 @@ def arg(
     Args:
         validators (list[Validator] | None, optional): Validators to apply to this argument. Defaults to None.
         default (Default | None, optional): Default value for this argument. Defaults to None.
-        required (bool, optional): Whether the argument is required, if not it will default to __EmptyArg__(). Defaults to True.
+        required (bool, optional): Whether the argument is required, if not it will default to __EmptyArg__().
+        Defaults to True.
 
     Returns:
         UnTypedArgField: Container class for processing the field when the decorated function is called
@@ -43,7 +44,8 @@ def validate(
         lazy (bool, optional): Whether to raise an error on the first parameter one occurs,
         or whether to validate all parameters and raise an ExceptionGroup with the errors found per parameter.
         Defaults to False.
-        Related (list[Related], optional): Related validators that apply a validation function on two or more arguments. Defaults to None
+        Related (list[Related], optional): Related validators that apply a validation function on two or more arguments.
+        Defaults to None
         type_strict (bool, optional): Whether to raise an error if a typecheck fails, or attempt a typecast first
 
     Raises:

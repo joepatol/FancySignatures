@@ -21,7 +21,7 @@ class UnionTypeCaster(TypeCaster[UnionType]):
         for origin in self._origins:
             try:
                 return typecaster_factory(origin).cast(param_value)
-            except Exception as e:
+            except Exception:
                 pass
         raise TypeError(f"Unable to cast to any of the types {self._origins}")
 

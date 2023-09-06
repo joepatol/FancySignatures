@@ -1,1 +1,12 @@
-# TODO: release on merge to main
+on: 
+  push:
+    branches:
+      - 'main'
+
+
+jobs:
+    package_and_release:
+      runs-on: ubuntu-latest
+      steps:
+        - name: One
+          run: echo "Does nothing for now..."

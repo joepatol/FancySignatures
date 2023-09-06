@@ -12,10 +12,11 @@ def _is_empty(val: Any) -> bool:
 def mutually_exclusive_args(*args: str) -> Related:
     """Validate only one (or none) of the parameters is provided
     None and __EmptyArg__() are considered as not provided.
-    
+
     Returns:
         Related: Related object
     """
+
     def _validation_func(**kwargs: str) -> None:
         _no_more_vals = False
         for val in kwargs.values():
@@ -23,7 +24,7 @@ def mutually_exclusive_args(*args: str) -> Related:
                 raise ValueError("Params are mutually exclusive")
             elif not _is_empty(val):
                 _no_more_vals = True
-    
+
     return Related(_validation_func, *args)
 
 
@@ -33,10 +34,11 @@ def complementary_args(*args: str) -> Related:
     Returns:
         Related: Related object
     """
+
     def _validation_func(**kwargs: str) -> None:
         is_empty = [_is_empty(v) for v in kwargs.values()]
-        
+
         if (not all(is_empty)) and any(is_empty):
-                raise ValueError("Parameters are complementary, provide all or none.")
+            raise ValueError("Parameters are complementary, provide all or none.")
 
     return Related(_validation_func, *args)
