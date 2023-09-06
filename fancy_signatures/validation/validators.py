@@ -1,4 +1,4 @@
-from typing import Protocol, TypeVar, Any, Self
+from typing import Protocol, TypeVar, Any
 
 from ..core.interface import Validator
 from ..core.exceptions import ValidationError
@@ -9,7 +9,7 @@ class HasLength(Protocol):
         ...
 
 
-class HasMin(Protocol):
+class HasLT(Protocol):
     def __lt__(self, other: Any) -> bool:
         ...
 
@@ -19,7 +19,7 @@ class HasEq(Protocol):
         ...
 
 
-class HasMax(Protocol):
+class HasGT(Protocol):
     def __gt__(self, other: Any) -> bool:
         ...
 
@@ -32,116 +32,92 @@ class IsIterable(Protocol):
         ...
 
 
-class HasLe(HasMin, HasEq, Protocol):
+class HasLe(HasLT, HasEq, Protocol):
     ...
 
 
-class HasGe(HasMax, HasEq, Protocol):
+class HasGe(HasGT, HasEq, Protocol):
     ...
 
 
-class HasMinMax(HasMax, HasMin, HasEq, Protocol):
-    ...
-
-
-class SizedIterable(IsIterable, HasLength, Protocol):
+class HasMinMax(HasLT, HasGT, HasEq, Protocol):
     ...
 
 
 T = TypeVar("T")
 U = TypeVar("U")
-MinT = TypeVar("MinT", bound=HasLe)
-MaxT = TypeVar("MaxT", bound=HasGe)
+GtT = TypeVar("GtT", bound=HasGT)
+LtT = TypeVar("LtT", bound=HasLT)
+GeT = TypeVar("GeT", bound=HasGe)
+LeT = TypeVar("LeT", bound=HasLe)
 LengthT = TypeVar("LengthT", bound=HasLength)
-SizedIterableT = TypeVar("SizedIterableT", bound=SizedIterable)
 
 
-class ValidateContentMixin:  # This is ugly.. improve later
-    def content(self, *validators: Validator) -> Self:
-        self._content_validators = validators
-        return self
-
-    def _validate_content(self, name: str, obj: IsIterable) -> None:
-        if hasattr(self, "_content_validators"):
-            for v in self._content_validators:
-                for el in obj:
-                    v(name, el)
-
-
-class Min(Validator[MinT]):
-    def __init__(self, value: MinT) -> None:
+class GE(Validator[LtT]):
+    def __init__(self, value: Any) -> None:
         self._min = value
 
-    def validate(self, name: str, obj: MinT) -> MinT:
+    def validate(self, name: str, obj: LtT) -> LtT:
         if obj < self._min:
-            raise ValidationError(f"Value(s) should be greater than {self._min}", name)
+            raise ValidationError(f"Value should be greater than or equal to {self._min}", name)
         return obj
 
 
-class Max(Validator[MaxT]):
-    def __init__(self, value: MaxT) -> None:
+class GT(Validator[LeT]):
+    def __init__(self, value: Any) -> None:
+        self._min = value
+
+    def validate(self, name: str, obj: LeT) -> LeT:
+        if obj <= self._min:
+            raise ValidationError(f"Value should be greater than {self._min}", name)
+        return obj
+
+
+class LE(Validator[GeT]):
+    def __init__(self, value: Any) -> None:
         self._max = value
 
-    def validate(self, name: str, obj: MaxT) -> MaxT:
+    def validate(self, name: str, obj: GeT) -> GeT:
         if obj > self._max:
-            raise ValidationError(f"Value(s) should be smaller than {self._max}", name)
+            raise ValidationError(f"Value should be smaller than {self._max}", name)
         return obj
 
 
-class IntMin(Min[int]):
-    pass
+class LT(Validator[GeT]):
+    def __init__(self, value: Any) -> None:
+        self._max = value
 
-
-class FloatMin(Min[float]):
-    pass
-
-
-class NumericMin(Min[float | int]):
-    pass
-
-
-class IntMax(Max[int]):
-    pass
-
-
-class FloatMax(Max[float]):
-    pass
-
-
-class NumericMax(Max[float | int]):
-    pass
-
-
-class StrLength(Validator[str]):
-    def __init__(self, min: int | None = None, max: int | None = None):
-        self._min = min
-        self._max = max
-
-    def validate(self, name: str, obj: str) -> str:
-        if self._min and len(obj) < self._min:
-            raise ValidationError("String is to short.", name)
-        if self._max and len(obj) > self._max:
-            raise ValidationError("String too long", name)
+    def validate(self, name: str, obj: GeT) -> GeT:
+        if obj >= self._max:
+            raise ValidationError(f"Value should be smaller than or equal to {self._max}", name)
         return obj
 
 
-class MaxLength(Validator[SizedIterable], ValidateContentMixin):
+class MaxLength(Validator[HasLength]):
     def __init__(self, max: int) -> None:
         self._max = max
 
-    def validate(self, name: str, obj: SizedIterable) -> SizedIterable:
+    def validate(self, name: str, obj: HasLength) -> HasLength:
         if len(obj) > self._max:
             raise ValidationError("Length too large", name)
-        self._validate_content(name, obj)
         return obj
 
 
-class MinLength(Validator[SizedIterable], ValidateContentMixin):
+class MinLength(Validator[HasLength]):
     def __init__(self, min: int) -> None:
         self._min = min
 
-    def validate(self, name: str, obj: SizedIterable) -> SizedIterable:
+    def validate(self, name: str, obj: HasLength) -> HasLength:
         if len(obj) < self._min:
             raise ValidationError("Length too small", name)
-        self._validate_content(name, obj)
+        return obj
+
+
+class BlackListedValues(Validator[T]):
+    def __init__(self, *values: T) -> None:
+        self._not_allowed = values
+
+    def validate(self, name: str, obj: T) -> T:
+        if obj in self._not_allowed:
+            raise ValueError("Value is blacklisted")
         return obj
