@@ -2,7 +2,6 @@ from typing import get_origin, TypeAlias, ParamSpec
 
 from ..core.interface import TypeCaster
 from .default import DefaultTypeCaster
-from .handlers import _STRICT_CUSTOM_HANDLERS, _CUSTOM_HANDLERS
 
 
 def typecaster_factory(type_hint: TypeAlias) -> TypeCaster:
@@ -19,12 +18,14 @@ def typecaster_factory(type_hint: TypeAlias) -> TypeCaster:
         TypeCaster: TypeCaster instance that can be used to validate a given parameter and
         attempt to cast it to the correct type.
     """
+    from .__handler_lib import CUSTOM_HANDLERS, STRICT_CUSTOM_HANDLERS
+
     raw_origin = get_origin(type_hint)
 
     origin = raw_origin if raw_origin is not None else type_hint
 
-    if origin in _STRICT_CUSTOM_HANDLERS:
-        return _STRICT_CUSTOM_HANDLERS[origin](type_hint)
+    if origin in STRICT_CUSTOM_HANDLERS:
+        return STRICT_CUSTOM_HANDLERS[origin](type_hint)
 
     # Paramspec fails subbclass check and is not implemented by default (as of now)
     # so if we get here and it's ParamSpec, we can't continue. Hint to user that they can
@@ -35,8 +36,8 @@ def typecaster_factory(type_hint: TypeAlias) -> TypeCaster:
             "see `fancy_signatures.typecasting.register_handler`."
         )
 
-    for type_for_handler in _CUSTOM_HANDLERS:
+    for type_for_handler in CUSTOM_HANDLERS:
         if issubclass(origin, type_for_handler):
-            return _CUSTOM_HANDLERS[type_for_handler](type_hint)
+            return CUSTOM_HANDLERS[type_for_handler](type_hint)
 
     return DefaultTypeCaster(expected_type=origin)

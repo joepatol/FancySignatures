@@ -1,10 +1,9 @@
-from typing import Any, get_args, Annotated
+from typing import Any, get_args
 from typing_extensions import _AnnotatedAlias
 
 from ..core.exceptions import TypeCastError
 from ..core.interface import TypeCaster
 from .factory import typecaster_factory
-from .handlers import register_handler
 
 
 class StringTypeCaster(TypeCaster[str]):
@@ -52,9 +51,3 @@ class BooleanTypeCaster(TypeCaster[bool]):
         elif param_value in self._FALSE:
             return False
         raise TypeCastError(bool)
-
-
-register_handler(type_hints=[bool], handler=BooleanTypeCaster, strict=True)
-register_handler(type_hints=[str], handler=StringTypeCaster, strict=True)
-register_handler(type_hints=[Any], handler=AnyTypeCaster, strict=True)
-register_handler(type_hints=[Annotated], handler=AnnotatedTypeCaster, strict=True)

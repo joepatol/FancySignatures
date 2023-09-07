@@ -4,7 +4,6 @@ from types import GenericAlias
 from ..core.exceptions import TypeCastError
 from ..core.interface import TypeCaster
 from .factory import typecaster_factory
-from .handlers import register_handler
 
 
 T = TypeVar("T", set, dict, tuple, list)
@@ -63,7 +62,3 @@ def _attempt_typecast(value: Any, to_type: type[T]) -> T:
     except TypeError:
         raise TypeCastError(to_type)
     return casted_value
-
-
-register_handler(type_hints=[list, tuple, set], handler=ListTupleSetTypeCaster, strict=False)
-register_handler(type_hints=[dict], handler=DictTypeCaster, strict=False)

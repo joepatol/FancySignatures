@@ -1,15 +1,12 @@
-from typing import TypeAlias, Type
+import typing
 import warnings
 
 from ..core.interface import TypeCaster
 from ..settings import Settings
+from .__handler_lib import STRICT_CUSTOM_HANDLERS, CUSTOM_HANDLERS
 
 
-_STRICT_CUSTOM_HANDLERS: dict[TypeAlias, Type[TypeCaster]] = {}  # Type should exactly match
-_CUSTOM_HANDLERS: dict[TypeAlias, Type[TypeCaster]] = {}  # Exact match or subclass
-
-
-def register_handler(type_hints: list[TypeAlias], handler: Type[TypeCaster], strict: bool) -> None:
+def register_handler(type_hints: list[typing.TypeAlias], handler: typing.Type[TypeCaster], strict: bool) -> None:
     """Register a TypeCaster object that handles a set of type hints.
 
     Args:
@@ -20,20 +17,22 @@ def register_handler(type_hints: list[TypeAlias], handler: Type[TypeCaster], str
     """
     if strict:
         for hint in type_hints:
-            _set_maybe_warn(hint, _STRICT_CUSTOM_HANDLERS, handler)
+            _set_maybe_warn(hint, STRICT_CUSTOM_HANDLERS, handler)
     else:
         for hint in type_hints:
-            _set_maybe_warn(hint, _CUSTOM_HANDLERS, handler)
+            _set_maybe_warn(hint, CUSTOM_HANDLERS, handler)
 
 
-def unregister_handler(type_hint: TypeAlias) -> None:
-    if type_hint in _STRICT_CUSTOM_HANDLERS:
-        del _STRICT_CUSTOM_HANDLERS[type_hint]
-    elif type_hint in _CUSTOM_HANDLERS:
-        del _CUSTOM_HANDLERS[type_hint]
+def unregister_handler(type_hint: typing.TypeAlias) -> None:
+    if type_hint in STRICT_CUSTOM_HANDLERS:
+        del STRICT_CUSTOM_HANDLERS[type_hint]
+    elif type_hint in CUSTOM_HANDLERS:
+        del CUSTOM_HANDLERS[type_hint]
 
 
-def _set_maybe_warn(type_hint: TypeAlias, handler_dict: dict[str, type[TypeCaster]], handler: type[TypeCaster]) -> None:
+def _set_maybe_warn(
+    type_hint: typing.TypeAlias, handler_dict: dict[str, type[TypeCaster]], handler: type[TypeCaster]
+) -> None:
     if type_hint in handler_dict and Settings.WARN_ON_HANDLER_OVERRIDE:
         warnings.warn(f"Handler for '{type_hint}' already exists, will override", UserWarning)
     handler_dict[type_hint] = handler

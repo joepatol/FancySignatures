@@ -1,10 +1,9 @@
-from typing import Any, get_args, Union
+from typing import Any, get_args
 from types import UnionType
 
 from ..core.exceptions import TypeCastError
 from ..core.interface import TypeCaster
 from .factory import typecaster_factory
-from .handlers import register_handler
 
 
 class UnionTypeCaster(TypeCaster[UnionType]):
@@ -25,6 +24,3 @@ class UnionTypeCaster(TypeCaster[UnionType]):
             except TypeCastError:
                 pass
         raise TypeCastError(self._origins)
-
-
-register_handler(type_hints=[Union, UnionType], handler=UnionTypeCaster, strict=True)

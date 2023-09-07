@@ -1,5 +1,7 @@
 from typing import Any, Generator
 import pytest
+
+from fancy_signatures.settings import reset as settings_reset
 from fancy_signatures.core.interface import TypeCaster
 from fancy_signatures.core.exceptions import TypeCastError
 from fancy_signatures.typecasting import register_handler, unregister_handler
@@ -28,3 +30,9 @@ def custom_int_handler() -> Generator[bool, None, None]:
     register_handler(type_hints=[int], handler=IntTypeCaster, strict=True)
     yield True
     unregister_handler(int)
+
+
+@pytest.fixture(scope="function")
+def reset_settings() -> Generator[bool, None, None]:
+    yield True
+    settings_reset()
