@@ -24,7 +24,6 @@ class ListTupleSetTypeCaster(TypeCaster[list | tuple | set]):
         return False
 
     def cast(self, param_value: Any) -> list | tuple | set:
-        assert isinstance(self._type, (list, tuple, set))
         casted_value = _attempt_typecast(param_value, self._origin)  # type: ignore
         return self._origin([typecaster_factory(self._arg).cast(x) for x in casted_value])
 
@@ -33,7 +32,7 @@ class DictTypeCaster(TypeCaster[dict]):
     def __init__(self, expected_type: type[dict] | GenericAlias) -> None:
         _origin: type[dict] = get_origin(expected_type) or expected_type  # type: ignore
         super().__init__(_origin)
-        next_hint = get_args(self._type)
+        next_hint = get_args(expected_type)
         self._key_hint = next_hint[0] if len(next_hint) > 0 else Any
         self._value_hint = next_hint[1] if len(next_hint) > 0 else Any
 
