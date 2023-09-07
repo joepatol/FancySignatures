@@ -29,7 +29,7 @@ class Default(Generic[T], ABC):
 
 
 class TypeCaster(Generic[T], ABC):
-    def __init__(self, expected_type: type[T]) -> None:
+    def __init__(self, expected_type: Any) -> None:
         self._type = expected_type
 
     @abstractmethod

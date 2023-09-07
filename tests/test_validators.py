@@ -16,6 +16,7 @@ from fancy_signatures.validation.validators import (
     RegexValidator,
     DecimalPlacesValidator,
     MultipleOfValidator,
+    IsInValidator,
 )
 
 
@@ -25,7 +26,7 @@ class MyObj:
 
     def __eq__(self: MyObj, other: object) -> bool:
         if not isinstance(other, MyObj):
-            raise NotImplementedError()
+            return False
         return other._a == self._a
 
 
@@ -35,6 +36,7 @@ class MyObj:
         pytest.param(1, does_not_raise(), id="Equal"),
         pytest.param(0, does_not_raise(), id="Less than"),
         pytest.param(2, pytest.raises(ValidatorFailed), id="Greater than"),
+        pytest.param("a", pytest.raises(TypeError), id="Invalid input type"),
     ],
 )
 def test__le(value: int, expectation: ContextManager) -> None:
@@ -50,6 +52,8 @@ def test__le(value: int, expectation: ContextManager) -> None:
         pytest.param(1, pytest.raises(ValidatorFailed), id="Equal"),
         pytest.param(0, does_not_raise(), id="Less than"),
         pytest.param(2, pytest.raises(ValidatorFailed), id="Greater than"),
+        pytest.param("a", pytest.raises(TypeError), id="Invalid input type"),
+        pytest.param("a", pytest.raises(TypeError), id="Invalid input type"),
     ],
 )
 def test__lt(value: int, expectation: ContextManager) -> None:
@@ -65,6 +69,7 @@ def test__lt(value: int, expectation: ContextManager) -> None:
         pytest.param(1, pytest.raises(ValidatorFailed), id="Equal"),
         pytest.param(0, pytest.raises(ValidatorFailed), id="Less than"),
         pytest.param(2, does_not_raise(), id="Greater than"),
+        pytest.param("a", pytest.raises(TypeError), id="Invalid input type"),
     ],
 )
 def test__gt(value: int, expectation: ContextManager) -> None:
@@ -80,6 +85,7 @@ def test__gt(value: int, expectation: ContextManager) -> None:
         pytest.param(1, does_not_raise(), id="Equal"),
         pytest.param(0, pytest.raises(ValidatorFailed), id="Less than"),
         pytest.param(2, does_not_raise(), id="Greater than"),
+        pytest.param("a", pytest.raises(TypeError), id="Invalid input type"),
     ],
 )
 def test__ge(value: int, expectation: ContextManager) -> None:
@@ -97,10 +103,11 @@ def test__ge(value: int, expectation: ContextManager) -> None:
         pytest.param([1, 2, 3, 4], does_not_raise(), id="List ok"),
         pytest.param((1, 2), pytest.raises(ValidatorFailed), id="Tuple too short"),
         pytest.param([1, 2], pytest.raises(ValidatorFailed), id="List too short"),
+        pytest.param(1, pytest.raises(TypeError), id="Invalid input type"),
     ],
 )
 def test__min_length(value: str | list | tuple, expectation: ContextManager) -> None:
-    v = MinLength(3)
+    v: MinLength = MinLength(3)
 
     with expectation:
         v.validate(value)
@@ -114,10 +121,11 @@ def test__min_length(value: str | list | tuple, expectation: ContextManager) -> 
         pytest.param([1, 2], does_not_raise(), id="List ok"),
         pytest.param((1, 2, 3, 4), pytest.raises(ValidatorFailed), id="Tuple too long"),
         pytest.param([1, 2, "a", "b"], pytest.raises(ValidatorFailed), id="List too long"),
+        pytest.param(1, pytest.raises(TypeError), id="Invalid input type"),
     ],
 )
 def test__max_length(value: str | list | tuple, expectation: ContextManager) -> None:
-    v = MaxLength(3)
+    v: MaxLength = MaxLength(3)
 
     with expectation:
         v.validate(value)
@@ -153,6 +161,8 @@ def test__blacklisted_value_custom_obj() -> None:
         pytest.param(1.22, does_not_raise()),
         pytest.param(1.222, does_not_raise()),
         pytest.param(1.2222, pytest.raises(ValidatorFailed)),
+        pytest.param("a", pytest.raises(TypeError)),
+        pytest.param(1, does_not_raise()),
     ],
 )
 def test__decimal_places_validator(value: float, expectation: ContextManager) -> None:
@@ -167,6 +177,7 @@ def test__decimal_places_validator(value: float, expectation: ContextManager) ->
     [
         pytest.param("Ok", does_not_raise()),
         pytest.param("not ok", pytest.raises(ValidatorFailed)),
+        pytest.param(12, pytest.raises(TypeError)),
     ],
 )
 def test__regex_validator(value: str, expectation: ContextManager) -> None:
@@ -182,10 +193,32 @@ def test__regex_validator(value: str, expectation: ContextManager) -> None:
         pytest.param(4, does_not_raise()),
         pytest.param(1, pytest.raises(ValidatorFailed)),
         pytest.param(2417, pytest.raises(ValidatorFailed)),
+        pytest.param("a", pytest.raises(TypeError)),
     ],
 )
 def test__multipleof_validator(value: int, expectation: ContextManager) -> None:
     v = MultipleOfValidator(2)
+
+    with expectation:
+        v.validate(value)
+
+
+@pytest.mark.parametrize(
+    "value, expectation",
+    [
+        pytest.param(1, does_not_raise()),
+        pytest.param(4, pytest.raises(ValidatorFailed)),
+        pytest.param("b", pytest.raises(ValidatorFailed)),
+        pytest.param("a", does_not_raise()),
+        pytest.param([1, 2], pytest.raises(ValidatorFailed)),
+        pytest.param(MyObj("valid"), does_not_raise()),
+        pytest.param(MyObj("invalid"), pytest.raises(ValidatorFailed)),
+        pytest.param({"a": 1}, does_not_raise()),
+        pytest.param({"a": 2}, pytest.raises(ValidatorFailed)),
+    ],
+)
+def test__isin_validator(value: Any, expectation: ContextManager) -> None:
+    v = IsInValidator(1, "a", {"a": 1}, MyObj("valid"))
 
     with expectation:
         v.validate(value)

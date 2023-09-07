@@ -10,11 +10,11 @@ def _is_empty(val: Any) -> bool:
 
 
 def mutually_exclusive_args(*args: str) -> Related:
-    """Validate only one (or none) of the parameters is provided
+    """Validate only one (or none) of the parameters is provided.
     None and __EmptyArg__() are considered as not provided.
 
     Returns:
-        Related: Related object
+        Related: Related object which can be provided to @validate
     """
 
     def _validation_func(**kwargs: str) -> None:
@@ -32,7 +32,7 @@ def complementary_args(*args: str) -> Related:
     """Validate all the arguments are given, or no of the arguments is given
 
     Returns:
-        Related: Related object
+        Related: Related object which can be provided to @validate
     """
 
     def _validation_func(**kwargs: str) -> None:
@@ -52,7 +52,7 @@ def hierarchical_args(owner: str, slaves: list[str]) -> Related:
         slaves (list[str]): List of names of the slave arguments
 
     Returns:
-        Related: related object
+        Related: Related object which can be provided to @validate
     """
 
     def _validation_func(*, owner_value: str, **slaves: str) -> None:

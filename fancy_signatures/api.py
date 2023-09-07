@@ -1,4 +1,4 @@
-from typing import TypeVar, Callable, Any, cast
+from typing import TypeVar, Callable, Any, cast, overload
 import functools
 import inspect
 
@@ -11,13 +11,10 @@ from .core.exceptions import ValidationErrorGroup, ValidationError
 from .core.types import __EmptyArg__
 
 
-T = TypeVar("T")
 FuncT = TypeVar("FuncT", bound=Callable[..., Any])
 
 
-def arg(
-    *, validators: list[Validator] | None = None, default: Default | None = None, required: bool = True
-) -> UnTypedArgField:
+def arg(*, validators: list[Validator] | None = None, default: Default | None = None, required: bool = True) -> Any:
     """A function argument
 
     Args:
@@ -32,6 +29,18 @@ def arg(
     default = default if default is not None else DefaultValue()
     validators = validators if validators is not None else []
     return UnTypedArgField(required, default=default, validators=validators)
+
+
+@overload
+def validate(
+    *, related: list[Related] | None = None, lazy: bool = False, type_strict: bool = False
+) -> Callable[[FuncT], FuncT]:
+    ...
+
+
+@overload
+def validate(__func: FuncT) -> FuncT:
+    ...
 
 
 def validate(

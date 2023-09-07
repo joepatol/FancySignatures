@@ -2,7 +2,7 @@ import pytest
 from typing import ContextManager, Any
 from contextlib import nullcontext as does_not_raise
 
-from fancy_signatures.core.exceptions import ValidationError
+from fancy_signatures.core.exceptions import ValidationError, ValidatorFailed
 from fancy_signatures.core.types import __EmptyArg__
 from fancy_signatures.validation.related import Related
 from fancy_signatures.validation.related.validators import (
@@ -14,7 +14,7 @@ from fancy_signatures.validation.related.validators import (
 
 def this_bigger_than_that(this: int, that: int) -> None:
     if not this > that:
-        raise ValueError("Left should be bigger than right")
+        raise ValidatorFailed("Left should be bigger than right")
 
 
 @pytest.mark.parametrize(

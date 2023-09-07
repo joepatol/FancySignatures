@@ -6,27 +6,27 @@ from ..core.interface import Validator
 from ..core.exceptions import ValidatorFailed
 
 
-class HasLength(Protocol):
+class HasLength(Protocol):  # pragma: no cover
     def __len__(self) -> int:
         ...
 
 
-class HasLT(Protocol):
+class HasLT(Protocol):  # pragma: no cover
     def __lt__(self, other: Any) -> bool:
         ...
 
 
-class HasEq(Protocol):
+class HasEq(Protocol):  # pragma: no cover
     def __eq__(self, other: Any) -> bool:
         ...
 
 
-class HasGT(Protocol):
+class HasGT(Protocol):  # pragma: no cover
     def __gt__(self, other: Any) -> bool:
         ...
 
 
-class IsIterable(Protocol):
+class IsIterable(Protocol):  # pragma: no cover
     def __iter__(self) -> Any:
         ...
 
@@ -34,15 +34,15 @@ class IsIterable(Protocol):
         ...
 
 
-class HasLe(HasLT, HasEq, Protocol):
+class HasLe(HasLT, HasEq, Protocol):  # pragma: no cover
     ...
 
 
-class HasGe(HasGT, HasEq, Protocol):
+class HasGe(HasGT, HasEq, Protocol):  # pragma: no cover
     ...
 
 
-class HasMinMax(HasLT, HasGT, HasEq, Protocol):
+class HasMinMax(HasLT, HasGT, HasEq, Protocol):  # pragma: no cover
     ...
 
 
@@ -95,21 +95,21 @@ class LT(Validator[GeT]):
         return obj
 
 
-class MaxLength(Validator[HasLength]):
+class MaxLength(Validator[LengthT]):
     def __init__(self, max: int) -> None:
         self._max = max
 
-    def validate(self, obj: HasLength) -> HasLength:
+    def validate(self, obj: LengthT) -> LengthT:
         if len(obj) > self._max:
             raise ValidatorFailed("Length too large")
         return obj
 
 
-class MinLength(Validator[HasLength]):
+class MinLength(Validator[LengthT]):
     def __init__(self, min: int) -> None:
         self._min = min
 
-    def validate(self, obj: HasLength) -> HasLength:
+    def validate(self, obj: LengthT) -> LengthT:
         if len(obj) < self._min:
             raise ValidatorFailed("Length too small")
         return obj
@@ -122,6 +122,16 @@ class BlackListedValues(Validator[T]):
     def validate(self, obj: T) -> T:
         if obj in self._not_allowed:
             raise ValidatorFailed("Value is blacklisted")
+        return obj
+
+
+class IsInValidator(Validator[T]):
+    def __init__(self, *values: T) -> None:
+        self._values = values
+
+    def validate(self, obj: T) -> T:
+        if obj not in self._values:
+            raise ValidatorFailed(f"Invalid value, should be one of '{self._values}'")
         return obj
 
 
@@ -150,8 +160,11 @@ class DecimalPlacesValidator(Validator[float]):
         self._places = places
 
     def validate(self, obj: float) -> float:
-        places = decimal.Decimal(str(obj)).as_tuple().exponent
-        assert isinstance(places, int)  # for mypp
+        try:
+            places = decimal.Decimal(str(obj)).as_tuple().exponent
+        except decimal.InvalidOperation:
+            raise TypeError("Value cannot be converted to a decimal")
+        assert isinstance(places, int)  # for mypy
         if -places > self._places:
             raise ValidatorFailed(f"Parameter should have a maximum of {self._places} decimal places")
         return obj

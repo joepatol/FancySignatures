@@ -1,4 +1,5 @@
-from typing import Any, get_origin, get_args
+from typing import Any, get_origin, get_args, TypeVar
+from types import GenericAlias
 
 from ..core.exceptions import TypeCastError
 from ..core.interface import TypeCaster
@@ -6,10 +7,13 @@ from .factory import typecaster_factory
 from .handlers import register_handler
 
 
+T = TypeVar("T", set, dict, tuple, list)
+
+
 class ListTupleSetTypeCaster(TypeCaster[list | tuple | set]):
-    def __init__(self, expected_type: type[list | tuple | set]) -> None:
-        _origin = get_origin(expected_type) or expected_type
-        super().__init__(_origin)
+    def __init__(self, expected_type: type[set | list | tuple] | GenericAlias) -> None:
+        self._origin: type[set | list | tuple] = get_origin(expected_type) or expected_type  # type: ignore
+        super().__init__(self._origin)
         _args = get_args(expected_type)
         self._arg = get_args(expected_type)[0] if len(_args) > 0 else Any
 
@@ -20,18 +24,15 @@ class ListTupleSetTypeCaster(TypeCaster[list | tuple | set]):
         return False
 
     def cast(self, param_value: Any) -> list | tuple | set:
-        if isinstance(param_value, str):
-            param_value = eval(param_value)
-        try:
-            casted_value = self._type(param_value)
-        except TypeError:
-            raise TypeCastError(self._type)
-        return self._type([typecaster_factory(self._arg).cast(x) for x in casted_value])
+        assert isinstance(self._type, (list, tuple, set))
+        casted_value = _attempt_typecast(param_value, self._origin)  # type: ignore
+        return self._origin([typecaster_factory(self._arg).cast(x) for x in casted_value])
 
 
 class DictTypeCaster(TypeCaster[dict]):
-    def __init__(self, expected_type: type[dict]) -> None:
-        super().__init__(expected_type)
+    def __init__(self, expected_type: type[dict] | GenericAlias) -> None:
+        _origin: type[dict] = get_origin(expected_type) or expected_type  # type: ignore
+        super().__init__(_origin)
         next_hint = get_args(self._type)
         self._key_hint = next_hint[0] if len(next_hint) > 0 else Any
         self._value_hint = next_hint[1] if len(next_hint) > 0 else Any
@@ -45,17 +46,25 @@ class DictTypeCaster(TypeCaster[dict]):
         return False
 
     def cast(self, param_value: Any) -> dict:
-        if isinstance(param_value, str):
-            param_value = eval(param_value)
-        try:
-            casted_value = dict(param_value)
-        except TypeError:
-            raise TypeCastError(dict)
+        casted_value = _attempt_typecast(param_value, dict)
         return {
             typecaster_factory(self._key_hint).cast(k): typecaster_factory(self._value_hint).cast(v)
             for k, v in casted_value.items()
         }
 
 
+def _attempt_typecast(value: Any, to_type: type[T]) -> T:
+    if isinstance(value, str):
+        try:
+            value = eval(value)
+        except Exception:
+            raise TypeCastError(to_type)
+    try:
+        casted_value = to_type(value)
+    except TypeError:
+        raise TypeCastError(to_type)
+    return casted_value
+
+
 register_handler(type_hints=[list, tuple, set], handler=ListTupleSetTypeCaster, strict=False)
-register_handler(type_hints=[dict], handler=DictTypeCaster, strict=True)
+register_handler(type_hints=[dict], handler=DictTypeCaster, strict=False)

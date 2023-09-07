@@ -21,5 +21,5 @@ class DefaultTypeCaster(TypeCaster[Any]):
             if isinstance(param_value, (tuple, list)):
                 return self._type(*param_value)
             return self._type(param_value)
-        except TypeError:
+        except (TypeError, ValueError):
             raise TypeCastError(self._type)

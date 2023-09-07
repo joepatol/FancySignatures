@@ -8,7 +8,7 @@ from .handlers import register_handler
 
 
 class UnionTypeCaster(TypeCaster[UnionType]):
-    def __init__(self, expected_type: type[UnionType]) -> None:
+    def __init__(self, expected_type: Any) -> None:
         super().__init__(expected_type)
         self._origins = get_args(expected_type)
 
@@ -22,7 +22,7 @@ class UnionTypeCaster(TypeCaster[UnionType]):
         for origin in self._origins:
             try:
                 return typecaster_factory(origin).cast(param_value)
-            except TypeError:
+            except TypeCastError:
                 pass
         raise TypeCastError(self._origins)
 

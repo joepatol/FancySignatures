@@ -141,10 +141,27 @@ def test__dict_caster_cast(origin: type, value: dict, expectation: bool) -> None
         pytest.param(typing.List, 2.0),
         pytest.param(list, 1),
         pytest.param(tuple, "1"),
+        pytest.param(set, "4.3"),
     ],
 )
 def test__list_tuple_set_cast_fail(origin: type, value: typing.Any) -> None:
     caster = ListTupleSetTypeCaster(origin)
+
+    with pytest.raises(TypeCastError):
+        caster.cast(value)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        pytest.param("[1, 2]"),
+        pytest.param((1, 2, 3)),
+        pytest.param("a"),
+        pytest.param(12.2),
+    ],
+)
+def test__dict_typecaster_cast_fail(value: typing.Any) -> None:
+    caster = DictTypeCaster(dict)
 
     with pytest.raises(TypeCastError):
         caster.cast(value)

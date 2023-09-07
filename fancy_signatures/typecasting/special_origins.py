@@ -37,6 +37,24 @@ class AnnotatedTypeCaster(TypeCaster[_AnnotatedAlias]):
         return typecaster_factory(self._type).cast(param_value)
 
 
+class BooleanTypeCaster(TypeCaster[bool]):
+    _TRUE = [1, "1", "1.0", 1.0, "true", True]
+    _FALSE = [0, "0", "0.0", 0.0, "false", False]
+
+    def validate(self, param_value: Any) -> bool:
+        return isinstance(param_value, bool)
+
+    def cast(self, param_value: Any) -> bool:
+        if isinstance(param_value, str):
+            param_value = param_value.lower()
+        if param_value in self._TRUE:
+            return True
+        elif param_value in self._FALSE:
+            return False
+        raise TypeCastError(bool)
+
+
+register_handler(type_hints=[bool], handler=BooleanTypeCaster, strict=True)
 register_handler(type_hints=[str], handler=StringTypeCaster, strict=True)
 register_handler(type_hints=[Any], handler=AnyTypeCaster, strict=True)
 register_handler(type_hints=[Annotated], handler=AnnotatedTypeCaster, strict=True)
