@@ -165,3 +165,10 @@ def test__dict_typecaster_cast_fail(value: typing.Any) -> None:
 
     with pytest.raises(TypeCastError):
         caster.cast(value)
+
+
+def test__tuple_ellipsis() -> None:
+    c = ListTupleSetTypeCaster(tuple[int, ...])
+
+    assert c.validate((1, 2, 3)) is True
+    assert c.cast((1, "2", 3)) == (1, 2, 3)

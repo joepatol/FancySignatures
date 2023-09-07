@@ -1,11 +1,12 @@
 import pytest
-from typing import Any
+from typing import Any, Annotated
 
+from fancy_signatures.core.exceptions import TypeCastError
 from fancy_signatures.typecasting.special_origins import (
     AnyTypeCaster,
-    # AnnotatedTypeCaster,
+    AnnotatedTypeCaster,
     StringTypeCaster,
-    # BooleanTypeCaster,
+    BooleanTypeCaster,
 )
 
 
@@ -71,3 +72,86 @@ def test__any_cast(value: Any) -> None:
     c = AnyTypeCaster(Any)
 
     assert c.cast(value) == value
+
+
+@pytest.mark.parametrize(
+    "origin, value, expectation",
+    [
+        pytest.param(str, "a", True),
+        pytest.param(str, 1, False),
+        pytest.param(list[int], [1], True),
+        pytest.param(list[int], [1.2], False),
+        pytest.param(dict[str, int], [1], False),
+        pytest.param(dict[str, int], {"a": 2}, True),
+        pytest.param(bool, "true", False),
+    ],
+)
+def test__annotated_validate(origin: Any, value: Any, expectation: bool) -> None:
+    v = AnnotatedTypeCaster(Annotated[origin, "metadata"])
+
+    assert v.validate(value) is expectation
+
+
+@pytest.mark.parametrize(
+    "origin, value, expectation",
+    [
+        pytest.param(str, "a", "a"),
+        pytest.param(str, 1, "1"),
+        pytest.param(list[int], [1], [1]),
+        pytest.param(list[int], [1.2], [1]),
+        pytest.param(list[float], (1.2, 1.4), [1.2, 1.4]),
+        pytest.param(dict[str, str], {"a": 2}, {"a": "2"}),
+        pytest.param(bool, "true", True),
+    ],
+)
+def test__annotated_cast(origin: Any, value: Any, expectation: bool) -> None:
+    v = AnnotatedTypeCaster(Annotated[origin, "metadata"])
+
+    assert v.cast(value) == expectation
+
+
+@pytest.mark.parametrize(
+    "value, expectation",
+    [
+        pytest.param(1, False),
+        pytest.param(True, True),
+        pytest.param(False, True),
+        pytest.param("True", False),
+    ],
+)
+def test__boolean_validate(value: Any, expectation: bool) -> None:
+    v = BooleanTypeCaster(bool)
+
+    assert v.validate(value) is expectation
+
+
+@pytest.mark.parametrize(
+    "value, expectation",
+    [
+        pytest.param(1, True),
+        pytest.param(True, True),
+        pytest.param(False, False),
+        pytest.param("True", True),
+        pytest.param(0, False),
+        pytest.param("FaLSe", False),
+    ],
+)
+def test__boolean_cast(value: Any, expectation: Any) -> None:
+    v = BooleanTypeCaster(bool)
+
+    assert v.cast(value) == expectation
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        pytest.param(10),
+        pytest.param("string"),
+        pytest.param([2, 3]),
+    ],
+)
+def test__boolean_cast_fail(value: Any) -> None:
+    v = BooleanTypeCaster(bool)
+
+    with pytest.raises(TypeCastError):
+        v.cast(value)
