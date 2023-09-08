@@ -40,4 +40,4 @@ def typecaster_factory(type_hint: TypeAlias) -> TypeCaster:
         if issubclass(origin, type_for_handler):
             return CUSTOM_HANDLERS[type_for_handler](type_hint)
 
-    return DefaultTypeCaster(origin)
+    return DefaultTypeCaster(type_hint)
