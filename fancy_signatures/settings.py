@@ -1,9 +1,16 @@
-from typing import TypeAlias
+from typing import TypeAlias, Any
 from .core.interface import TypeCaster
 
 
+__all__ = ["reset", "set", "get_typecast_handlers"]
+
+
 class Settings:
-    WARN_ON_HANDLER_OVERRIDE = True
+    WARN_ON_HANDLER_OVERRIDE: bool = True
+
+
+class _SettingsTypes:
+    WARN_ON_HANDLER_OVERRIDE = bool
 
 
 def reset() -> None:
@@ -11,7 +18,7 @@ def reset() -> None:
     Settings.WARN_ON_HANDLER_OVERRIDE = True
 
 
-def set(setting: str, value: bool) -> None:
+def set(setting: str, value: Any) -> None:
     """Change a setting value
 
     Args:
@@ -21,10 +28,17 @@ def set(setting: str, value: bool) -> None:
     Raises:
         ValueError: If setting doesn't exist
     """
-    if not hasattr(Settings, setting.upper()):
+    _internal_name = setting.upper()
+
+    if not hasattr(Settings, _internal_name):
         raise ValueError(f"Setting {setting} doesn't exist")
 
-    setattr(Settings, setting.upper(), value)
+    should_be_type = getattr(_SettingsTypes, _internal_name)
+
+    if not isinstance(value, should_be_type):
+        raise TypeError(f"Setting '{setting}' should be of type '{should_be_type}'")
+
+    setattr(Settings, _internal_name, value)
 
 
 def get_typecast_handlers() -> dict[str, dict[TypeAlias, type[TypeCaster]]]:

@@ -1,7 +1,7 @@
 from typing import Any, TypeVar, Callable
 
 from ..core.interface import Default
-from ..core.types import __EmptyArg__
+from ..core.empty import is_empty, __EmptyArg__
 
 
 T = TypeVar("T")
@@ -13,7 +13,7 @@ class DefaultValue(Default[T]):
         self._value = value
 
     def get(self, value: T) -> T:
-        if isinstance(value, __EmptyArg__):
+        if is_empty(value):
             return self._value
         return value
 
@@ -35,12 +35,12 @@ class DefaultFactory(Default[T]):
         self._factory = factory_func
 
     def get(self, value: T) -> T:
-        if isinstance(value, __EmptyArg__):
+        if is_empty(value):
             return self._factory()
         return value
 
 
-ListDefault: DefaultFactory[list] = DefaultFactory(list)
-DictDefault: DefaultFactory[dict] = DefaultFactory(dict)
-TupleDefault: DefaultFactory[tuple] = DefaultFactory(tuple)
-SetDefault: DefaultFactory[set] = DefaultFactory(set)
+EmptyList: DefaultFactory[list] = DefaultFactory(list)
+EmptyDict: DefaultFactory[dict] = DefaultFactory(dict)
+EmptyTuple: DefaultFactory[tuple] = DefaultFactory(tuple)
+EmptySet: DefaultFactory[set] = DefaultFactory(set)

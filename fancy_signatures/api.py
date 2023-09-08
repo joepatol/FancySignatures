@@ -8,7 +8,7 @@ from .default import DefaultValue
 from .core.field import UnTypedArgField, TypedArgField
 from .core.interface import Validator, Default
 from .core.exceptions import ValidationErrorGroup, ValidationError
-from .core.types import __EmptyArg__
+from .core.empty import __EmptyArg__
 
 
 FuncT = TypeVar("FuncT", bound=Callable[..., Any])
@@ -85,12 +85,16 @@ class _FunctionWrapper:
         _ = annotations_dict.pop("return", Any)
         named_fields: dict[str, TypedArgField] = {}
 
+        prepared_arg: UnTypedArgField
         for name, parameter in signature.parameters.items():
             typecaster = typecaster_factory(type_hint=annotations_dict.get(name, Any))
             if isinstance(parameter.default, UnTypedArgField):
-                named_fields[name] = parameter.default.to_typed_argfield(typecaster)
+                prepared_arg = parameter.default
+            elif parameter.default == inspect._empty:
+                prepared_arg = arg()
             else:
-                named_fields[name] = arg().to_typed_argfield(typecaster)
+                prepared_arg = arg(default=DefaultValue(parameter.default))
+            named_fields[name] = prepared_arg.to_typed_argfield(typecaster)
 
         self._lazy = lazy
         self._wrapped_func = wrapped_func

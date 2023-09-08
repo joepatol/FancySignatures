@@ -3,7 +3,7 @@ from typing import Any
 
 from .interface import TypeCaster, Default, Validator
 from .exceptions import ValidationError, ValidationErrorGroup, TypeValidationError, TypeCastError
-from .types import __EmptyArg__
+from .empty import is_empty
 
 
 class UnTypedArgField:
@@ -23,9 +23,12 @@ class TypedArgField(UnTypedArgField):
 
     def execute(self, name: str, value: Any, lazy: bool, strict: bool) -> Any:
         value_or_default = self._default(value)
+        value_is_empty = is_empty(value_or_default)
 
-        if self._required and isinstance(value_or_default, __EmptyArg__):
+        if self._required and value_is_empty:
             raise ValueError(f"Parameter '{name} is required and no default was provided")
+        elif value_is_empty:
+            return value_or_default
 
         try:
             typecasted_value = self._typecaster(value_or_default, strict)

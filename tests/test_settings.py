@@ -33,3 +33,8 @@ def test__warning_raised(reset_settings: bool) -> None:
 
     with does_not_raise():
         register_handler(type_hints=[list], handler=ListTupleSetTypeCaster, strict=False)
+
+
+def test__settings_invalid_type() -> None:
+    with pytest.raises(TypeError):
+        set("WARN_ON_HANDLER_OVERRIDE", "true")

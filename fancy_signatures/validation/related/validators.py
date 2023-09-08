@@ -2,11 +2,11 @@ from typing import Any
 
 from .related import Related
 from fancy_signatures.core.exceptions import ValidatorFailed
-from fancy_signatures.core.types import __EmptyArg__
+from fancy_signatures.core.empty import is_empty
 
 
 def _is_empty(val: Any) -> bool:
-    return val is None or isinstance(val, __EmptyArg__)
+    return val is None or is_empty(val)
 
 
 def mutually_exclusive_args(*args: str) -> Related:

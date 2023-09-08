@@ -2,17 +2,17 @@ import typing
 import pytest
 from datetime import datetime
 from dataclasses import dataclass
-from fancy_signatures.core.types import __EmptyArg__
+from fancy_signatures.core.empty import __EmptyArg__
 from fancy_signatures.default import (
     Default,
     DefaultFactory,
     IntDefault,
     FloatDefault,
     StringDefault,
-    SetDefault,
-    ListDefault,
-    DictDefault,
-    TupleDefault,
+    EmptyList,
+    EmptyDict,
+    EmptySet,
+    EmptyTuple,
 )
 
 
@@ -36,10 +36,10 @@ class CustomDefault(Default[MyClass]):
 @pytest.mark.parametrize(
     "default_value, expectation",
     [
-        pytest.param(SetDefault, set, id="set"),
-        pytest.param(ListDefault, list, id="list"),
-        pytest.param(TupleDefault, tuple, id="tuple"),
-        pytest.param(DictDefault, dict, id="dict"),
+        pytest.param(EmptySet, set, id="set"),
+        pytest.param(EmptyList, list, id="list"),
+        pytest.param(EmptyTuple, tuple, id="tuple"),
+        pytest.param(EmptyDict, dict, id="dict"),
     ],
 )
 def test__default_factory_builtin(default_value: typing.Any, expectation: type) -> None:
@@ -49,10 +49,10 @@ def test__default_factory_builtin(default_value: typing.Any, expectation: type) 
 @pytest.mark.parametrize(
     "default_value, expectation",
     [
-        pytest.param(SetDefault, {1, 2}, id="set"),
-        pytest.param(ListDefault, [1, 2], id="list"),
-        pytest.param(TupleDefault, (1, 2), id="tuple"),
-        pytest.param(DictDefault, {"a": 1}, id="dict"),
+        pytest.param(EmptySet, {1, 2}, id="set"),
+        pytest.param(EmptyList, [1, 2], id="list"),
+        pytest.param(EmptyTuple, (1, 2), id="tuple"),
+        pytest.param(EmptyDict, {"a": 1}, id="dict"),
     ],
 )
 def test__default_factory_builtin_value_given(default_value: typing.Any, expectation: type) -> None:
