@@ -9,7 +9,7 @@ from fancy_signatures.validation.related.validators import (
     mutually_exclusive_args,
     complementary_args,
     hierarchical_args,
-    # exactly_one,
+    exactly_one,
 )
 
 
@@ -79,3 +79,47 @@ def test__hierarchical_args(a: Any, b: Any, c: Any, expectation: ContextManager)
 
     with expectation:
         v(a=a, b=b, c=c)
+
+
+@pytest.mark.parametrize(
+    "a, b, expectation",
+    [
+        pytest.param(1, 2, pytest.raises(ValidationError), id="Both given"),
+        pytest.param(None, 2, does_not_raise(), id="One None"),
+        pytest.param(2, __EmptyArg__(), does_not_raise(), id="One __EmptyArg__"),
+        pytest.param(None, __EmptyArg__(), pytest.raises(ValidationError), id="Both empty"),
+    ],
+)
+def test__exactly_one(a: Any, b: Any, expectation: ContextManager) -> None:
+    v = exactly_one("a", "b")
+
+    with expectation:
+        v(a=a, b=b)
+
+
+def test__dont_allow_none_mutually_exclusive_args() -> None:
+    v = mutually_exclusive_args("a", "b", allow_none=False)
+
+    with pytest.raises(ValidationError):
+        v(a=1, b=None)
+
+
+def test__dont_allow_none_exactly_one() -> None:
+    v = exactly_one("a", "b", allow_none=False)
+
+    with pytest.raises(ValidationError):
+        v(a=1, b=None)
+
+
+def test__dont_allow_none_complementary_args() -> None:
+    v = complementary_args("a", "b", allow_none=False)
+
+    with does_not_raise():
+        v(a=1, b=None)
+
+
+def test__dont_allow_none_hierarchical_args() -> None:
+    v = hierarchical_args(owner="a", slaves=["b"], allow_none=False)
+
+    with does_not_raise():
+        v(a=1, b=None)

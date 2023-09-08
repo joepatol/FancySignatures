@@ -4,6 +4,7 @@ import decimal
 
 from ..core.interface import Validator
 from ..core.exceptions import ValidatorFailed
+from .mixins import AllowOptionalMixin
 
 
 class HasLength(Protocol):  # pragma: no cover
@@ -63,6 +64,10 @@ class GE(Validator[LtT]):
         if obj < self._min:
             raise ValidatorFailed(f"Value should be greater than or equal to {self._min}")
         return obj
+
+
+class OptionalGE(GE, AllowOptionalMixin):
+    pass
 
 
 class GT(Validator[LeT]):
