@@ -8,6 +8,7 @@ from . import union
 from . import special_origins
 
 
+# Type should exactly match
 STRICT_CUSTOM_HANDLERS: dict[typing.TypeAlias, typing.Type[TypeCaster]] = {
     bool: special_origins.BooleanTypeCaster,
     str: special_origins.StringTypeCaster,
@@ -15,12 +16,13 @@ STRICT_CUSTOM_HANDLERS: dict[typing.TypeAlias, typing.Type[TypeCaster]] = {
     typing.Annotated: special_origins.AnnotatedTypeCaster,
     typing.Union: union.UnionTypeCaster,
     types.UnionType: union.UnionTypeCaster,
-}  # Type should exactly match
+}
 
 
+# Exact match or subclass
 CUSTOM_HANDLERS: dict[typing.TypeAlias, typing.Type[TypeCaster]] = {
     list: generic_alias.ListTupleSetTypeCaster,
     tuple: generic_alias.ListTupleSetTypeCaster,
     set: generic_alias.ListTupleSetTypeCaster,
     dict: generic_alias.DictTypeCaster,
-}  # Exact match or subclass
+}

@@ -12,7 +12,7 @@ class UnTypedArgField:
         self._validators = validators
         self._default = default
 
-    def to_typed_argfield(self, typecaster: TypeCaster) -> TypedArgField:
+    def set_type(self, typecaster: TypeCaster) -> TypedArgField:
         return TypedArgField(self._required, self._default, typecaster, self._validators)
 
 
@@ -26,7 +26,7 @@ class TypedArgField(UnTypedArgField):
         value_is_empty = is_empty(value_or_default)
 
         if self._required and value_is_empty:
-            raise ValueError(f"Parameter '{name} is required and no default was provided")
+            raise ValueError(f"Parameter '{name}' is required and no default was provided")
         elif value_is_empty:
             return value_or_default
 

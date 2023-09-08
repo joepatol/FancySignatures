@@ -16,12 +16,10 @@ def register_handler(type_hints: list[typing.TypeAlias], handler: typing.Type[Ty
     """
     from .__handler_lib import STRICT_CUSTOM_HANDLERS, CUSTOM_HANDLERS
 
-    if strict:
-        for hint in type_hints:
-            _set_maybe_warn(hint, STRICT_CUSTOM_HANDLERS, handler)
-    else:
-        for hint in type_hints:
-            _set_maybe_warn(hint, CUSTOM_HANDLERS, handler)
+    handler_dict = STRICT_CUSTOM_HANDLERS if strict else CUSTOM_HANDLERS
+
+    for hint in type_hints:
+        _set_maybe_warn(hint, handler_dict, handler)
 
 
 def unregister_handler(type_hint: typing.TypeAlias) -> None:

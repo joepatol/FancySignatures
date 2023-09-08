@@ -94,7 +94,7 @@ class _FunctionWrapper:
                 prepared_arg = arg()
             else:
                 prepared_arg = arg(default=DefaultValue(parameter.default))
-            named_fields[name] = prepared_arg.to_typed_argfield(typecaster)
+            named_fields[name] = prepared_arg.set_type(typecaster)
 
         self._lazy = lazy
         self._wrapped_func = wrapped_func
