@@ -29,7 +29,7 @@ def unregister_handler(type_hint: typing.TypeAlias) -> None:
         del CUSTOM_HANDLERS[type_hint]
 
 
-def unregister_stict_handler(type_hint: typing.TypeAlias) -> None:
+def unregister_strict_handler(type_hint: typing.TypeAlias) -> None:
     from .__handler_lib import STRICT_CUSTOM_HANDLERS
 
     if type_hint in STRICT_CUSTOM_HANDLERS:
