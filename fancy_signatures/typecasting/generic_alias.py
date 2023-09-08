@@ -1,5 +1,4 @@
 from typing import Any, get_origin, get_args, TypeVar
-from types import GenericAlias
 
 from ..core.exceptions import TypeCastError
 from ..core.interface import TypeCaster
@@ -10,14 +9,14 @@ T = TypeVar("T", set, dict, tuple, list)
 
 
 class ListTupleSetTypeCaster(TypeCaster[list | tuple | set]):
-    def __init__(self, expected_type: type[set | list | tuple] | GenericAlias) -> None:
-        self._origin: type[set | list | tuple] = get_origin(expected_type) or expected_type  # type: ignore
-        super().__init__(self._origin)
-        _args = get_args(expected_type)
-        self._arg = get_args(expected_type)[0] if len(_args) > 0 else Any
+    def __init__(self, type_hint: Any) -> None:
+        super().__init__(type_hint)
+        self._origin: type[set | list | tuple] = get_origin(type_hint) or type_hint  # type: ignore
+        _args = get_args(type_hint)
+        self._arg = get_args(type_hint)[0] if len(_args) > 0 else Any
 
     def validate(self, param_value: Any) -> bool:
-        if issubclass(type(param_value), self._type):
+        if issubclass(type(param_value), self._origin):
             if all([typecaster_factory(self._arg).validate(val) for val in param_value]):
                 return True
         return False
@@ -28,10 +27,9 @@ class ListTupleSetTypeCaster(TypeCaster[list | tuple | set]):
 
 
 class DictTypeCaster(TypeCaster[dict]):
-    def __init__(self, expected_type: type[dict] | GenericAlias) -> None:
-        _origin: type[dict] = get_origin(expected_type) or expected_type  # type: ignore
-        super().__init__(_origin)
-        next_hint = get_args(expected_type)
+    def __init__(self, type_hint: Any) -> None:
+        super().__init__(type_hint)
+        next_hint = get_args(type_hint)
         self._key_hint = next_hint[0] if len(next_hint) > 0 else Any
         self._value_hint = next_hint[1] if len(next_hint) > 0 else Any
 

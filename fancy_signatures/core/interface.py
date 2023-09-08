@@ -29,8 +29,8 @@ class Default(Generic[T], ABC):
 
 
 class TypeCaster(Generic[T], ABC):
-    def __init__(self, expected_type: Any) -> None:
-        self._type = expected_type
+    def __init__(self, type_hint: Any) -> None:
+        self._type_hint = type_hint
 
     @abstractmethod
     def validate(self, param_value: Any) -> bool:  # pragma: no cover
@@ -40,10 +40,10 @@ class TypeCaster(Generic[T], ABC):
     def cast(self, param_value: Any) -> T:  # pragma: no cover
         ...
 
-    def __call__(self, param_value: Any, strict: bool) -> Any:
+    def __call__(self, param_value: Any, strict: bool) -> T:
         if not self.validate(param_value):
             if strict:
-                raise TypeValidationError(f"Invalid type, should be {self._type}")
+                raise TypeValidationError(f"Invalid type, should be {self._type_hint}")
             else:
                 return self.cast(param_value)
         return param_value

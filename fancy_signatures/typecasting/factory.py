@@ -24,6 +24,9 @@ def typecaster_factory(type_hint: TypeAlias) -> TypeCaster:
 
     origin = raw_origin if raw_origin is not None else type_hint
 
+    if str(type_hint) == "list[tests.test_typecast.test_factory._CustomType]":
+        print("Should stop")
+
     if origin in STRICT_CUSTOM_HANDLERS:
         return STRICT_CUSTOM_HANDLERS[origin](type_hint)
 
@@ -40,4 +43,4 @@ def typecaster_factory(type_hint: TypeAlias) -> TypeCaster:
         if issubclass(origin, type_for_handler):
             return CUSTOM_HANDLERS[type_for_handler](type_hint)
 
-    return DefaultTypeCaster(expected_type=origin)
+    return DefaultTypeCaster(origin)

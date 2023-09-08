@@ -7,9 +7,9 @@ from .factory import typecaster_factory
 
 
 class UnionTypeCaster(TypeCaster[UnionType]):
-    def __init__(self, expected_type: Any) -> None:
-        super().__init__(expected_type)
-        self._origins = get_args(expected_type)
+    def __init__(self, type_hint: Any) -> None:
+        super().__init__(type_hint)
+        self._origins = get_args(type_hint)
 
     def validate(self, param_value: Any) -> bool:
         for origin in self._origins:
