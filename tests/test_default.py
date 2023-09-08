@@ -4,11 +4,9 @@ from datetime import datetime
 from dataclasses import dataclass
 from fancy_signatures.core.empty import __EmptyArg__
 from fancy_signatures.default import (
+    DefaultValue,
     Default,
     DefaultFactory,
-    IntDefault,
-    FloatDefault,
-    StringDefault,
     EmptyList,
     EmptyDict,
     EmptySet,
@@ -62,9 +60,9 @@ def test__default_factory_builtin_value_given(default_value: typing.Any, expecta
 @pytest.mark.parametrize(
     "default_value, expectation",
     [
-        pytest.param(IntDefault(3), 3, id="int"),
-        pytest.param(FloatDefault(3.2), 3.2, id="float"),
-        pytest.param(StringDefault("test"), "test", id="string"),
+        pytest.param(DefaultValue(3), 3, id="int"),
+        pytest.param(DefaultValue(3.2), 3.2, id="float"),
+        pytest.param(DefaultValue("test"), "test", id="string"),
     ],
 )
 def test__default_value_builtin(default_value: typing.Any, expectation: typing.Any) -> None:
@@ -74,9 +72,9 @@ def test__default_value_builtin(default_value: typing.Any, expectation: typing.A
 @pytest.mark.parametrize(
     "default_value, expectation",
     [
-        pytest.param(IntDefault(3), 4, id="int"),
-        pytest.param(FloatDefault(3.2), 4.2, id="float"),
-        pytest.param(StringDefault("test"), "given_value", id="string"),
+        pytest.param(DefaultValue(3), 4, id="int"),
+        pytest.param(DefaultValue(3.2), 4.2, id="float"),
+        pytest.param(DefaultValue("test"), "given_value", id="string"),
     ],
 )
 def test__default_value_builtin_value_given(default_value: typing.Any, expectation: typing.Any) -> None:

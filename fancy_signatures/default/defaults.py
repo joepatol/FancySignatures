@@ -18,18 +18,6 @@ class DefaultValue(Default[T]):
         return value
 
 
-class IntDefault(DefaultValue[int]):
-    pass
-
-
-class FloatDefault(DefaultValue[float]):
-    pass
-
-
-class StringDefault(DefaultValue[str]):
-    pass
-
-
 class DefaultFactory(Default[T]):
     def __init__(self, factory_func: FactoryFunc = __EmptyArg__) -> None:
         self._factory = factory_func
