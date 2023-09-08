@@ -1,7 +1,5 @@
 from .factory import typecaster_factory  # noqa
-from .casters import register_handler  # noqa
-from . import generic_alias  # noqa
-from . import union  # noqa
-from . import special_origins  # noqa
-
-__all__ = ["typecaster_factory", "register_handler"]
+from .handlers import register_handler, unregister_handler, unregister_strict_handler  # noqa
+from .union import *  # noqa
+from .special_origins import *  # noqa
+from .generic_alias import *  # noqa

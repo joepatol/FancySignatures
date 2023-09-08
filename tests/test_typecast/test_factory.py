@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 import pytest
 from fancy_signatures.typecasting.factory import typecaster_factory
-from fancy_signatures.core.exceptions import TypeValidationError
+from fancy_signatures.exceptions import TypeValidationError
 
 
 @dataclass
@@ -164,6 +164,25 @@ def test__strict_alias() -> None:
 
 
 @pytest.mark.parametrize(
+    "alias_type, val, expectation",
+    [
+        pytest.param(typing.List, ("1", "2"), ["1", "2"], id="Tuple to typing.List"),
+        pytest.param(typing.List, "('1', '2')", ["1", "2"], id="String to typing.List"),
+        pytest.param(typing.Tuple, "[1, 2]", (1, 2), id="String to typing.Tuple"),
+        pytest.param(typing.Dict, '{"1": "2", "3": "4"}', {"1": "2", "3": "4"}, id="String to typing.Dict"),
+        pytest.param(typing.Dict[str, typing.List], '{"a": "[1,2]"}', {"a": [1, 2]}, id="String to dict of int, List"),
+        pytest.param(
+            typing.Dict[str, typing.List], '{"a": "(1,2)"}', {"a": [1, 2]}, id="String with Tuple to dict of int, List"
+        ),
+    ],
+)
+def test__cast_typing_aliases(alias_type: typing.TypeAlias, val: typing.Any, expectation: type) -> None:
+    caster = typecaster_factory(alias_type)
+
+    assert caster(val, False) == expectation
+
+
+@pytest.mark.parametrize(
     "value", [pytest.param(1, id="integer"), pytest.param(2.0, id="float"), pytest.param([1, 2], id="list")]
 )
 def test__strict_any(value: typing.Any) -> None:
@@ -177,7 +196,7 @@ def test__strict_any(value: typing.Any) -> None:
     "value, output_type",
     [pytest.param(1, int, id="integer"), pytest.param(2.0, float, id="float"), pytest.param([1, 2], list, id="list")],
 )
-def test___any(value: typing.Any, output_type: type) -> None:
+def test__any(value: typing.Any, output_type: type) -> None:
     caster = typecaster_factory(typing.Any)
 
     result = caster(value, False)
@@ -200,13 +219,9 @@ def test__strict_optional(value: typing.Any, context: typing.ContextManager) -> 
 
 
 @pytest.mark.parametrize(
-    "value, expectation",
-    [
-        pytest.param(3, False, id="integer"),
-        pytest.param("3", True, id="string")
-    ]
+    "value, expectation", [pytest.param(3, False, id="integer"), pytest.param("3", True, id="string")]
 )
 def test__annotated_validate(value: typing.Any, expectation: bool) -> None:
     caster = typecaster_factory(typing.Annotated[str, "metadata"])
-    
+
     assert caster.validate(value) == expectation

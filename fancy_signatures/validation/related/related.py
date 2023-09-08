@@ -1,10 +1,10 @@
 from typing import Any, Callable
 
-from ..core.exceptions import ValidationError
+from fancy_signatures.exceptions import ValidationError, ValidatorFailed
 
 
 class Related:
-    def __init__(self, func: Callable, *args: str, **kwargs: str) -> None:
+    def __init__(self, func: Callable[..., None], *args: str, **kwargs: str) -> None:
         self._func_args = args
         self._func_kwargs = kwargs
         self._func = func
@@ -15,5 +15,5 @@ class Related:
             function_kwargs[validation_func_arg_name] = kwargs[kwarg_name]
         try:
             self._func(**function_kwargs)
-        except Exception as e:
-            raise ValidationError(str(e), str(list(self._func_args) + list(self._func_kwargs.values())))
+        except ValidatorFailed as e:
+            raise ValidationError(str(e), list(self._func_args) + list(self._func_kwargs.values()))

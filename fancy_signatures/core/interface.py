@@ -1,7 +1,7 @@
 from typing import TypeVar, Any, Generic
 from abc import ABC, abstractmethod
 
-from .exceptions import TypeValidationError
+from ..exceptions import TypeValidationError, ValidationError, ValidatorFailed, TypeCastError
 
 
 T = TypeVar("T")
@@ -9,16 +9,19 @@ T = TypeVar("T")
 
 class Validator(Generic[T], ABC):
     @abstractmethod
-    def validate(self, name: str, obj: T) -> T:
+    def validate(self, obj: T) -> T:  # pragma: no cover
         ...
 
     def __call__(self, name: str, obj: T) -> T:
-        return self.validate(name, obj)
+        try:
+            return self.validate(obj)
+        except ValidatorFailed as e:
+            raise ValidationError(str(e), name)
 
 
 class Default(Generic[T], ABC):
     @abstractmethod
-    def get(self, value: Any) -> T:
+    def get(self, value: Any) -> T:  # pragma: no cover
         ...
 
     def __call__(self, value: Any) -> T:
@@ -26,21 +29,24 @@ class Default(Generic[T], ABC):
 
 
 class TypeCaster(Generic[T], ABC):
-    def __init__(self, expected_type: T) -> None:
-        self._type = expected_type
+    def __init__(self, type_hint: Any) -> None:
+        self._type_hint = type_hint
 
     @abstractmethod
-    def validate(self, param_value: Any) -> bool:
+    def validate(self, param_value: Any) -> bool:  # pragma: no cover
         ...
 
     @abstractmethod
-    def cast(self, param_value: Any) -> T:
+    def cast(self, param_value: Any) -> T:  # pragma: no cover
         ...
 
-    def __call__(self, param_value: Any, strict: bool) -> Any:
+    def __call__(self, param_value: Any, strict: bool) -> T:
         if not self.validate(param_value):
             if strict:
-                raise TypeValidationError(f"Invalid type, should be {self._type}")
+                raise TypeValidationError(f"Invalid type, should be {self._type_hint}")
             else:
-                return self.cast(param_value)
+                try:
+                    return self.cast(param_value)
+                except TypeCastError:
+                    raise TypeCastError(self._type_hint)
         return param_value

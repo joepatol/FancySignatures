@@ -300,3 +300,10 @@ def custom_handler(arr: np.ndarray[str | int | np.int16 | np.int32 | np.int64]) 
 Note how `typecaster_factory` is used here once we are back to a type that can be handled by the built-in functionality again.
 Internally, each `TypeCaster` casts one origin type hint and calls `typecaster_factory` again for the next hint. This way you will only have
 to add minimal code.
+
+
+# Caveats
+
+- For Union, the order matters. Typecasting will be attempted in the specified order.
+e.g. if you provide `int | float` and pass `1.2`, the casted result will be `1`. To omit this specify float first, or register an `IntTypeCaster` which fails in such cases.
+This also happens for `list | tuple` for example. Passing `(1, 2)` will resulkt in `[1, 2]`. Either specify the type you want to default to first, or implement your own specific handler.

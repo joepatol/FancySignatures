@@ -1,15 +1,15 @@
-from typing import Any, TypeAlias, get_args, Union
+from typing import Any, get_args
 from types import UnionType
 
+from ..exceptions import TypeCastError
 from ..core.interface import TypeCaster
 from .factory import typecaster_factory
-from .casters import register_handler
 
 
 class UnionTypeCaster(TypeCaster[UnionType]):
-    def __init__(self, expected_type: TypeAlias) -> None:
-        super().__init__(expected_type)
-        self._origins = get_args(expected_type)
+    def __init__(self, type_hint: Any) -> None:
+        super().__init__(type_hint)
+        self._origins = get_args(type_hint)
 
     def validate(self, param_value: Any) -> bool:
         for origin in self._origins:
@@ -21,9 +21,6 @@ class UnionTypeCaster(TypeCaster[UnionType]):
         for origin in self._origins:
             try:
                 return typecaster_factory(origin).cast(param_value)
-            except Exception as e:
+            except TypeCastError:
                 pass
-        raise TypeError(f"Unable to cast to any of the types {self._origins}")
-
-
-register_handler(type_hints=[Union, UnionType], handler=UnionTypeCaster, strict=True)
+        raise TypeCastError(self._origins)

@@ -1,4 +1,4 @@
-from typing import TypeVar, Callable, Any, cast
+from typing import TypeVar, Callable, Any, cast, overload
 import functools
 import inspect
 
@@ -7,30 +7,42 @@ from .typecasting import typecaster_factory
 from .default import DefaultValue
 from .core.field import UnTypedArgField, TypedArgField
 from .core.interface import Validator, Default
-from .core.exceptions import ValidationErrorGroup
-from .core.types import __EmptyArg__
+from .exceptions import ValidationErrorGroup, ValidationError
+from .core.empty import __EmptyArg__
 
 
-T = TypeVar("T")
 FuncT = TypeVar("FuncT", bound=Callable[..., Any])
 
 
-def arg(
-    *, validators: list[Validator] | None = None, default: Default | None = None, required: bool = True
-) -> UnTypedArgField:
+def arg(*, validators: list[Validator] | None = None, default: Default | None = None, required: bool = True) -> Any:
     """A function argument
 
     Args:
         validators (list[Validator] | None, optional): Validators to apply to this argument. Defaults to None.
         default (Default | None, optional): Default value for this argument. Defaults to None.
-        required (bool, optional): Whether the argument is required, if not it will default to __EmptyArg__(). Defaults to True.
+        required (bool, optional): Whether the argument is required, if not it will default to __EmptyArg__().
+        Defaults to True.
 
     Returns:
-        UnTypedArgField: Container class for processing the field when the decorated function is called
+        UnTypedArgField: Container class for processing the field when the decorated function is called.
+        Type hint is `Any`vto avoid linter issues when using `arg` as default for a typehinted parameter.
+        (`a: int = arg()` would fail)
     """
     default = default if default is not None else DefaultValue()
     validators = validators if validators is not None else []
     return UnTypedArgField(required, default=default, validators=validators)
+
+
+@overload
+def validate(
+    *, related: list[Related] | None = None, lazy: bool = False, type_strict: bool = False
+) -> Callable[[FuncT], FuncT]:
+    ...
+
+
+@overload
+def validate(__func: FuncT) -> FuncT:
+    ...
 
 
 def validate(
@@ -43,7 +55,8 @@ def validate(
         lazy (bool, optional): Whether to raise an error on the first parameter one occurs,
         or whether to validate all parameters and raise an ExceptionGroup with the errors found per parameter.
         Defaults to False.
-        Related (list[Related], optional): Related validators that apply a validation function on two or more arguments. Defaults to None
+        Related (list[Related], optional): Related validators that apply a validation function on two or more arguments.
+        Defaults to None
         type_strict (bool, optional): Whether to raise an error if a typecheck fails, or attempt a typecast first
 
     Raises:
@@ -74,12 +87,16 @@ class _FunctionWrapper:
         _ = annotations_dict.pop("return", Any)
         named_fields: dict[str, TypedArgField] = {}
 
+        prepared_arg: UnTypedArgField
         for name, parameter in signature.parameters.items():
             typecaster = typecaster_factory(type_hint=annotations_dict.get(name, Any))
             if isinstance(parameter.default, UnTypedArgField):
-                named_fields[name] = parameter.default.to_typed_argfield(typecaster)
+                prepared_arg = parameter.default
+            elif parameter.default == inspect._empty:
+                prepared_arg = arg()
             else:
-                named_fields[name] = arg().to_typed_argfield(typecaster)
+                prepared_arg = arg(default=DefaultValue(parameter.default))
+            named_fields[name] = prepared_arg.set_type(typecaster)
 
         self._lazy = lazy
         self._wrapped_func = wrapped_func
@@ -96,7 +113,7 @@ class _FunctionWrapper:
                 else:
                     kwargs[param_name] = __EmptyArg__()
 
-        errors: list[BaseException] = []
+        errors: list[ValidationError | ValidationErrorGroup] = []
         for name, value in kwargs.items():
             try:
                 field = self._fields[name]
@@ -105,7 +122,7 @@ class _FunctionWrapper:
 
             try:
                 kwargs[name] = field.execute(name, value, self._lazy, self._strict)
-            except Exception as e:
+            except (ValidationError, ValidationErrorGroup) as e:
                 if self._lazy:
                     errors.append(e)
                 else:
@@ -117,7 +134,7 @@ class _FunctionWrapper:
         for related_validator in self._related:
             try:
                 related_validator(**kwargs)
-            except Exception as e:
+            except ValidationError as e:
                 if self._lazy:
                     errors.append(e)
                 else:
