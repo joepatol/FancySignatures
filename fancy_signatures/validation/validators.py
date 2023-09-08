@@ -171,29 +171,29 @@ class DecimalPlacesValidator(Validator[float]):
         return obj
 
 
-class OptionalGE(GE[LtT], AllowOptionalMixin):
+class OptionalGE(AllowOptionalMixin, GE[LtT]):
     pass
 
 
-class OptionalGT(GT[LeT], AllowOptionalMixin):
+class OptionalGT(AllowOptionalMixin, GT[LeT]):
     pass
 
 
-class OptionalLE(LE[GtT], AllowOptionalMixin):
+class OptionalLE(AllowOptionalMixin, LE[GtT]):
     pass
 
 
-class OptionalLT(LT[GeT], AllowOptionalMixin):
+class OptionalLT(AllowOptionalMixin, LT[GeT]):
     pass
 
 
-class OptionalRegexValidator(RegexValidator, AllowOptionalMixin):
+class OptionalRegexValidator(AllowOptionalMixin, RegexValidator):
     pass
 
 
-class OptionalMultipleOfValidator(MultipleOfValidator, AllowOptionalMixin):
+class OptionalMultipleOfValidator(AllowOptionalMixin, MultipleOfValidator):
     pass
 
 
-class OptionalDecimalPlacesValidator(DecimalPlacesValidator, AllowOptionalMixin):
+class OptionalDecimalPlacesValidator(AllowOptionalMixin, DecimalPlacesValidator):
     pass
