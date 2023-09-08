@@ -6,3 +6,4 @@ mypy==1.5.1
 pre-commit
 coverage
 pytest-cov
+pdoc

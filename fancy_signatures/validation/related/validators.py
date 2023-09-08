@@ -1,5 +1,5 @@
 from .related import Related
-from fancy_signatures.core.exceptions import ValidatorFailed
+from fancy_signatures.exceptions import ValidatorFailed
 from fancy_signatures.core.empty import is_empty
 
 

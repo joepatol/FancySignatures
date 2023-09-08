@@ -1,7 +1,7 @@
 from typing import Any, get_args
 from typing_extensions import _AnnotatedAlias
 
-from ..core.exceptions import TypeCastError
+from ..exceptions import TypeCastError
 from ..core.interface import TypeCaster
 from .factory import typecaster_factory
 

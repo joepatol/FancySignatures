@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any
 
 from .interface import TypeCaster, Default, Validator
-from .exceptions import ValidationError, ValidationErrorGroup, TypeValidationError, TypeCastError
+from ..exceptions import ValidationError, ValidationErrorGroup, TypeValidationError, TypeCastError
 from .empty import is_empty
 
 

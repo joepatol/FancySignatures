@@ -5,7 +5,7 @@ from fancy_signatures.api import validate, arg
 from fancy_signatures.validation.validators import GE, BlackListedValues, MaxLength, OptionalGE
 from fancy_signatures.default import DefaultValue, EmptyList
 from fancy_signatures.validation.related.validators import exactly_one
-from fancy_signatures.core.exceptions import ValidationError, ValidationErrorGroup
+from fancy_signatures.exceptions import ValidationError, ValidationErrorGroup
 from fancy_signatures.core.empty import __EmptyArg__, is_empty
 
 

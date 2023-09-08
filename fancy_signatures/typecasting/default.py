@@ -1,7 +1,7 @@
 from typing import Any
 
 from ..core.interface import TypeCaster
-from ..core.exceptions import TypeCastError
+from ..exceptions import TypeCastError
 
 
 class DefaultTypeCaster(TypeCaster[Any]):

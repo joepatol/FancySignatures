@@ -1,7 +1,7 @@
 import pytest
 import typing
 from fancy_signatures.typecasting.generic_alias import ListTupleSetTypeCaster, DictTypeCaster
-from fancy_signatures.core.exceptions import TypeCastError
+from fancy_signatures.exceptions import TypeCastError
 
 
 @pytest.mark.parametrize("origin", [list, typing.List])

@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 import pytest
 from fancy_signatures.typecasting.factory import typecaster_factory
-from fancy_signatures.core.exceptions import TypeValidationError
+from fancy_signatures.exceptions import TypeValidationError
 
 
 @dataclass
@@ -161,7 +161,7 @@ def test__strict_alias() -> None:
 
     with pytest.raises(TypeValidationError):
         caster([1, "2"], True)
-        
+
 
 @pytest.mark.parametrize(
     "alias_type, val, expectation",
@@ -171,12 +171,14 @@ def test__strict_alias() -> None:
         pytest.param(typing.Tuple, "[1, 2]", (1, 2), id="String to typing.Tuple"),
         pytest.param(typing.Dict, '{"1": "2", "3": "4"}', {"1": "2", "3": "4"}, id="String to typing.Dict"),
         pytest.param(typing.Dict[str, typing.List], '{"a": "[1,2]"}', {"a": [1, 2]}, id="String to dict of int, List"),
-        pytest.param(typing.Dict[str, typing.List], '{"a": "(1,2)"}', {"a": [1, 2]}, id="String with Tuple to dict of int, List"),
-    ]
+        pytest.param(
+            typing.Dict[str, typing.List], '{"a": "(1,2)"}', {"a": [1, 2]}, id="String with Tuple to dict of int, List"
+        ),
+    ],
 )
 def test__cast_typing_aliases(alias_type: typing.TypeAlias, val: typing.Any, expectation: type) -> None:
     caster = typecaster_factory(alias_type)
-    
+
     assert caster(val, False) == expectation
 
 

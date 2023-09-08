@@ -7,7 +7,7 @@ from .typecasting import typecaster_factory
 from .default import DefaultValue
 from .core.field import UnTypedArgField, TypedArgField
 from .core.interface import Validator, Default
-from .core.exceptions import ValidationErrorGroup, ValidationError
+from .exceptions import ValidationErrorGroup, ValidationError
 from .core.empty import __EmptyArg__
 
 

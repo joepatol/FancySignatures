@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pydantic import BaseModel
 
 from fancy_signatures.typecasting.default import DefaultTypeCaster
-from fancy_signatures.core.exceptions import TypeCastError
+from fancy_signatures.exceptions import TypeCastError
 
 
 class PydanticType(BaseModel):

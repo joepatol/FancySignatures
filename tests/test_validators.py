@@ -4,7 +4,7 @@ from typing import ContextManager, Any
 import pytest
 from contextlib import nullcontext as does_not_raise
 
-from fancy_signatures.core.exceptions import ValidatorFailed
+from fancy_signatures.exceptions import ValidatorFailed
 from fancy_signatures.validation.validators import (
     LE,
     LT,

@@ -3,7 +3,7 @@ import re
 import decimal
 
 from ..core.interface import Validator
-from ..core.exceptions import ValidatorFailed
+from ..exceptions import ValidatorFailed
 from .mixins import AllowOptionalMixin
 
 

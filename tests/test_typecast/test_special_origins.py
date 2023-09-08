@@ -1,7 +1,7 @@
 import pytest
 from typing import Any, Annotated
 
-from fancy_signatures.core.exceptions import TypeCastError
+from fancy_signatures.exceptions import TypeCastError
 from fancy_signatures.typecasting.special_origins import (
     AnyTypeCaster,
     AnnotatedTypeCaster,

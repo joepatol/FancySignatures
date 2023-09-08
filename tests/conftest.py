@@ -3,7 +3,7 @@ import pytest
 
 from fancy_signatures.settings import reset as settings_reset
 from fancy_signatures.core.interface import TypeCaster
-from fancy_signatures.core.exceptions import TypeCastError
+from fancy_signatures.exceptions import TypeCastError
 from fancy_signatures.typecasting import register_handler, unregister_strict_handler
 
 

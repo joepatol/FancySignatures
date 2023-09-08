@@ -1,6 +1,6 @@
 from typing import Any, Callable
 
-from fancy_signatures.core.exceptions import ValidationError, ValidatorFailed
+from fancy_signatures.exceptions import ValidationError, ValidatorFailed
 
 
 class Related:

@@ -2,7 +2,7 @@ import pytest
 from typing import ContextManager, Any
 from contextlib import nullcontext as does_not_raise
 
-from fancy_signatures.core.exceptions import ValidationError, ValidatorFailed
+from fancy_signatures.exceptions import ValidationError, ValidatorFailed
 from fancy_signatures.core.empty import __EmptyArg__
 from fancy_signatures.validation.related import Related
 from fancy_signatures.validation.related.validators import (

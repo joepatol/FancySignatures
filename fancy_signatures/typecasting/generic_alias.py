@@ -1,6 +1,6 @@
 from typing import Any, get_origin, get_args, TypeVar
 
-from ..core.exceptions import TypeCastError
+from ..exceptions import TypeCastError
 from ..core.interface import TypeCaster
 from .factory import typecaster_factory
 
