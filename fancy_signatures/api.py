@@ -24,7 +24,9 @@ def arg(*, validators: list[Validator] | None = None, default: Default | None = 
         Defaults to True.
 
     Returns:
-        UnTypedArgField: Container class for processing the field when the decorated function is called
+        UnTypedArgField: Container class for processing the field when the decorated function is called.
+        Type hint is `Any`vto avoid linter issues when using `arg` as default for a typehinted parameter.
+        (`a: int = arg()` would fail)
     """
     default = default if default is not None else DefaultValue()
     validators = validators if validators is not None else []

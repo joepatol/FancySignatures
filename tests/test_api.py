@@ -4,9 +4,9 @@ from contextlib import nullcontext as does_not_raise
 from fancy_signatures.api import validate, arg
 from fancy_signatures.validation.validators import GE, BlackListedValues, MaxLength
 from fancy_signatures.default import DefaultValue, EmptyList
-from fancy_signatures.validation.related.validators import mutually_exclusive_args
+from fancy_signatures.validation.related.validators import exactly_one
 from fancy_signatures.core.exceptions import ValidationError
-from fancy_signatures.core.empty import __EmptyArg__
+from fancy_signatures.core.empty import __EmptyArg__, is_empty
 
 
 Zero: DefaultValue[int] = DefaultValue(0)
@@ -15,13 +15,16 @@ PositiveInt: GE[int] = GE(0)
 MaxInputListLength: MaxLength[list] = MaxLength(20)
 
 
-@validate(lazy=False, related=[mutually_exclusive_args("a", "c")], type_strict=True)
+@validate(lazy=False, related=[exactly_one("a", "c")], type_strict=True)
 def func_1(
     a: int = arg(validators=[PositiveInt, ExBlacklisted], required=False),
     b: list[int] = arg(required=True, default=EmptyList, validators=[MaxInputListLength]),
     c: int = arg(validators=[PositiveInt, ExBlacklisted], required=False),
 ) -> list[int]:
-    to_append = a or c
+    if is_empty(a):
+        to_append = c
+    else:
+        to_append = a
     b.append(to_append)
     return b
 

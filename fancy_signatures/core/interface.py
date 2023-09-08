@@ -1,7 +1,7 @@
 from typing import TypeVar, Any, Generic
 from abc import ABC, abstractmethod
 
-from .exceptions import TypeValidationError, ValidationError, ValidatorFailed
+from .exceptions import TypeValidationError, ValidationError, ValidatorFailed, TypeCastError
 
 
 T = TypeVar("T")
@@ -45,5 +45,8 @@ class TypeCaster(Generic[T], ABC):
             if strict:
                 raise TypeValidationError(f"Invalid type, should be {self._type_hint}")
             else:
-                return self.cast(param_value)
+                try:
+                    return self.cast(param_value)
+                except TypeCastError:
+                    raise TypeCastError(self._type_hint)
         return param_value
