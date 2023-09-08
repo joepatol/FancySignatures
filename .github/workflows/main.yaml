@@ -8,6 +8,7 @@ on:
 
 jobs:
   validate-and-test:
+    name: Run linters & tests
     runs-on: ubuntu-latest
     steps:
       - name: checkout
