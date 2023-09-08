@@ -52,3 +52,17 @@ class BooleanTypeCaster(TypeCaster[bool]):
         elif param_value in self._FALSE:
             return False
         raise TypeCastError(bool)
+
+
+class NoneTypeCaster(TypeCaster[None]):
+    def validate(self, param_value: Any) -> bool:
+        return param_value is None
+
+    def cast(self, param_value: Any) -> None:
+        if isinstance(param_value, str):
+            try:
+                param_value = eval(param_value)
+            except TypeError:
+                raise TypeCastError(type(None))
+        if not self.validate(param_value):
+            raise TypeCastError(type(None))

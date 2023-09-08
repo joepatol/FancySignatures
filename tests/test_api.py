@@ -13,7 +13,7 @@ Zero: DefaultValue[int] = DefaultValue(0)
 ExBlacklisted: BlackListedValues[int] = BlackListedValues(10, 20)
 PositiveInt: GE[int] = GE(0)
 MaxInputListLength: MaxLength[list] = MaxLength(20)
-OptionalPositiveInt = OptionalGE(0)
+OptionalPositiveInt: OptionalGE = OptionalGE(0)
 
 
 @validate(lazy=False, related=[exactly_one("a", "c")], type_strict=True)
@@ -69,7 +69,7 @@ def int_or_float(a: int | float) -> int | float:
         pytest.param("11", 11),
     ],
 )
-def test_custom_int_handler(value: Any, expectation: Any, custom_int_handler: bool) -> None:
+def test__custom_int_handler(value: Any, expectation: Any, custom_int_handler: bool) -> None:
     assert custom_int_handler is True
     assert int_or_float(value) == expectation
 
@@ -95,7 +95,8 @@ def test__test_func_1(value_a: Any, value_b: Any, value_c: Any, expectation: Con
 @pytest.mark.parametrize(
     "value_a, value_b, value_c, expectation",
     [
-        # pytest.param("1", [1, 2], None, does_not_raise()),
+        pytest.param("1", [1, 2], None, does_not_raise()),
+        pytest.param(None, [1, 2], None, pytest.raises(ValidationErrorGroup)),
         pytest.param(1, [1, 2], 2, pytest.raises(ValidationErrorGroup)),
         pytest.param(2, [1], __EmptyArg__(), does_not_raise()),
         pytest.param(2, (1, 3), __EmptyArg__(), does_not_raise()),
@@ -108,3 +109,14 @@ def test__test_func_1(value_a: Any, value_b: Any, value_c: Any, expectation: Con
 def test__test_func_1_lazy(value_a: Any, value_b: Any, value_c: Any, expectation: ContextManager) -> None:
     with expectation:
         func_1_lazy(value_a, value_b, value_c)
+
+
+@pytest.mark.parametrize(
+    "input_dict",
+    [
+        pytest.param({"a": "4", "b": "['1' , '2']"}),
+        pytest.param({"a": "None", "b": "['1' , '2']", "c": "4"}),
+    ],
+)
+def test__func_1_lazy_dict_input(input_dict: dict[str, Any]) -> None:
+    assert func_1_lazy(**input_dict) == [1, 2, 4]

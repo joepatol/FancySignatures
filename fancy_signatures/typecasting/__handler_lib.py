@@ -16,6 +16,7 @@ STRICT_CUSTOM_HANDLERS: dict[typing.TypeAlias, typing.Type[TypeCaster]] = {
     typing.Annotated: special_origins.AnnotatedTypeCaster,
     typing.Union: union.UnionTypeCaster,
     types.UnionType: union.UnionTypeCaster,
+    type(None): special_origins.NoneTypeCaster,
 }
 
 

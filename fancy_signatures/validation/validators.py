@@ -66,10 +66,6 @@ class GE(Validator[LtT]):
         return obj
 
 
-class OptionalGE(GE, AllowOptionalMixin):
-    pass
-
-
 class GT(Validator[LeT]):
     def __init__(self, value: Any) -> None:
         self._min = value
@@ -80,11 +76,11 @@ class GT(Validator[LeT]):
         return obj
 
 
-class LE(Validator[GeT]):
+class LE(Validator[GtT]):
     def __init__(self, value: Any) -> None:
         self._max = value
 
-    def validate(self, obj: GeT) -> GeT:
+    def validate(self, obj: GtT) -> GtT:
         if obj > self._max:
             raise ValidatorFailed(f"Value should be smaller than {self._max}")
         return obj
@@ -173,3 +169,31 @@ class DecimalPlacesValidator(Validator[float]):
         if -places > self._places:
             raise ValidatorFailed(f"Parameter should have a maximum of {self._places} decimal places")
         return obj
+
+
+class OptionalGE(GE[LtT], AllowOptionalMixin):
+    pass
+
+
+class OptionalGT(GT[LeT], AllowOptionalMixin):
+    pass
+
+
+class OptionalLE(LE[GtT], AllowOptionalMixin):
+    pass
+
+
+class OptionalLT(LT[GeT], AllowOptionalMixin):
+    pass
+
+
+class OptionalRegexValidator(RegexValidator, AllowOptionalMixin):
+    pass
+
+
+class OptionalMultipleOfValidator(MultipleOfValidator, AllowOptionalMixin):
+    pass
+
+
+class OptionalDecimalPlacesValidator(DecimalPlacesValidator, AllowOptionalMixin):
+    pass
