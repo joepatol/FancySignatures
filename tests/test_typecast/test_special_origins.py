@@ -1,12 +1,13 @@
 import pytest
-from typing import Any, Annotated
+from typing import Any, Annotated, Protocol
 
-from fancy_signatures.exceptions import TypeCastError
+from fancy_signatures.exceptions import TypeCastError, UnCastableType
 from fancy_signatures.typecasting.special_origins import (
     AnyTypeCaster,
     AnnotatedTypeCaster,
     StringTypeCaster,
     BooleanTypeCaster,
+    ProtocolTypecaster,
 )
 
 
@@ -155,3 +156,38 @@ def test__boolean_cast_fail(value: Any) -> None:
 
     with pytest.raises(TypeCastError):
         v.cast(value)
+
+
+class MyInterface(Protocol):
+    def method(self, a: int) -> str:
+        return str(a)
+
+
+class ImplementationA:
+    def method(self, a: int) -> int:
+        return a
+
+
+class ImplementationB:
+    def other_method(self, a: int) -> int:
+        return a
+
+
+@pytest.mark.parametrize(
+    "implementation, expected",
+    [
+        pytest.param(ImplementationA(), True),
+        pytest.param(ImplementationB(), False),
+        pytest.param(1, False),
+    ],
+)
+def test__protocol_caster(implementation: Any, expected: bool) -> None:
+    caster = ProtocolTypecaster(MyInterface)
+
+    assert expected == caster.validate(implementation)
+
+
+def test__protocol_typecast_fail() -> None:
+    caster = ProtocolTypecaster(MyInterface)
+    with pytest.raises(UnCastableType):
+        caster.cast("a")

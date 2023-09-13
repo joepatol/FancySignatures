@@ -225,3 +225,33 @@ def test__annotated_validate(value: typing.Any, expectation: bool) -> None:
     caster = typecaster_factory(typing.Annotated[str, "metadata"])
 
     assert caster.validate(value) == expectation
+
+
+class MyInterace(typing.Protocol):
+    def a_method(self) -> None:
+        ...
+
+
+class OkImplementation:
+    def a_method(self) -> None:
+        return
+
+
+class NotOkImplementation:
+    def incorrect_method(self) -> None:
+        return
+
+
+@pytest.mark.parametrize(
+    "input_value, expected",
+    [
+        pytest.param([OkImplementation, OkImplementation], True),
+        pytest.param([OkImplementation, NotOkImplementation], False),
+        pytest.param(["a", OkImplementation], False),
+        pytest.param([], True),
+    ],
+)
+def test__protocol_validate_correct_result(input_value: typing.Any, expected: bool) -> None:
+    caster = typecaster_factory(list[MyInterace])
+
+    assert caster.validate(input_value) == expected

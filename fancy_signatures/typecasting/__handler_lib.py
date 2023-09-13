@@ -26,4 +26,5 @@ CUSTOM_HANDLERS: dict[typing.TypeAlias, typing.Type[TypeCaster]] = {
     tuple: generic_alias.ListTupleSetTypeCaster,
     set: generic_alias.ListTupleSetTypeCaster,
     dict: generic_alias.DictTypeCaster,
+    typing._ProtocolMeta: special_origins.ProtocolTypecaster,
 }

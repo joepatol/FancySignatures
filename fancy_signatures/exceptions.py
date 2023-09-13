@@ -11,8 +11,13 @@ class ValidationError(Exception):
 
 
 class TypeCastError(TypeError):
+    def __init__(self, expected_type: type | tuple[Any, ...], extra_info: str | None = None) -> None:
+        super().__init__(f"Couldn't cast to correct type: {expected_type}. {extra_info if extra_info else ''}")
+
+
+class UnCastableType(TypeCastError):
     def __init__(self, expected_type: type | tuple[Any, ...]) -> None:
-        super().__init__(f"Couldn't cast to correct type: {expected_type}")
+        super().__init__(expected_type, extra_info="It's impossible to a type of: `{expected_type}`")
 
 
 class ValidatorFailed(ValueError):

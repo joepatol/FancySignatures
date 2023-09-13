@@ -2,7 +2,10 @@ from typing import Any
 
 
 class __EmptyArg__:
-    pass
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, __EmptyArg__):
+            return True
+        return False
 
 
 def is_empty(param: Any) -> bool:
