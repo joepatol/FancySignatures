@@ -191,3 +191,17 @@ def test__protocol_typecast_fail() -> None:
     caster = ProtocolTypecaster(MyInterface)
     with pytest.raises(UnCastableType):
         caster.cast("a")
+
+
+def test__protocol_raises_warning(protocol_warnings_enabled: bool) -> None:
+    assert protocol_warnings_enabled is True
+
+    with pytest.warns(UserWarning):
+        ProtocolTypecaster(MyInterface).validate(ImplementationA())
+
+
+def test__protocol_raises_error(disallow_protocols: bool) -> None:
+    assert disallow_protocols is True
+
+    with pytest.raises(RuntimeError):
+        ProtocolTypecaster(MyInterface)

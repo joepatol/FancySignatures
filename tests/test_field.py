@@ -1,6 +1,6 @@
 import pytest
 from typing import Any
-from fancy_signatures.core.field import TypedArgField, UnTypedArgField  # noqa
+from fancy_signatures.core.field import TypedArgField, UnTypedArgField
 from fancy_signatures.typecasting.factory import typecaster_factory
 from fancy_signatures.default import DefaultValue, Default, DefaultFactory, EmptyList
 from fancy_signatures.core.empty import __EmptyArg__
@@ -40,3 +40,10 @@ def test__not_required_default_value(input_value: Any, default: Default, expecte
 
     result = field.execute(name="test_field", value=input_value, lazy=False, strict=True)
     assert result == expected
+
+
+def test_untyped_to_typed_argfield() -> None:
+    field = UnTypedArgField(required=True, default=DefaultValue(), validators=[])
+    typed_field = field.set_type(typecaster_factory(int))
+
+    assert isinstance(typed_field, TypedArgField)

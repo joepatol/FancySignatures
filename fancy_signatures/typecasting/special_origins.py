@@ -85,7 +85,8 @@ class ProtocolTypecaster(TypeCaster[_ProtocolMeta]):
             warnings.warn(
                 "A Protocol was passed as type hint. Be aware that only method presence is validated,"
                 "method signatures are not validated. If you want to validate your implementation input, you"
-                "need to manually decorate it with `@validate`."
+                "need to manually decorate it with `@validate`.",
+                UserWarning,
             )
         return isinstance(param_value, self._runtime_checkable_protocol)
 

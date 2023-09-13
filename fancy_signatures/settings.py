@@ -25,6 +25,7 @@ class _SettingsTypes:
 def reset() -> None:
     """Reset all settings to their default values"""
     Settings.WARN_ON_HANDLER_OVERRIDE = True
+    Settings.PROTOCOL_HANDLING = ProtocolHandlingLevel.ALLOW
 
 
 def set(setting: str, value: Any) -> None:
