@@ -42,7 +42,7 @@ def test__not_required_default_value(input_value: Any, default: Default, expecte
     assert result == expected
 
 
-def test_untyped_to_typed_argfield() -> None:
+def test__argfield_set_type() -> None:
     field = UnTypedArgField(required=True, default=DefaultValue(), validators=[])
     typed_field = field.set_type(typecaster_factory(int))
 

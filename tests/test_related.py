@@ -9,7 +9,7 @@ from fancy_signatures.validation.related.validators import (
     mutually_exclusive_args,
     complementary_args,
     hierarchical_args,
-    exactly_one,
+    exactly_x,
 )
 
 
@@ -91,10 +91,28 @@ def test__hierarchical_args(a: Any, b: Any, c: Any, expectation: ContextManager)
     ],
 )
 def test__exactly_one(a: Any, b: Any, expectation: ContextManager) -> None:
-    v = exactly_one("a", "b")
+    v = exactly_x("a", "b", x=1)
 
     with expectation:
         v(a=a, b=b)
+
+
+@pytest.mark.parametrize(
+    "a, b, c, x, expectation",
+    [
+        pytest.param(1, None, None, 1, does_not_raise()),
+        pytest.param(1, 3, None, 1, pytest.raises(ValidationError)),
+        pytest.param(2, 3, None, 2, does_not_raise()),
+        pytest.param(2, None, None, 2, pytest.raises(ValidationError)),
+        pytest.param(1, 2, 3, 3, does_not_raise()),
+        pytest.param(1, None, None, 3, pytest.raises(ValidationError)),
+    ],
+)
+def test__exactly_x(a: Any, b: Any, c: Any, x: int, expectation: ContextManager) -> None:
+    v = exactly_x("a", "b", "c", x=x)
+
+    with expectation:
+        v(a=a, b=b, c=c)
 
 
 def test__dont_allow_none_mutually_exclusive_args() -> None:
@@ -105,7 +123,7 @@ def test__dont_allow_none_mutually_exclusive_args() -> None:
 
 
 def test__dont_allow_none_exactly_one() -> None:
-    v = exactly_one("a", "b", allow_none=False)
+    v = exactly_x("a", "b", x=1, allow_none=False)
 
     with pytest.raises(ValidationError):
         v(a=1, b=None)
