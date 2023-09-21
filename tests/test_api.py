@@ -75,6 +75,18 @@ def test__custom_int_handler(value: Any, expectation: Any, custom_int_handler: b
 
 
 @pytest.mark.parametrize(
+    "value, expected_result",
+    [
+        pytest.param(__EmptyArg__(), True),
+        pytest.param(None, False),
+        pytest.param([10, 11, 12], False),
+    ],
+)
+def test__is_empty(value: Any, expected_result: bool) -> None:
+    assert is_empty(value) is expected_result
+
+
+@pytest.mark.parametrize(
     "value_a, value_b, value_c, expectation",
     [
         pytest.param("1", [1, 2], None, pytest.raises(ValidationError)),

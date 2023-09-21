@@ -1,6 +1,7 @@
 import pytest
-from typing import Any
-from fancy_signatures import Validator
+from contextlib import nullcontext as does_not_raise
+from typing import Any, ContextManager
+from fancy_signatures import Validator, TypeCaster
 from fancy_signatures.core.field import TypedArgField, UnTypedArgField
 from fancy_signatures.typecasting.factory import typecaster_factory
 from fancy_signatures.default import DefaultValue, Default, DefaultFactory, EmptyList
@@ -106,3 +107,43 @@ def test__field_validators() -> None:
 
     with pytest.raises(ValidationError):
         field.execute("test", 3, lazy=True, strict=False)
+
+
+@pytest.mark.parametrize(
+    "typecaster, expectation",
+    [
+        pytest.param(typecaster_factory(str), pytest.raises(ValidationError)),
+        pytest.param(typecaster_factory(int), does_not_raise()),
+        pytest.param(typecaster_factory(float), pytest.raises(ValidationError)),
+    ],
+)
+def test__field_type_strict(typecaster: TypeCaster, expectation: ContextManager) -> None:
+    field = TypedArgField(
+        required=True,
+        default=DefaultValue(),
+        typecaster=typecaster,
+        validators=[],
+    )
+
+    with expectation:
+        field.execute("test", 10, lazy=False, strict=True)
+
+
+@pytest.mark.parametrize(
+    "typecaster, expectation",
+    [
+        pytest.param(typecaster_factory(str), does_not_raise()),
+        pytest.param(typecaster_factory(int), does_not_raise()),
+        pytest.param(typecaster_factory(list), pytest.raises(ValidationError)),
+    ],
+)
+def test__field_type_not_strict(typecaster: TypeCaster, expectation: ContextManager) -> None:
+    field = TypedArgField(
+        required=True,
+        default=DefaultValue(),
+        typecaster=typecaster,
+        validators=[],
+    )
+
+    with expectation:
+        field.execute("test", 10, lazy=False, strict=False)

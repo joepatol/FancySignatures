@@ -9,9 +9,9 @@ class __EmptyArg__:
 
 
 def is_empty(param: Any) -> bool:
-    """Return whether a variable is 'empty'
+    """Return whether a variable is 'empty'.
     In the context of fancy_signatures this means it's an instance
-    of __EmptyArg__.
+    of `__EmptyArg__`.
 
     Args:
         param (Any): The parameter to check
