@@ -37,7 +37,7 @@ def exactly_x(*args: str, x: int, allow_none: bool = True) -> Related:
         allow_none (bool, optional): Whether to consider `None` as not provided. Defaults to True.
 
     Returns:
-        Related: _description_
+        Related: Related object
     """
 
     def _validation_func(**kwargs: str) -> None:
@@ -54,6 +54,19 @@ def exactly_x(*args: str, x: int, allow_none: bool = True) -> Related:
             raise ValidatorFailed(f"Provide exactly one of '{list(kwargs.keys())}'")
 
     return Related(_validation_func, *args)
+
+
+def exactly_one(*args: str, allow_none: bool = True) -> Related:
+    """Validate exactly one of the parameters is provided.
+    __EmptyArg__() is considered as not provided.
+
+    Args:
+        allow_none (bool, optional): Whether to consider `None` as not provided. Defaults to True.
+
+    Returns:
+        Related: Related object
+    """
+    return exactly_x(*args, x=1, allow_none=allow_none)
 
 
 def complementary_args(*args: str, allow_none: bool = True) -> Related:

@@ -1,9 +1,20 @@
 import pytest
 from typing import Any
+from fancy_signatures import Validator
 from fancy_signatures.core.field import TypedArgField, UnTypedArgField
 from fancy_signatures.typecasting.factory import typecaster_factory
 from fancy_signatures.default import DefaultValue, Default, DefaultFactory, EmptyList
 from fancy_signatures.core.empty import __EmptyArg__
+from fancy_signatures.exceptions import ValidationErrorGroup, ValidationError
+from fancy_signatures.validation.validators import GT, MultipleOfValidator
+
+
+class _ExceptionNotRaised(Exception):
+    def __init__(self) -> None:
+        super().__init__(
+            "This test expected an error to be raised and test the resulting error."
+            "However, the test was not raised at all."
+        )
 
 
 def test__required_and_no_default_raises() -> None:
@@ -42,8 +53,56 @@ def test__not_required_default_value(input_value: Any, default: Default, expecte
     assert result == expected
 
 
-def test__argfield_set_type() -> None:
-    field = UnTypedArgField(required=True, default=DefaultValue(), validators=[])
+@pytest.mark.parametrize(
+    "field",
+    [
+        pytest.param(
+            UnTypedArgField(required=True, default=DefaultValue(), validators=[]),
+            id="UnTypedArgField",
+        ),
+        pytest.param(
+            TypedArgField(required=True, default=DefaultValue(), validators=[], typecaster=typecaster_factory(str)),
+            id="TypedArgField",
+        ),
+    ],
+)
+def test__argfield_set_type(field: UnTypedArgField) -> None:
     typed_field = field.set_type(typecaster_factory(int))
 
     assert isinstance(typed_field, TypedArgField)
+    assert typed_field._typecaster._type_hint == int
+
+
+@pytest.mark.parametrize(
+    "validators, nr_of_exc",
+    [
+        pytest.param([GT(5), MultipleOfValidator(2)], 2),
+        pytest.param([GT(5), MultipleOfValidator(1)], 1),
+        pytest.param([GT(0), MultipleOfValidator(2)], 1),
+    ],
+)
+def test__field_validators_lazy(validators: list[Validator], nr_of_exc: int) -> None:
+    field = TypedArgField(
+        required=True,
+        default=DefaultValue(),
+        typecaster=typecaster_factory(int),
+        validators=validators,
+    )
+
+    try:
+        field.execute("test", 3, lazy=True, strict=False)
+        raise _ExceptionNotRaised()
+    except ValidationErrorGroup as e:
+        assert len(e.exceptions) == nr_of_exc
+
+
+def test__field_validators() -> None:
+    field = TypedArgField(
+        required=True,
+        default=DefaultValue(),
+        typecaster=typecaster_factory(int),
+        validators=[GT(5), MultipleOfValidator(2)],
+    )
+
+    with pytest.raises(ValidationError):
+        field.execute("test", 3, lazy=True, strict=False)
