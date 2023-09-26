@@ -8,14 +8,7 @@ from fancy_signatures.default import DefaultValue, Default, DefaultFactory, Empt
 from fancy_signatures.core.empty import __EmptyArg__
 from fancy_signatures.exceptions import ValidationErrorGroup, ValidationError
 from fancy_signatures.validation.validators import GT, MultipleOfValidator
-
-
-class _ExceptionNotRaised(Exception):
-    def __init__(self) -> None:
-        super().__init__(
-            "This test expected an error to be raised and test the resulting error."
-            "However, the test was not raised at all."
-        )
+from conftest import ExceptionNotRaised
 
 
 def test__required_and_no_default_raises() -> None:
@@ -92,7 +85,7 @@ def test__field_validators_lazy(validators: list[Validator], nr_of_exc: int) -> 
 
     try:
         field.execute("test", 3, lazy=True, strict=False)
-        raise _ExceptionNotRaised()
+        raise ExceptionNotRaised()
     except ValidationErrorGroup as e:
         assert len(e.exceptions) == nr_of_exc
 

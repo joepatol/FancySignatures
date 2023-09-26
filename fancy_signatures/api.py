@@ -52,7 +52,8 @@ def validate(
 
     Args:
         __func (FuncT, optional): The decorated callable
-        lazy (bool, optional): Whether to raise an error on the first parameter one occurs,
+        lazy (bool, optional): Whether to immediately raise `ValidationErrors` once they occur,
+        or collect them in a `ValidationErrorGroup`.
         or whether to validate all parameters and raise an ExceptionGroup with the errors found per parameter.
         Defaults to False.
         Related (list[Related], optional): Related validators that apply a validation function on two or more arguments.

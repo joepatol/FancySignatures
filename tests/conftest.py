@@ -7,6 +7,14 @@ from fancy_signatures.exceptions import TypeCastError
 from fancy_signatures.typecasting import register_handler, unregister_strict_handler
 
 
+class ExceptionNotRaised(Exception):
+    def __init__(self) -> None:
+        super().__init__(
+            "This test expected an error to be raised and test the resulting error."
+            "However, the test was not raised at all."
+        )
+
+
 class IntTypeCaster(TypeCaster[int]):
     def validate(self, param_value: Any) -> bool:
         return isinstance(param_value, int)

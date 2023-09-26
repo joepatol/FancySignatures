@@ -2,11 +2,12 @@ from typing import Any, ContextManager
 import pytest
 from contextlib import nullcontext as does_not_raise
 from fancy_signatures.api import validate, arg
-from fancy_signatures.validation.validators import GE, BlackListedValues, MaxLength, OptionalGE
+from fancy_signatures.validation.validators import GE, BlackListedValues, MaxLength, OptionalGE, MultipleOfValidator
 from fancy_signatures.default import DefaultValue, EmptyList
 from fancy_signatures.validation.related.validators import exactly_one
 from fancy_signatures.exceptions import ValidationError, ValidationErrorGroup
 from fancy_signatures.core.empty import __EmptyArg__, is_empty
+from .conftest import ExceptionNotRaised
 
 
 Zero: DefaultValue[int] = DefaultValue(0)
@@ -48,6 +49,16 @@ def func_1_lazy(
 @validate
 def func_2(
     a: int = arg(default=Zero),
+    b: int | None = None,
+) -> int:
+    if b is None:
+        b = 0
+    return a + b
+
+
+@validate(lazy=True, type_strict=True)
+def func_2_lazy(
+    a: int = arg(default=Zero, validators=[GE(0), MultipleOfValidator(2)]),
     b: int | None = None,
 ) -> int:
     if b is None:
@@ -132,3 +143,28 @@ def test__test_func_1_lazy(value_a: Any, value_b: Any, value_c: Any, expectation
 )
 def test__func_1_lazy_dict_input(input_dict: dict[str, Any]) -> None:
     assert func_1_lazy(**input_dict) == [1, 2, 4]
+
+
+# a: int = arg(default=Zero, validators=[GE(0), MultipleOfValidator(2)]),
+# b: int | None = None,
+
+
+@pytest.mark.parametrize(
+    "a, b, nr_of_exc_func, nr_of_exc_a, nr_of_exc_b",
+    [
+        pytest.param(-1, None, 1, 2, 0, id="1"),
+        pytest.param(-1, "1", 2, 2, 1, id="2"),
+    ],
+)
+def test__lazy_error_count_correct(a: Any, b: Any, nr_of_exc_func: int, nr_of_exc_a: int, nr_of_exc_b: int) -> None:
+    try:
+        func_2_lazy(a=a, b=b)
+        raise ExceptionNotRaised()
+    except ValidationErrorGroup as e:
+        assert len(e.exceptions) == nr_of_exc_func
+
+        if nr_of_exc_func == 1:
+            assert len(e.exceptions[0].exceptions) == max(nr_of_exc_a, nr_of_exc_b)
+        elif nr_of_exc_func == 2:
+            assert len(e.exceptions[0].exceptions) == nr_of_exc_a
+            assert len(e.exceptions[1].exceptions) == nr_of_exc_b
