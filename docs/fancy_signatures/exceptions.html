@@ -39,6 +39,42 @@
                 </ul>
 
             </li>
+            <li>
+                    <a class="class" href="#TypeCastError">TypeCastError</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#TypeCastError.__init__">TypeCastError</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#UnCastableType">UnCastableType</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#UnCastableType.__init__">UnCastableType</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#ValidatorFailed">ValidatorFailed</a>
+                            <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#TypeValidationError">TypeValidationError</a>
+                            <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#ValidationErrorGroup">ValidationErrorGroup</a>
+                            <ul class="memberlist">
+                </ul>
+
+            </li>
     </ul>
 
 
@@ -63,39 +99,35 @@
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
 </span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>    <span class="s2">&quot;ValidationError&quot;</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="p">]</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="k">class</span> <span class="nc">ValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Parameters &#39;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&#39; are invalid. </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">.&quot;</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Parameter &#39;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&#39; is invalid. </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">.&quot;</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="k">class</span> <span class="nc">ValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Parameters &#39;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&#39; are invalid. </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">.&quot;</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Parameter &#39;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&#39; is invalid. </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">.&quot;</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="k">class</span> <span class="nc">TypeCastError</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">extra_info</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t cast to correct type: </span><span class="si">{</span><span class="n">expected_type</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">extra_info</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">extra_info</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="k">class</span> <span class="nc">TypeCastError</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">extra_info</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t cast to correct type: </span><span class="si">{</span><span class="n">expected_type</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">extra_info</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">extra_info</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="k">class</span> <span class="nc">UnCastableType</span><span class="p">(</span><span class="n">TypeCastError</span><span class="p">):</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">expected_type</span><span class="p">,</span> <span class="n">extra_info</span><span class="o">=</span><span class="s2">&quot;It&#39;s impossible to a type of: `</span><span class="si">{expected_type}</span><span class="s2">`&quot;</span><span class="p">)</span>
 </span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="k">class</span> <span class="nc">UnCastableType</span><span class="p">(</span><span class="n">TypeCastError</span><span class="p">):</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">expected_type</span><span class="p">,</span> <span class="n">extra_info</span><span class="o">=</span><span class="s2">&quot;It&#39;s impossible to a type of: `</span><span class="si">{expected_type}</span><span class="s2">`&quot;</span><span class="p">)</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="k">class</span> <span class="nc">ValidatorFailed</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="k">pass</span>
 </span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
 </span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="k">class</span> <span class="nc">ValidatorFailed</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="k">class</span> <span class="nc">TypeValidationError</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
 </span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="k">pass</span>
 </span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
 </span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="k">class</span> <span class="nc">TypeValidationError</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="k">class</span> <span class="nc">ValidationErrorGroup</span><span class="p">(</span><span class="n">ExceptionGroup</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
 </span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="k">pass</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="k">class</span> <span class="nc">ValidationErrorGroup</span><span class="p">(</span><span class="n">ExceptionGroup</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="k">pass</span>
 </span></pre></div>
 
 
@@ -111,13 +143,13 @@
 
     </div>
     <a class="headerlink" href="#ValidationError"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ValidationError-9"><a href="#ValidationError-9"><span class="linenos"> 9</span></a><span class="k">class</span> <span class="nc">ValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-</span><span id="ValidationError-10"><a href="#ValidationError-10"><span class="linenos">10</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="ValidationError-11"><a href="#ValidationError-11"><span class="linenos">11</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-</span><span id="ValidationError-12"><a href="#ValidationError-12"><span class="linenos">12</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Parameters &#39;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&#39; are invalid. </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">.&quot;</span>
-</span><span id="ValidationError-13"><a href="#ValidationError-13"><span class="linenos">13</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="ValidationError-14"><a href="#ValidationError-14"><span class="linenos">14</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Parameter &#39;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&#39; is invalid. </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">.&quot;</span>
-</span><span id="ValidationError-15"><a href="#ValidationError-15"><span class="linenos">15</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ValidationError-5"><a href="#ValidationError-5"><span class="linenos"> 5</span></a><span class="k">class</span> <span class="nc">ValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+</span><span id="ValidationError-6"><a href="#ValidationError-6"><span class="linenos"> 6</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="ValidationError-7"><a href="#ValidationError-7"><span class="linenos"> 7</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="ValidationError-8"><a href="#ValidationError-8"><span class="linenos"> 8</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Parameters &#39;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&#39; are invalid. </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">.&quot;</span>
+</span><span id="ValidationError-9"><a href="#ValidationError-9"><span class="linenos"> 9</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="ValidationError-10"><a href="#ValidationError-10"><span class="linenos">10</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Parameter &#39;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&#39; is invalid. </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">.&quot;</span>
+</span><span id="ValidationError-11"><a href="#ValidationError-11"><span class="linenos">11</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -135,12 +167,12 @@
 
     </div>
     <a class="headerlink" href="#ValidationError.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ValidationError.__init__-10"><a href="#ValidationError.__init__-10"><span class="linenos">10</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="ValidationError.__init__-11"><a href="#ValidationError.__init__-11"><span class="linenos">11</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-</span><span id="ValidationError.__init__-12"><a href="#ValidationError.__init__-12"><span class="linenos">12</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Parameters &#39;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&#39; are invalid. </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">.&quot;</span>
-</span><span id="ValidationError.__init__-13"><a href="#ValidationError.__init__-13"><span class="linenos">13</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="ValidationError.__init__-14"><a href="#ValidationError.__init__-14"><span class="linenos">14</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Parameter &#39;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&#39; is invalid. </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">.&quot;</span>
-</span><span id="ValidationError.__init__-15"><a href="#ValidationError.__init__-15"><span class="linenos">15</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ValidationError.__init__-6"><a href="#ValidationError.__init__-6"><span class="linenos"> 6</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="ValidationError.__init__-7"><a href="#ValidationError.__init__-7"><span class="linenos"> 7</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="ValidationError.__init__-8"><a href="#ValidationError.__init__-8"><span class="linenos"> 8</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Parameters &#39;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&#39; are invalid. </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">.&quot;</span>
+</span><span id="ValidationError.__init__-9"><a href="#ValidationError.__init__-9"><span class="linenos"> 9</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="ValidationError.__init__-10"><a href="#ValidationError.__init__-10"><span class="linenos">10</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Parameter &#39;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&#39; is invalid. </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">.&quot;</span>
+</span><span id="ValidationError.__init__-11"><a href="#ValidationError.__init__-11"><span class="linenos">11</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -154,6 +186,221 @@
                                 <dd id="ValidationError.with_traceback" class="function">with_traceback</dd>
                 <dd id="ValidationError.add_note" class="function">add_note</dd>
                 <dd id="ValidationError.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="TypeCastError">
+                            <input id="TypeCastError-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">TypeCastError</span><wbr>(<span class="base">builtins.TypeError</span>):
+
+                <label class="view-source-button" for="TypeCastError-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#TypeCastError"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="TypeCastError-14"><a href="#TypeCastError-14"><span class="linenos">14</span></a><span class="k">class</span> <span class="nc">TypeCastError</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
+</span><span id="TypeCastError-15"><a href="#TypeCastError-15"><span class="linenos">15</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">extra_info</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="TypeCastError-16"><a href="#TypeCastError-16"><span class="linenos">16</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t cast to correct type: </span><span class="si">{</span><span class="n">expected_type</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">extra_info</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">extra_info</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Inappropriate argument type.</p>
+</div>
+
+
+                            <div id="TypeCastError.__init__" class="classattr">
+                                        <input id="TypeCastError.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="name">TypeCastError</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">expected_type</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>,</span><span class="param">	<span class="n">extra_info</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
+
+                <label class="view-source-button" for="TypeCastError.__init__-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#TypeCastError.__init__"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="TypeCastError.__init__-15"><a href="#TypeCastError.__init__-15"><span class="linenos">15</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">extra_info</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="TypeCastError.__init__-16"><a href="#TypeCastError.__init__-16"><span class="linenos">16</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t cast to correct type: </span><span class="si">{</span><span class="n">expected_type</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">extra_info</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">extra_info</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span></pre></div>
+
+
+    
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.BaseException</dt>
+                                <dd id="TypeCastError.with_traceback" class="function">with_traceback</dd>
+                <dd id="TypeCastError.add_note" class="function">add_note</dd>
+                <dd id="TypeCastError.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="UnCastableType">
+                            <input id="UnCastableType-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">UnCastableType</span><wbr>(<span class="base"><a href="#TypeCastError">TypeCastError</a></span>):
+
+                <label class="view-source-button" for="UnCastableType-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#UnCastableType"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="UnCastableType-19"><a href="#UnCastableType-19"><span class="linenos">19</span></a><span class="k">class</span> <span class="nc">UnCastableType</span><span class="p">(</span><span class="n">TypeCastError</span><span class="p">):</span>
+</span><span id="UnCastableType-20"><a href="#UnCastableType-20"><span class="linenos">20</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="UnCastableType-21"><a href="#UnCastableType-21"><span class="linenos">21</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">expected_type</span><span class="p">,</span> <span class="n">extra_info</span><span class="o">=</span><span class="s2">&quot;It&#39;s impossible to a type of: `</span><span class="si">{expected_type}</span><span class="s2">`&quot;</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Inappropriate argument type.</p>
+</div>
+
+
+                            <div id="UnCastableType.__init__" class="classattr">
+                                        <input id="UnCastableType.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="name">UnCastableType</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">expected_type</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span></span>)</span>
+
+                <label class="view-source-button" for="UnCastableType.__init__-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#UnCastableType.__init__"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="UnCastableType.__init__-20"><a href="#UnCastableType.__init__-20"><span class="linenos">20</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="UnCastableType.__init__-21"><a href="#UnCastableType.__init__-21"><span class="linenos">21</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">expected_type</span><span class="p">,</span> <span class="n">extra_info</span><span class="o">=</span><span class="s2">&quot;It&#39;s impossible to a type of: `</span><span class="si">{expected_type}</span><span class="s2">`&quot;</span><span class="p">)</span>
+</span></pre></div>
+
+
+    
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.BaseException</dt>
+                                <dd id="UnCastableType.with_traceback" class="function">with_traceback</dd>
+                <dd id="UnCastableType.add_note" class="function">add_note</dd>
+                <dd id="UnCastableType.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="ValidatorFailed">
+                            <input id="ValidatorFailed-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">ValidatorFailed</span><wbr>(<span class="base">builtins.ValueError</span>):
+
+                <label class="view-source-button" for="ValidatorFailed-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#ValidatorFailed"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ValidatorFailed-24"><a href="#ValidatorFailed-24"><span class="linenos">24</span></a><span class="k">class</span> <span class="nc">ValidatorFailed</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+</span><span id="ValidatorFailed-25"><a href="#ValidatorFailed-25"><span class="linenos">25</span></a>    <span class="k">pass</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Inappropriate argument value (of correct type).</p>
+</div>
+
+
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.ValueError</dt>
+                                <dd id="ValidatorFailed.__init__" class="function">ValueError</dd>
+
+            </div>
+            <div><dt>builtins.BaseException</dt>
+                                <dd id="ValidatorFailed.with_traceback" class="function">with_traceback</dd>
+                <dd id="ValidatorFailed.add_note" class="function">add_note</dd>
+                <dd id="ValidatorFailed.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="TypeValidationError">
+                            <input id="TypeValidationError-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">TypeValidationError</span><wbr>(<span class="base">builtins.TypeError</span>):
+
+                <label class="view-source-button" for="TypeValidationError-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#TypeValidationError"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="TypeValidationError-28"><a href="#TypeValidationError-28"><span class="linenos">28</span></a><span class="k">class</span> <span class="nc">TypeValidationError</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
+</span><span id="TypeValidationError-29"><a href="#TypeValidationError-29"><span class="linenos">29</span></a>    <span class="k">pass</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Inappropriate argument type.</p>
+</div>
+
+
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.TypeError</dt>
+                                <dd id="TypeValidationError.__init__" class="function">TypeError</dd>
+
+            </div>
+            <div><dt>builtins.BaseException</dt>
+                                <dd id="TypeValidationError.with_traceback" class="function">with_traceback</dd>
+                <dd id="TypeValidationError.add_note" class="function">add_note</dd>
+                <dd id="TypeValidationError.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="ValidationErrorGroup">
+                            <input id="ValidationErrorGroup-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">ValidationErrorGroup</span><wbr>(<span class="base">builtins.ExceptionGroup</span>, <span class="base"><a href="#ValidationError">ValidationError</a></span>):
+
+                <label class="view-source-button" for="ValidationErrorGroup-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#ValidationErrorGroup"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ValidationErrorGroup-32"><a href="#ValidationErrorGroup-32"><span class="linenos">32</span></a><span class="k">class</span> <span class="nc">ValidationErrorGroup</span><span class="p">(</span><span class="n">ExceptionGroup</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
+</span><span id="ValidationErrorGroup-33"><a href="#ValidationErrorGroup-33"><span class="linenos">33</span></a>    <span class="k">pass</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>A combination of multiple unrelated exceptions.</p>
+</div>
+
+
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.BaseExceptionGroup</dt>
+                                <dd id="ValidationErrorGroup.__init__" class="function">BaseExceptionGroup</dd>
+                <dd id="ValidationErrorGroup.derive" class="function">derive</dd>
+                <dd id="ValidationErrorGroup.split" class="function">split</dd>
+                <dd id="ValidationErrorGroup.subgroup" class="function">subgroup</dd>
+                <dd id="ValidationErrorGroup.message" class="variable">message</dd>
+                <dd id="ValidationErrorGroup.exceptions" class="variable">exceptions</dd>
+
+            </div>
+            <div><dt>builtins.BaseException</dt>
+                                <dd id="ValidationErrorGroup.with_traceback" class="function">with_traceback</dd>
+                <dd id="ValidationErrorGroup.add_note" class="function">add_note</dd>
+                <dd id="ValidationErrorGroup.args" class="variable">args</dd>
 
             </div>
                                 </dl>
