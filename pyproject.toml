@@ -20,3 +20,4 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://github.com/joepatol/FancySignatures"
 "Bug Tracker" = "https://github.com/joepatol/FancySignatures/issues"
+"Documentation" = "https://joepatol.github.io/FancySignatures/"
