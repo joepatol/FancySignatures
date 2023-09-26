@@ -1,6 +1,9 @@
 from typing import Any
 
 
+__all__ = ["ValidationError"]
+
+
 class ValidationError(Exception):
     def __init__(self, message: str, param: str | list[str]) -> None:
         if isinstance(param, list):

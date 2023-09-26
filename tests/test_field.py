@@ -8,7 +8,7 @@ from fancy_signatures.default import DefaultValue, Default, DefaultFactory, Empt
 from fancy_signatures.core.empty import __EmptyArg__
 from fancy_signatures.exceptions import ValidationErrorGroup, ValidationError
 from fancy_signatures.validation.validators import GT, MultipleOfValidator
-from conftest import ExceptionNotRaised
+from .conftest import ExceptionNotRaised
 
 
 def test__required_and_no_default_raises() -> None:
