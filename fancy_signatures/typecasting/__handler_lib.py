@@ -20,10 +20,11 @@ STRICT_CUSTOM_HANDLERS: dict[typing.TypeAlias, typing.Type[TypeCaster]] = {
 }
 
 
-# Exact match or subclass
+# Exact match, metaclass match or subclass
 CUSTOM_HANDLERS: dict[typing.TypeAlias, typing.Type[TypeCaster]] = {
     list: generic_alias.ListTupleSetTypeCaster,
     tuple: generic_alias.ListTupleSetTypeCaster,
     set: generic_alias.ListTupleSetTypeCaster,
     dict: generic_alias.DictTypeCaster,
+    typing._ProtocolMeta: special_origins.ProtocolTypecaster,
 }

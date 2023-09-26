@@ -47,7 +47,7 @@ class TypedArgField(UnTypedArgField):
                 else:
                     raise e
 
-            if errors:
-                raise ValidationErrorGroup(f"Errors during validation of '{name}'", errors)
+        if errors:
+            raise ValidationErrorGroup(f"Errors during validation of '{name}'", errors)
 
         return typecasted_value

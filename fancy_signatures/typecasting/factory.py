@@ -37,7 +37,8 @@ def typecaster_factory(type_hint: TypeAlias) -> TypeCaster:
         )
 
     for type_for_handler in CUSTOM_HANDLERS:
-        if issubclass(origin, type_for_handler):
+        # isinstance to support metaclasses as handler types
+        if issubclass(origin, type_for_handler) or isinstance(origin, type_for_handler):
             return CUSTOM_HANDLERS[type_for_handler](type_hint)
 
-    return DefaultTypeCaster(origin)
+    return DefaultTypeCaster(type_hint)

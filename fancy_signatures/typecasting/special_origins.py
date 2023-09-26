@@ -1,7 +1,9 @@
-from typing import Any, get_args
+from typing import Any, get_args, _ProtocolMeta, runtime_checkable
 from typing_extensions import _AnnotatedAlias
+import warnings
 
-from ..exceptions import TypeCastError
+from ..settings import Settings, ProtocolHandlingLevel
+from ..exceptions import TypeCastError, UnCastableType
 from ..core.interface import TypeCaster
 from .factory import typecaster_factory
 
@@ -66,3 +68,27 @@ class NoneTypeCaster(TypeCaster[None]):
                 raise TypeCastError(type(None))
         if not self.validate(param_value):
             raise TypeCastError(type(None))
+
+
+class ProtocolTypecaster(TypeCaster[_ProtocolMeta]):
+    def __init__(self, type_hint: Any) -> None:
+        if Settings.PROTOCOL_HANDLING == ProtocolHandlingLevel.DISALLOW:
+            raise RuntimeError(
+                "Using protocols as type hints is disallowed in fancy_signatures settings."
+                "Please enable it if you do want to use it."
+            )
+        super().__init__(type_hint)
+        self._runtime_checkable_protocol = runtime_checkable(type_hint)
+
+    def validate(self, param_value: Any) -> bool:
+        if Settings.PROTOCOL_HANDLING == ProtocolHandlingLevel.WARN:
+            warnings.warn(
+                "A Protocol was passed as type hint. Be aware that only method presence is validated,"
+                "method signatures are not validated. If you want to validate your implementation input, you"
+                "need to manually decorate it with `@validate`.",
+                UserWarning,
+            )
+        return isinstance(param_value, self._runtime_checkable_protocol)
+
+    def cast(self, _: Any) -> _ProtocolMeta:
+        raise UnCastableType(_ProtocolMeta)

@@ -1,21 +1,31 @@
 from typing import TypeAlias, Any
+from enum import Enum
 from .core.interface import TypeCaster
 
 
-__all__ = ["reset", "set", "get_typecast_handlers"]
+__all__ = ["reset", "set", "get_typecast_handlers", "ProtocolHandlingLevel"]
+
+
+class ProtocolHandlingLevel(Enum):
+    ALLOW = "ALLOW"
+    WARN = "WARN"
+    DISALLOW = "DISALLOW"
 
 
 class Settings:
     WARN_ON_HANDLER_OVERRIDE: bool = True
+    PROTOCOL_HANDLING: ProtocolHandlingLevel = ProtocolHandlingLevel.ALLOW
 
 
 class _SettingsTypes:
     WARN_ON_HANDLER_OVERRIDE = bool
+    PROTOCOL_HANDLING = ProtocolHandlingLevel
 
 
 def reset() -> None:
     """Reset all settings to their default values"""
     Settings.WARN_ON_HANDLER_OVERRIDE = True
+    Settings.PROTOCOL_HANDLING = ProtocolHandlingLevel.ALLOW
 
 
 def set(setting: str, value: Any) -> None:
@@ -23,7 +33,7 @@ def set(setting: str, value: Any) -> None:
 
     Args:
         setting (str): The name of the setting (case insensitive)
-        value (bool): The new value of the setting
+        value (Any): The new value of the setting
 
     Raises:
         ValueError: If setting doesn't exist

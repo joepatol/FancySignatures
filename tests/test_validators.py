@@ -4,7 +4,7 @@ from typing import ContextManager, Any
 import pytest
 from contextlib import nullcontext as does_not_raise
 
-from fancy_signatures.exceptions import ValidatorFailed
+from fancy_signatures.exceptions import ValidatorFailed, ValidationError
 from fancy_signatures.validation.validators import (
     LE,
     LT,
@@ -17,6 +17,7 @@ from fancy_signatures.validation.validators import (
     DecimalPlacesValidator,
     MultipleOfValidator,
     IsInValidator,
+    OptionalGE,
 )
 
 
@@ -222,3 +223,18 @@ def test__isin_validator(value: Any, expectation: ContextManager) -> None:
 
     with expectation:
         v.validate(value)
+
+
+@pytest.mark.parametrize(
+    "value, expectation",
+    [
+        pytest.param(10, does_not_raise(), id="equal"),
+        pytest.param(None, does_not_raise(), id="none"),
+        pytest.param(4, pytest.raises(ValidationError), id="smaller"),
+    ],
+)
+def test__optional_validators(value: Any, expectation: ContextManager) -> None:
+    v: OptionalGE = OptionalGE(10)
+
+    with expectation:
+        v("test", value)
