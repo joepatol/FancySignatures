@@ -3,7 +3,7 @@ from typing import Any
 from contextlib import nullcontext as does_not_raise
 
 from fancy_signatures.settings import set, get_typecast_handlers, Settings, ProtocolHandlingLevel
-from fancy_signatures.typecasting import register_handler
+from fancy_signatures.typecasting import register_typecaster
 from fancy_signatures.typecasting.default import DefaultTypeCaster
 from fancy_signatures.typecasting.generic_alias import ListTupleSetTypeCaster
 
@@ -29,12 +29,12 @@ def test__warning_raised_when_handler_override(reset_settings: bool) -> None:
     assert reset_settings is True
 
     with pytest.warns(UserWarning):
-        register_handler(type_hints=[list], handler=DefaultTypeCaster, strict=False)
+        register_typecaster(type_hints=[list], handler=DefaultTypeCaster, strict=False)
 
     set("WARN_ON_HANDLER_OVERRIDE", False)
 
     with does_not_raise():
-        register_handler(type_hints=[list], handler=ListTupleSetTypeCaster, strict=False)
+        register_typecaster(type_hints=[list], handler=ListTupleSetTypeCaster, strict=False)
 
 
 @pytest.mark.parametrize(

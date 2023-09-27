@@ -1,3 +1,5 @@
+from typing import Any
+
 from .related import Related
 from fancy_signatures.exceptions import ValidatorFailed
 from fancy_signatures.core.empty import is_empty
@@ -14,7 +16,7 @@ def mutually_exclusive_args(*args: str, allow_none: bool = True) -> Related:
         Related: Related object which can be provided to @validate
     """
 
-    def _validation_func(**kwargs: str) -> None:
+    def _validation_func(**kwargs: Any) -> None:
         _no_more_vals = False
         for val in kwargs.values():
             if allow_none and val is None:
@@ -25,6 +27,8 @@ def mutually_exclusive_args(*args: str, allow_none: bool = True) -> Related:
                 raise ValidatorFailed(f"Params '{list(kwargs.keys())}' are mutually exclusive")
             elif not empty:
                 _no_more_vals = True
+
+    _validation_func.__name__ = mutually_exclusive_args.__name__
 
     return Related(_validation_func, *args)
 
@@ -40,7 +44,7 @@ def exactly_x(*args: str, x: int, allow_none: bool = True) -> Related:
         Related: Related object
     """
 
-    def _validation_func(**kwargs: str) -> None:
+    def _validation_func(**kwargs: Any) -> None:
         not_empty_count = 0
         for arg in kwargs.values():
             if allow_none and arg is None:
@@ -52,6 +56,8 @@ def exactly_x(*args: str, x: int, allow_none: bool = True) -> Related:
 
         if not_empty_count != x:
             raise ValidatorFailed(f"Provide exactly one of '{list(kwargs.keys())}'")
+
+    _validation_func.__name__ = exactly_x.__name__
 
     return Related(_validation_func, *args)
 
@@ -79,7 +85,7 @@ def complementary_args(*args: str, allow_none: bool = True) -> Related:
         Related: Related object which can be provided to @validate
     """
 
-    def _validation_func(**kwargs: str) -> None:
+    def _validation_func(**kwargs: Any) -> None:
         if allow_none:
             args_empty = [is_empty(v) or v is None for v in kwargs.values()]
         else:
@@ -88,11 +94,13 @@ def complementary_args(*args: str, allow_none: bool = True) -> Related:
         if (not all(args_empty)) and any(args_empty):
             raise ValidatorFailed("Parameters are complementary, provide all or none.")
 
+    _validation_func.__name__ = complementary_args.__name__
+
     return Related(_validation_func, *args)
 
 
 def hierarchical_args(owner: str, slaves: list[str], allow_none: bool = True) -> Related:
-    """If the owner arg is provided all slave args should be provided as well
+    """If the owner arg is provided, all slave args should be provided as well
 
     Args:
         owner (str): Name of the owner argument
@@ -103,7 +111,7 @@ def hierarchical_args(owner: str, slaves: list[str], allow_none: bool = True) ->
         Related: Related object which can be provided to @validate
     """
 
-    def _validation_func(*, owner_value: str, **slaves: str) -> None:
+    def _validation_func(*, owner_value: Any, **slaves: Any) -> None:
         if allow_none:
             owner_empty = owner_value is None or is_empty(owner_value)
             any_slave_empty = any([is_empty(slave) or slave is None for slave in slaves.values()])
@@ -113,5 +121,7 @@ def hierarchical_args(owner: str, slaves: list[str], allow_none: bool = True) ->
 
         if any_slave_empty and not owner_empty:
             raise ValidatorFailed(f"If '{owner}' is provided, '{list(slaves.keys())}' should also be provided")
+
+    _validation_func.__name__ = hierarchical_args.__name__
 
     return Related(_validation_func, *slaves, owner_value=owner)

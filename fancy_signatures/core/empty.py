@@ -2,6 +2,8 @@ from typing import Any
 
 
 class __EmptyArg__:
+    __slots__: tuple = tuple()
+
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, __EmptyArg__):
             return True

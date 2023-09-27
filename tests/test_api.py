@@ -1,7 +1,7 @@
 from typing import Any, ContextManager
 import pytest
 from contextlib import nullcontext as does_not_raise
-from fancy_signatures.api import validate, arg
+from fancy_signatures.api import validate, argument
 from fancy_signatures.validation.validators import (
     GE,
     BlackListedValues,
@@ -26,9 +26,9 @@ OptionalPositiveInt: OptionalGE = OptionalGE(0)
 
 @validate(lazy=False, related=[exactly_one("a", "c")], type_strict=True)
 def func_1(
-    a: int = arg(validators=[PositiveInt, ExBlacklisted], required=False),
-    b: list[int] = arg(required=True, default=EmptyList, validators=[MaxInputListLength]),
-    c: int = arg(validators=[PositiveInt, ExBlacklisted], required=False),
+    a: int = argument(validators=[PositiveInt, ExBlacklisted], required=False),
+    b: list[int] = argument(required=True, default=EmptyList, validators=[MaxInputListLength]),
+    c: int = argument(validators=[PositiveInt, ExBlacklisted], required=False),
 ) -> list[int]:
     if is_empty(a):
         to_append = c
@@ -40,9 +40,9 @@ def func_1(
 
 @validate(lazy=True, related=[exactly_one("a", "c")], type_strict=False)
 def func_1_lazy(
-    a: int | None = arg(validators=[OptionalPositiveInt, ExBlacklisted], required=False),
-    b: list[int] = arg(required=True, default=EmptyList, validators=[MaxInputListLength]),
-    c: int | None = arg(validators=[OptionalPositiveInt, ExBlacklisted], required=False),
+    a: int | None = argument(validators=[OptionalPositiveInt, ExBlacklisted], required=False),
+    b: list[int] = argument(required=True, default=EmptyList, validators=[MaxInputListLength]),
+    c: int | None = argument(validators=[OptionalPositiveInt, ExBlacklisted], required=False),
 ) -> list[int]:
     if is_empty(a) or a is None:
         assert c is not None  # allowing None does make dealing with mypy a bit trickier
@@ -55,7 +55,7 @@ def func_1_lazy(
 
 @validate
 def func_2(
-    a: int = arg(default=Zero),
+    a: int = argument(default=Zero),
     b: int | None = None,
 ) -> int:
     if b is None:
@@ -65,8 +65,8 @@ def func_2(
 
 @validate(lazy=True, type_strict=True)
 def func_2_lazy(
-    a: int = arg(default=Zero, validators=[GE(0), MultipleOfValidator(2)]),
-    b: int | None = arg(validators=[OptionalLT(10)]),
+    a: int = argument(default=Zero, validators=[GE(0), MultipleOfValidator(2)]),
+    b: int | None = argument(validators=[OptionalLT(10)]),
 ) -> int:
     if b is None:
         b = 0
@@ -76,6 +76,32 @@ def func_2_lazy(
 @validate
 def int_or_float(a: int | float) -> int | float:
     return a
+
+
+@validate
+def alias_func(a: int, b: int = argument(alias="c")) -> int:
+    return a + b
+
+
+class MyClass:
+    classvar: str = "classvar"
+
+    def __init__(self, base: int) -> None:
+        self._base = base
+
+    @validate(lazy=False)
+    def my_method(self, a: int, b: int = argument(validators=[PositiveInt])) -> int:
+        return a + b + self._base
+
+    @classmethod
+    @validate(lazy=False)
+    def my_classmethod(cls, a: str) -> str:
+        return f"Got {a}, had {cls.classvar}"
+
+    @staticmethod
+    @validate
+    def my_staticmethod(a: str) -> str:
+        return a
 
 
 @pytest.mark.parametrize(
@@ -182,3 +208,57 @@ def test__lazy_error_count_one_validation_and_typecast_errors() -> None:
         assert len(exc_gr) == 2
         assert len(exc_gr[0].exceptions) == 1
         assert isinstance(exc_gr[1], ValidationError)
+
+
+def test__method_decorated() -> None:
+    c = MyClass(1)
+    assert c.my_method(1, 2) == 4
+
+
+def test__classmethod_decorated() -> None:
+    assert MyClass.my_classmethod("test") == "Got test, had classvar"
+
+
+def test__staticmethod_decorated() -> None:
+    assert MyClass.my_staticmethod("test") == "test"
+
+
+def test__classmethod_decorated_invalid() -> None:
+    with pytest.raises(TypeError):
+
+        class A:
+            @validate
+            @classmethod
+            def method(cls) -> None:
+                return None
+
+        A()
+
+
+def test__related_parameter_not_in_signature() -> None:
+    @validate(related=[exactly_one("a", "b")])
+    def func(a: int) -> int:
+        return a
+
+    with pytest.raises(TypeError):
+        func(a=1)
+
+
+def test__alias() -> None:
+    inp = {
+        "a": 1,
+        "c": 2,
+    }
+
+    assert alias_func(**inp) == 3
+    assert alias_func(a=1, c=4) == 5  # type: ignore
+
+
+def test__aliases_collide_with_param_name() -> None:
+    with pytest.raises(ValueError):
+
+        @validate
+        def test_func(a: str, b: str = argument(alias="a")) -> str:
+            return a + b
+
+        test_func("a", "b")

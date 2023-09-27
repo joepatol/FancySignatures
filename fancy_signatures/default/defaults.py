@@ -28,6 +28,7 @@ class DefaultFactory(Default[T]):
         return value
 
 
+Zero: DefaultValue[int] = DefaultValue(0)
 EmptyList: DefaultFactory[list] = DefaultFactory(list)
 EmptyDict: DefaultFactory[dict] = DefaultFactory(dict)
 EmptyTuple: DefaultFactory[tuple] = DefaultFactory(tuple)

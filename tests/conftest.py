@@ -4,7 +4,7 @@ import pytest
 from fancy_signatures.settings import reset as settings_reset, set, ProtocolHandlingLevel
 from fancy_signatures.core.interface import TypeCaster
 from fancy_signatures.exceptions import TypeCastError
-from fancy_signatures.typecasting import register_handler, unregister_strict_handler
+from fancy_signatures.typecasting import register_typecaster, unregister_strict_typecaster
 
 
 class ExceptionNotRaised(Exception):
@@ -35,9 +35,9 @@ class IntTypeCaster(TypeCaster[int]):
 
 @pytest.fixture(scope="function")
 def custom_int_handler() -> Generator[bool, None, None]:
-    register_handler(type_hints=[int], handler=IntTypeCaster, strict=True)
+    register_typecaster(type_hints=[int], handler=IntTypeCaster, strict=True)
     yield True
-    unregister_strict_handler(int)
+    unregister_strict_typecaster(int)
 
 
 @pytest.fixture(scope="function")

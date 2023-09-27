@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from typing import TypeVar, Callable, Any, cast, overload
-import functools
 import inspect
 
 from .validation.related import Related
@@ -9,12 +10,19 @@ from .core.field import UnTypedArgField, TypedArgField
 from .core.interface import Validator, Default
 from .exceptions import ValidationErrorGroup, ValidationError
 from .core.empty import __EmptyArg__
+from .alias import check_alias_collisions, process_aliases
 
 
 FuncT = TypeVar("FuncT", bound=Callable[..., Any])
 
 
-def arg(*, validators: list[Validator] | None = None, default: Default | None = None, required: bool = True) -> Any:
+def argument(
+    *,
+    validators: list[Validator] | None = None,
+    default: Default | None = None,
+    required: bool = True,
+    alias: str | None = None,
+) -> Any:
     """A function argument
 
     Args:
@@ -22,15 +30,16 @@ def arg(*, validators: list[Validator] | None = None, default: Default | None = 
         default (Default | None, optional): Default value for this argument. Defaults to None.
         required (bool, optional): Whether the argument is required, if not it will default to __EmptyArg__().
         Defaults to True.
+        alias (str | None, optional): Alias name for the argument (when parsing from e.g. a dict). Defaults to None.
 
     Returns:
         UnTypedArgField: Container class for processing the field when the decorated function is called.
-        Type hint is `Any`vto avoid linter issues when using `arg` as default for a typehinted parameter.
-        (`a: int = arg()` would fail)
+        Type hint is `Any` to avoid linter issues when using `argument` as default for a typehinted parameter.
+        (`a: int = argument()` would fail)
     """
     default = default if default is not None else DefaultValue()
     validators = validators if validators is not None else []
-    return UnTypedArgField(required, default=default, validators=validators)
+    return UnTypedArgField(required, default=default, validators=validators, alias=alias)
 
 
 @overload
@@ -71,9 +80,10 @@ def validate(
         related = []
 
     def wrapper(func: FuncT) -> FuncT:
-        return cast(
-            FuncT, functools.update_wrapper(wrapper=_FunctionWrapper(func, related, lazy, type_strict), wrapped=func)
-        )
+        if isinstance(func, (classmethod, staticmethod)):
+            name = type(func).__name__
+            raise TypeError(f"The `@{name}` decorator should be applied after `@validate` (put `@{name}` on top)")
+        return cast(FuncT, _FunctionWrapper(func, related, lazy, type_strict))
 
     if __func is None:
         return wrapper
@@ -82,6 +92,20 @@ def validate(
 
 
 class _FunctionWrapper:
+    __slots__ = (
+        "_lazy",
+        "_wrapped_func",
+        "_func_params",
+        "_fields",
+        "_related",
+        "_strict",
+        "__name__",
+        "__qualname__",
+        "__annotations__",
+        "__doc__",
+        "__dict__",
+    )
+
     def __init__(self, wrapped_func: FuncT, related_validators: list[Related], lazy: bool, type_strict: bool) -> None:
         annotations_dict = wrapped_func.__annotations__
         signature = inspect.signature(wrapped_func)
@@ -94,10 +118,12 @@ class _FunctionWrapper:
             if isinstance(parameter.default, UnTypedArgField):
                 prepared_arg = parameter.default
             elif parameter.default == inspect._empty:
-                prepared_arg = arg()
+                prepared_arg = argument()
             else:
-                prepared_arg = arg(default=DefaultValue(parameter.default))
+                prepared_arg = argument(default=DefaultValue(parameter.default))
             named_fields[name] = prepared_arg.set_type(typecaster)
+
+        check_alias_collisions(list(named_fields.keys()), [arg.alias for arg in named_fields.values()])
 
         self._lazy = lazy
         self._wrapped_func = wrapped_func
@@ -106,7 +132,38 @@ class _FunctionWrapper:
         self._related = related_validators
         self._strict = type_strict
 
+        # Copying all interesting stuff from the wrapped function (much like functools.wraps)
+        self.__name__ = wrapped_func.__name__
+        self.__qualname__ = wrapped_func.__qualname__
+        self.__annotations__ = wrapped_func.__annotations__
+        self.__module__ = wrapped_func.__module__
+        self.__doc__ = wrapped_func.__doc__
+
+    def __get__(self, obj: Any, objtype: type[Any] | None = None) -> _FunctionWrapper:
+        """Bind the wrapped function and return another _FunctionWrapper wrapping that."""
+        if obj is None:
+            try:
+                # Handle the case where a method is accessed as a class attribute
+                return objtype.__getattribute__(objtype, self.__name__)  # type: ignore
+            except AttributeError:
+                # This will happen the first time the attribute is accessed
+                pass
+
+        bound_function = self._wrapped_func.__get__(obj, objtype)
+        result = self.__class__(bound_function, self._related, self._lazy, self._strict)
+        if self.__name__ is not None:
+            if obj is not None:
+                setattr(obj, self.__name__, result)
+            else:
+                setattr(objtype, self.__name__, result)
+        return result
+
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        kwargs = process_aliases(
+            {name: field.alias for name, field in self._fields.items()},
+            kwargs,
+        )
+
         for i, param_name in enumerate(self._func_params):
             if param_name not in kwargs:
                 if i < len(args):
