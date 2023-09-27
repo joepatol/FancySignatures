@@ -5,7 +5,7 @@ from ..core.interface import TypeCaster
 from ..settings import Settings
 
 
-def register_handler(type_hints: list[typing.TypeAlias], handler: typing.Type[TypeCaster], strict: bool) -> None:
+def register_typecaster(type_hints: list[typing.TypeAlias], handler: typing.Type[TypeCaster], strict: bool) -> None:
     """Register a TypeCaster object that handles a set of type hints.
 
     Args:
@@ -22,14 +22,14 @@ def register_handler(type_hints: list[typing.TypeAlias], handler: typing.Type[Ty
         _set_maybe_warn(hint, handler_dict, handler)
 
 
-def unregister_handler(type_hint: typing.TypeAlias) -> None:
+def unregister_typecaster(type_hint: typing.TypeAlias) -> None:
     from .__handler_lib import CUSTOM_HANDLERS
 
     if type_hint in CUSTOM_HANDLERS:
         del CUSTOM_HANDLERS[type_hint]
 
 
-def unregister_strict_handler(type_hint: typing.TypeAlias) -> None:
+def unregister_strict_typecaster(type_hint: typing.TypeAlias) -> None:
     from .__handler_lib import STRICT_CUSTOM_HANDLERS
 
     if type_hint in STRICT_CUSTOM_HANDLERS:
