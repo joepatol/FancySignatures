@@ -4,13 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "FancySignatures"
-version = "0.0.6"
+version = "0.0.7"
 authors = [
   { name="Joep Atol", email="joep.atol@live.nl" },
 ]
 description = "Package to leverage standard type hints in function and method signatures."
 readme = "README.md"
 requires-python = ">=3.10"
+dependencies = [
+  "typing_extensions>=4.7.1"
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
