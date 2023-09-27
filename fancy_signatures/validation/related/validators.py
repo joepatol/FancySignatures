@@ -100,7 +100,7 @@ def complementary_args(*args: str, allow_none: bool = True) -> Related:
 
 
 def hierarchical_args(owner: str, slaves: list[str], allow_none: bool = True) -> Related:
-    """If the owner arg is provided all slave args should be provided as well
+    """If the owner arg is provided, all slave args should be provided as well
 
     Args:
         owner (str): Name of the owner argument

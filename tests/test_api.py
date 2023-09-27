@@ -78,6 +78,11 @@ def int_or_float(a: int | float) -> int | float:
     return a
 
 
+@validate
+def alias_func(a: int, b: int = argument(alias="c")) -> int:
+    return a + b
+
+
 class MyClass:
     classvar: str = "classvar"
 
@@ -237,3 +242,23 @@ def test__related_parameter_not_in_signature() -> None:
 
     with pytest.raises(TypeError):
         func(a=1)
+
+
+def test__alias() -> None:
+    inp = {
+        "a": 1,
+        "c": 2,
+    }
+
+    assert alias_func(**inp) == 3
+    assert alias_func(a=1, c=4) == 5  # type: ignore
+
+
+def test__aliases_collide_with_param_name() -> None:
+    with pytest.raises(ValueError):
+
+        @validate
+        def test_func(a: str, b: str = argument(alias="a")) -> str:
+            return a + b
+
+        test_func("a", "b")

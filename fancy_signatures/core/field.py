@@ -11,23 +11,36 @@ class UnTypedArgField:
         "_required",
         "_validators",
         "_default",
+        "_alias",
     )
 
-    def __init__(self, required: bool, default: Default, validators: list[Validator]) -> None:
+    @property
+    def alias(self) -> str | None:
+        return self._alias
+
+    def __init__(self, required: bool, default: Default, validators: list[Validator], alias: str | None = None) -> None:
         self._required = required
         self._validators = validators
         self._default = default
+        self._alias = alias
 
     def set_type(self, typecaster: TypeCaster) -> TypedArgField:
-        return TypedArgField(self._required, self._default, typecaster, self._validators)
+        return TypedArgField(self._required, self._default, typecaster, self._validators, self._alias)
 
 
 class TypedArgField(UnTypedArgField):
     __slots__ = ("_typecaster",)
 
-    def __init__(self, required: bool, default: Default, typecaster: TypeCaster, validators: list[Validator]) -> None:
+    def __init__(
+        self,
+        required: bool,
+        default: Default,
+        typecaster: TypeCaster,
+        validators: list[Validator],
+        alias: str | None = None,
+    ) -> None:
         self._typecaster = typecaster
-        super().__init__(required, default, validators)
+        super().__init__(required, default, validators, alias)
 
     def execute(self, name: str, value: Any, lazy: bool, strict: bool) -> Any:
         value_or_default = self._default(value)

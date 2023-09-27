@@ -10,13 +10,18 @@ from .core.field import UnTypedArgField, TypedArgField
 from .core.interface import Validator, Default
 from .exceptions import ValidationErrorGroup, ValidationError
 from .core.empty import __EmptyArg__
+from .alias import check_alias_collisions, process_aliases
 
 
 FuncT = TypeVar("FuncT", bound=Callable[..., Any])
 
 
 def argument(
-    *, validators: list[Validator] | None = None, default: Default | None = None, required: bool = True
+    *,
+    validators: list[Validator] | None = None,
+    default: Default | None = None,
+    required: bool = True,
+    alias: str | None = None,
 ) -> Any:
     """A function argument
 
@@ -25,6 +30,7 @@ def argument(
         default (Default | None, optional): Default value for this argument. Defaults to None.
         required (bool, optional): Whether the argument is required, if not it will default to __EmptyArg__().
         Defaults to True.
+        alias (str | None, optional): Alias name for the argument (when parsing from e.g. a dict). Defaults to None.
 
     Returns:
         UnTypedArgField: Container class for processing the field when the decorated function is called.
@@ -33,7 +39,7 @@ def argument(
     """
     default = default if default is not None else DefaultValue()
     validators = validators if validators is not None else []
-    return UnTypedArgField(required, default=default, validators=validators)
+    return UnTypedArgField(required, default=default, validators=validators, alias=alias)
 
 
 @overload
@@ -117,6 +123,8 @@ class _FunctionWrapper:
                 prepared_arg = argument(default=DefaultValue(parameter.default))
             named_fields[name] = prepared_arg.set_type(typecaster)
 
+        check_alias_collisions(list(named_fields.keys()), [arg.alias for arg in named_fields.values()])
+
         self._lazy = lazy
         self._wrapped_func = wrapped_func
         self._func_params = signature.parameters
@@ -151,6 +159,11 @@ class _FunctionWrapper:
         return result
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        kwargs = process_aliases(
+            {name: field.alias for name, field in self._fields.items()},
+            kwargs,
+        )
+
         for i, param_name in enumerate(self._func_params):
             if param_name not in kwargs:
                 if i < len(args):
