@@ -262,3 +262,16 @@ def test__aliases_collide_with_param_name() -> None:
             return a + b
 
         test_func("a", "b")
+
+
+class Course:
+    @validate
+    def __init__(self, name: str, cost: float) -> None:
+        self._name = name
+        self._cost = cost
+
+
+def test__init_decorated() -> None:
+    c = Course(**{"name": "a", "cost": 1.2})  # type: ignore
+
+    assert c._cost == 1.2
