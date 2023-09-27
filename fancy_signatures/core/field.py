@@ -7,6 +7,12 @@ from .empty import is_empty
 
 
 class UnTypedArgField:
+    __slots__ = (
+        "_required",
+        "_validators",
+        "_default",
+    )
+
     def __init__(self, required: bool, default: Default, validators: list[Validator]) -> None:
         self._required = required
         self._validators = validators
@@ -17,6 +23,8 @@ class UnTypedArgField:
 
 
 class TypedArgField(UnTypedArgField):
+    __slots__ = ("_typecaster",)
+
     def __init__(self, required: bool, default: Default, typecaster: TypeCaster, validators: list[Validator]) -> None:
         self._typecaster = typecaster
         super().__init__(required, default, validators)

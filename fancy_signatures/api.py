@@ -86,6 +86,20 @@ def validate(
 
 
 class _FunctionWrapper:
+    __slots__ = (
+        "_lazy",
+        "_wrapped_func",
+        "_func_params",
+        "_fields",
+        "_related",
+        "_strict",
+        "__name__",
+        "__qualname__",
+        "__annotations__",
+        "__doc__",
+        "__dict__",
+    )
+
     def __init__(self, wrapped_func: FuncT, related_validators: list[Related], lazy: bool, type_strict: bool) -> None:
         annotations_dict = wrapped_func.__annotations__
         signature = inspect.signature(wrapped_func)
@@ -110,6 +124,7 @@ class _FunctionWrapper:
         self._related = related_validators
         self._strict = type_strict
 
+        # Copying all interesting stuff from the wrapped function (much like functools.wraps)
         self.__name__ = wrapped_func.__name__
         self.__qualname__ = wrapped_func.__qualname__
         self.__annotations__ = wrapped_func.__annotations__

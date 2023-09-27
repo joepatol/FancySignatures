@@ -11,8 +11,22 @@ class Related:
 
     def __call__(self, **kwargs: Any) -> Any:
         function_kwargs = {k: v for k, v in kwargs.items() if k in self._func_args}
+
+        for arg in self._func_args:
+            if arg not in function_kwargs:
+                raise TypeError(
+                    f"{self._func.__name__} applies to argument '{arg}' but it wasn't found" "in the function arguments"
+                )
+
         for validation_func_arg_name, kwarg_name in self._func_kwargs.items():
-            function_kwargs[validation_func_arg_name] = kwargs[kwarg_name]
+            try:
+                value = kwargs[kwarg_name]
+            except KeyError:
+                raise TypeError(
+                    f"{self._func.__name__} applies to argument '{kwarg_name}' but it wasn't found"
+                    "in the function arguments"
+                )
+            function_kwargs[validation_func_arg_name] = value
         try:
             self._func(**function_kwargs)
         except ValidatorFailed as e:

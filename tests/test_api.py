@@ -228,3 +228,12 @@ def test__classmethod_decorated_invalid() -> None:
                 return None
 
         A()
+
+
+def test__related_parameter_not_in_signature() -> None:
+    @validate(related=[exactly_one("a", "b")])
+    def func(a: int) -> int:
+        return a
+
+    with pytest.raises(TypeError):
+        func(a=1)
