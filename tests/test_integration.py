@@ -87,4 +87,29 @@ def test__integration_errors() -> None:
     try:
         load_students(**INPUT_DATA_NOT_OK)  # type: ignore
     except ValidationErrorGroup as e:
-        e.to_dict()
+        assert e.to_dict() == {
+            "Parameter validation for load_students failed (2 sub-exceptions)": [
+                {
+                    "Parameter validation for Student failed (1 sub-exception)": [
+                        {
+                            "Parameter validation for Course failed (1 sub-exception)": [
+                                {
+                                    "Errors during validation of 'cost' (1 sub-exception)": [
+                                        "Parameter 'cost' is invalid. Value should be greater than or equal to 0."
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "Parameter validation for ClassRoom failed (1 sub-exception)": [
+                        {
+                            "Errors during validation of 'name' (1 sub-exception)": [
+                                "Parameter 'name' is invalid. Length too large."
+                            ]
+                        }
+                    ]
+                },
+            ]
+        }

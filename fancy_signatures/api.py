@@ -91,9 +91,10 @@ def validate(
         if inspect.isclass(func_or_cls):
             # If it's a class, decorate the `__init__` method
             init_func = func_or_cls.__init__
-            init_func.__name__ = func_or_cls.__name__
+            setattr(init_func, "__fancy_signature_name__", func_or_cls.__name__)
             func_or_cls.__init__ = _FunctionWrapper(init_func, related, lazy, type_strict)
             return cast(CallableT, func_or_cls)
+        setattr(func_or_cls, "__fancy_signature_name__", func_or_cls.__name__)
         return cast(CallableT, _FunctionWrapper(func_or_cls, related, lazy, type_strict))
 
     if __func_or_cls is None:
@@ -120,6 +121,12 @@ class _FunctionWrapper:
     def __init__(
         self, wrapped_func: CallableT, related_validators: list[Related], lazy: bool, type_strict: bool
     ) -> None:
+        if not hasattr(wrapped_func, "__fancy_signature_name__"):
+            raise AttributeError(
+                "Missing `__fancy_signature_name__`. If you are using `_FunctionWrapper` directly, this is not how you "
+                "should be using FancySignatures, but you should add the attribute.."
+            )
+
         annotations_dict = wrapped_func.__annotations__
         signature = inspect.signature(wrapped_func)
         _ = annotations_dict.pop("return", Any)
@@ -188,7 +195,7 @@ class _FunctionWrapper:
             try:
                 field = self._fields[name]
             except KeyError:
-                raise TypeError(f"Unrecognized argument '{name}' for '{self._wrapped_func.__name__}'")
+                raise TypeError(f"Unrecognized argument '{name}' for '{self._wrapped_func.__fancy_signature_name__}'")
 
             try:
                 kwargs[name] = field.execute(name, value, self._lazy, self._strict)
@@ -199,7 +206,9 @@ class _FunctionWrapper:
                     raise e
 
         if errors:
-            raise ValidationErrorGroup(f"Parameter validation for {self._wrapped_func.__name__} failed", errors)
+            raise ValidationErrorGroup(
+                f"Parameter validation for {self._wrapped_func.__fancy_signature_name__} failed", errors
+            )
 
         for related_validator in self._related:
             try:
@@ -211,6 +220,8 @@ class _FunctionWrapper:
                     raise e
 
         if errors:
-            raise ValidationErrorGroup(f"Related parameter validation for {self._wrapped_func.__name__} failed", errors)
+            raise ValidationErrorGroup(
+                f"Related parameter validation for {self._wrapped_func.__fancy_signature_name__} failed", errors
+            )
 
         return self._wrapped_func(**kwargs)
