@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any
 
 from .interface import TypeCaster, Default, Validator
-from ..exceptions import ValidationError, ValidationErrorGroup, TypeValidationError, TypeCastError
+from ..exceptions import ValidationError, ValidationErrorGroup, TypeValidationError, TypeCastError, MissingArgument
 from .empty import is_empty
 
 
@@ -47,7 +47,7 @@ class TypedArgField(UnTypedArgField):
         value_is_empty = is_empty(value_or_default)
 
         if self._required and value_is_empty:
-            raise ValueError(f"Parameter '{name}' is required and no default was provided")
+            raise MissingArgument(f"Parameter '{name}' is required and no default was provided")
         elif value_is_empty:
             return value_or_default
 
@@ -57,6 +57,8 @@ class TypedArgField(UnTypedArgField):
             raise ValidationError(f"Type validation failed. message: {e}", name)
         except TypeCastError as e:
             raise ValidationError(f"Couldn't cast to the correct type. message: {e}", name)
+        except MissingArgument as e:
+            raise ValidationError(str(e), name)
 
         errors: list[ValidationError] = []
         for validator in self._validators:

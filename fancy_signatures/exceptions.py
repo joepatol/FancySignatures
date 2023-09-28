@@ -14,6 +14,10 @@ class ValidationError(Exception):
         super().__init__(msg)
 
 
+class MissingArgument(Exception):
+    pass
+
+
 class TypeCastError(TypeError):
     """Error raised when typecasting failed"""
 

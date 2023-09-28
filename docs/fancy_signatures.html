@@ -26,15 +26,22 @@
   <li><a href="#fancysignatures">FancySignatures</a>
   <ul>
     <li><a href="#basic-usage">Basic usage</a></li>
-    <li><a href="#more-advanced-usage">More advanced usage</a></li>
-    <li><a href="#extending-the-package">Extending the package</a></li>
+    <li><a href="#argument-validators">Argument validators</a></li>
+    <li><a href="#default-values">Default values</a></li>
+    <li><a href="#more-on-the-argument-function">More on the <code>argument</code> function</a></li>
+    <li><a href="#related-validation">Related validation</a></li>
+    <li><a href="#more-on-type-validating-and-typecasting">More on type validating and typecasting</a></li>
+    <li><a href="#settings">Settings</a></li>
+    <li><a href="#classes-and-methods">Classes and methods</a></li>
+    <li><a href="#exceptions">Exceptions</a></li>
+    <li><a href="#full-example">Full example</a></li>
   </ul></li>
-  <li><a href="#caveats">Caveats</a></li>
 </ul>
 
 
             <h2>Submodules</h2>
             <ul>
+                    <li><a href="fancy_signatures/alias.html">alias</a></li>
                     <li><a href="fancy_signatures/api.html">api</a></li>
                     <li><a href="fancy_signatures/core.html">core</a></li>
                     <li><a href="fancy_signatures/default.html">default</a></li>
@@ -60,10 +67,13 @@ fancy_signatures    </h1>
 
                         <div class="docstring"><h1 id="fancysignatures">FancySignatures</h1>
 
-<p>This package aims to leverage Python type hints, to validate function and method parameters using a simple decorator.
-It also add validation functionality by injecting fields as default values.</p>
+<p>This package provides an extensive, easy to use API to validate input arguments to functions and methods. It uses standard Python type hints to
+validate and/or cast to a given type. It also provides a way to perform additional validation on one or more parameters. Also convenience tools are provided
+for easily parsing data.</p>
 
 <h2 id="basic-usage">Basic usage</h2>
+
+<p>The most basic use case is to validate provided function arguments against their type hints.</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span>
@@ -73,9 +83,9 @@ It also add validation functionality by injecting fields as default values.</p>
     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
 
 
-<span class="n">some_func</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># return 3</span>
+<span class="n">some_func</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># returns 3</span>
 <span class="n">some_func</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># returns 3</span>
-<span class="n">some_func</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># raises TypeCastError</span>
+<span class="n">some_func</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># raises ValidationError</span>
 </code></pre>
 </div>
 
@@ -94,95 +104,203 @@ It also add validation functionality by injecting fields as default values.</p>
 </code></pre>
 </div>
 
-<p>On a high level, there are 3 main steps performed:</p>
-
-<ol>
-<li>Validate the type hints against the provided parameters, if they don't match attempt to typecast</li>
-<li>Run all provided validation functions</li>
-<li>Run all provided <code>Related</code> validation functions; validators that use a number of function arguments</li>
-</ol>
-
-<p>If <code>lazy=True</code> an <code>ExceptionGroup</code> will be raised if an error is found in one of the steps.
-For example, if the type validation failed in step 1 an exception will be raised. The next steps will <strong>not</strong> be performed.</p>
-
-<h2 id="more-advanced-usage">More advanced usage</h2>
-
-<p>Next to validating type hints, the package provides a way to apply validations on your parameters using the <code>arg</code> function.</p>
+<p>By default, <code>FancySignatures</code> will attempt to typecast if type validation fails. To turn this behavior off, use the <code>type_strict</code> parameter.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">arg</span>
-<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/validation.html">fancy_signatures.validation</a></span> <span class="kn">import</span> <span class="n">IntMin</span>
+<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span>
 
 
-<span class="nd">@validate</span>
-<span class="k">def</span> <span class="nf">some_func</span><span class="p">(</span>
-    <span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">arg</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">IntMin</span><span class="p">(</span><span class="mi">0</span><span class="p">)]),</span> 
-    <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">arg</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">IntMin</span><span class="p">(</span><span class="mi">0</span><span class="p">)]),</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> 
+<span class="nd">@validate</span><span class="p">(</span><span class="n">type_strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">some_func</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
 
 
-<span class="n">some_func</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># Returns 3</span>
-<span class="n">some_func</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># Raise ValidationError</span>
+<span class="n">some_func</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># raises ValidationError</span>
 </code></pre>
 </div>
 
-<p>It's also possible to provide default values. It enables omitted args and kwargs completely.</p>
+<h2 id="argument-validators">Argument validators</h2>
+
+<p>You can perform other validations on arguments using the <code>argument</code> function.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">arg</span>
-<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/default.html">fancy_signatures.default</a></span> <span class="kn">import</span> <span class="n">IntDefault</span>
+<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">argument</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/validation.html">fancy_signatures.validation</a></span> <span class="kn">import</span> <span class="n">GE</span>
+
+<span class="nd">@validate</span>
+<span class="k">def</span> <span class="nf">some_func</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">GE</span><span class="p">(</span><span class="mi">0</span><span class="p">)]))</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">a</span>
+
+<span class="n">some_func</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Raises: <a href="fancy_signatures/exceptions.html#ValidationError">fancy_signatures.exceptions.ValidationError</a>: Parameter &#39;a&#39; is invalid. Value should be greater than or equal to 0.</span>
+</code></pre>
+</div>
+
+<h3 id="custom-validators">Custom Validators</h3>
+
+<p><code>FancySignatures</code> provides a number of built-in validators, but you can also create your own.
+Just inherit from the provided <code>Validator</code> base class and implement the <code>validate</code> method.</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">argument</span>
+<span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">Validator</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/exceptions.html">fancy_signatures.exceptions</a></span> <span class="kn">import</span> <span class="n">ValidatorFailed</span>
+
+
+<span class="k">class</span> <span class="nc">DivisibleByTwo</span><span class="p">(</span><span class="n">Validator</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidatorFailed</span><span class="p">(</span><span class="s2">&quot;Should be divisible by 2&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span>
 
 
 <span class="nd">@validate</span>
-<span class="k">def</span> <span class="nf">some_func</span><span class="p">(</span>
-    <span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
-    <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">arg</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">IntDefault</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> 
-    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+<span class="k">def</span> <span class="nf">custom_validator_func</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">DivisibleByTwo</span><span class="p">()]))</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">a</span>
 
 
-<span class="n">some_func</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># Returns 3</span>
-<span class="n">some_func</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Returns 7</span>
-<span class="n">some_func</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># Raises ValidationError</span>
-<span class="n">some_func</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Returns 6</span>
+<span class="c1"># <a href="fancy_signatures/exceptions.html#ValidationError">fancy_signatures.exceptions.ValidationError</a>: Parameter &#39;a&#39; is invalid. Should be divisible by 2.</span>
 </code></pre>
 </div>
 
-<p>By default, arguments are required but it can be customized by the <code>required</code> parameters.
-If you don't provide a default and the parameter is not passed. It will interally be an instance of <code>__EmptyArg__</code>.
-Be aware that your function will this still receive the argument with the special value and it's up to the user to handle it.</p>
+<p>Validators should raise <code>ValidatorFailed</code> if the validation fails, these exceptions will be caught by <code>FancySignatures</code>.
+If the validation is successfull, the original input value (<code>obj</code>) should be returned.</p>
+
+<h3 id="validating-optional-arguments">Validating optional arguments</h3>
+
+<p>For validating optional arguments (<code>Any | None</code> or <code>typing.Optional[Any]</code>) validators are provided for you.
+These validators will be skipped (i.e. they return <code>None</code>) if it <code>None</code> is passed as an argument.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">arg</span>
+<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">argument</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/validation.html">fancy_signatures.validation</a></span> <span class="kn">import</span> <span class="n">OptionalGE</span>
 
 
 <span class="nd">@validate</span>
-<span class="k">def</span> <span class="nf">empty_arg</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">__EmptyArg__</span> <span class="o">=</span> <span class="n">arg</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
-
-
-<span class="n">empty_arg</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-
-<span class="sd">&quot;&quot;&quot;&quot;</span>
-<span class="sd">Output:</span>
-<span class="sd">&lt;class &#39;int&#39;&gt;</span>
-<span class="sd">&lt;class &#39;fancy_signatures.core.types.__EmptyArg__&#39;&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span><span class="s2">&quot;</span>
+<span class="k">def</span> <span class="nf">optional_arg</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">OptionalGE</span><span class="p">(</span><span class="mi">0</span><span class="p">)]))</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">a</span>
 </code></pre>
 </div>
 
-<p>It's also possible to validate related arguments using the <code>Related</code> object.</p>
+<p>For creating your own optional validators, use the <code>AllowOptionalMixin</code>.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">arg</span>
-<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/validation.html">fancy_signatures.validation</a></span> <span class="kn">import</span> <span class="n">Related</span>
+<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">argument</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/validation.html">fancy_signatures.validation</a></span> <span class="kn">import</span> <span class="n">AllowOptionalMixin</span>
+
+
+<span class="k">class</span> <span class="nc">DivisibleByTwo</span><span class="p">(</span><span class="n">AllowOptionalMixin</span><span class="p">,</span> <span class="n">Validator</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidatorFailed</span><span class="p">(</span><span class="s2">&quot;Should be divisible by 2&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span>
+
+<span class="nd">@validate</span>
+<span class="k">def</span> <span class="nf">optional_arg</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">DivisibleByTwo</span><span class="p">()]))</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">a</span>
+</code></pre>
+</div>
+
+<h2 id="default-values">Default values</h2>
+
+<p>With <code>FancySignatures</code> you can provide defaults like you are used to. If you are using <code>argument</code> it also takes a parameter <code>default</code> that can be used to provide a value from the
+built-in <code>Default</code> class. If you so desire you can inherit from it and create you own <code>Default</code> object by implementing the <code>get</code> method. For most use cases though, the built in
+<code>DefaultValue</code> and <code>DefaultFactory</code> should suffice.</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">argument</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/default.html">fancy_signatures.default</a></span> <span class="kn">import</span> <span class="n">DefaultValue</span><span class="p">,</span> <span class="n">DefaultFactory</span>
+
+
+<span class="nd">@validate</span>
+<span class="k">def</span> <span class="nf">default_value</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">DefaultValue</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="ow">and</span> <span class="n">b</span>
+
+
+<span class="nd">@validate</span>
+<span class="k">def</span> <span class="nf">default_factory</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">DefaultFactory</span><span class="p">(</span><span class="nb">list</span><span class="p">)))</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">a</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="n">default_value</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">default_factory</span><span class="p">())</span>
+</code></pre>
+</div>
+
+<p>For convenience, some often used defaults are provided for you. For example <code>Zero</code> (equivalent to <code>DefaultValue(0)</code>) and <code>EmptyList</code> (equivalent to <code>DefaultFactory(list)</code>).</p>
+
+<h2 id="more-on-the-argument-function">More on the <code>argument</code> function</h2>
+
+<p>Next to functioning as a container for storing defaults and validators, the <code>argument</code> function provides other functionality.</p>
+
+<h3 id="required">required</h3>
+
+<p>The required parameter controls whether an argument is mandatory. By default it is set to <code>True</code> but setting it to <code>False</code> means it can be ommitted completely.</p>
+
+<p><strong>Be aware</strong> <code>FancySignatures</code> will pass non-required parameters that were not provided to the function as the <code>__EmptyArg__</code> object. To deal with this in your functions
+the <code>is_empty</code> function is provided.</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">argument</span><span class="p">,</span> <span class="n">is_empty</span>
+
+
+<span class="nd">@validate</span>
+<span class="k">def</span> <span class="nf">empty_arguments</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">is_empty</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="k">return</span> <span class="n">a</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="n">empty_arguments</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">empty_arguments</span><span class="p">(</span><span class="s2">&quot;passed&quot;</span><span class="p">))</span>
+</code></pre>
+</div>
+
+<p>If you don't use is empty you will see that <code>a</code> is actually an instance of <code>__EmptyArg__</code>.</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">argument</span>
+
+
+<span class="nd">@validate</span>
+<span class="k">def</span> <span class="nf">empty_arguments</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">a</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="n">empty_arguments</span><span class="p">())</span>  <span class="c1"># prints: `FancySignaturesEmptyObject`</span>
+</code></pre>
+</div>
+
+<h3 id="alias">alias</h3>
+
+<p>The alias paramater allows you to provide an alias name for a parameter. It's useful when data is provided to you from a source you can't control (e.g. a http request). It allows you to use the function argument names you want while not being dependent on the naming of the data you receive.</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">argument</span>
+
+
+<span class="nd">@validate</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">input_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;inpval&quot;</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">input_value</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="s2">&quot;inpval&quot;</span><span class="p">:</span> <span class="s2">&quot;hello world&quot;</span><span class="p">}))</span>
+</code></pre>
+</div>
+
+<h2 id="related-validation">Related validation</h2>
+
+<p>In addition to validating individual arguments <code>FancySignatures</code> also provides a way to perform validations accross multiple arguments using the <code>Related</code> object.</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/validation/related.html">fancy_signatures.validation.related</a></span> <span class="kn">import</span> <span class="n">Related</span>
 
 
 <span class="k">def</span> <span class="nf">should_be_greater</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">a</span> <span class="o">&lt;=</span> <span class="n">b</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;a should be greater than b&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">ValidatorFailed</span><span class="p">(</span><span class="s2">&quot;a should be greater than b&quot;</span><span class="p">)</span>
 
 
 <span class="nd">@validate</span><span class="p">(</span><span class="n">related</span><span class="o">=</span><span class="p">[</span><span class="n">Related</span><span class="p">(</span><span class="n">should_be_greater</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">)])</span>
@@ -195,178 +313,371 @@ Be aware that your function will this still receive the argument with the specia
 </code></pre>
 </div>
 
-<p>Note that the parameters are named the same in the validation function <code>should_be_greater</code> then they are in the main function.
-Internally <code><a href="">fancy_signatures</a></code> figures out which arguments are required for the validation function and passes them as kwargs to your function</p>
-
-<p>Of course, you can mix and match the functionalities at will.</p>
+<p>The <code>Related</code> object expects the names of the arguments you want to validate as <code>args</code> you can also map function argument names and validator argument names using <code>kwargs</code></p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">arg</span>
-<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/validation.html">fancy_signatures.validation</a></span> <span class="kn">import</span> <span class="n">Related</span><span class="p">,</span> <span class="n">IntDefault</span><span class="p">,</span> <span class="n">IntMin</span>
+<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/validation/related.html">fancy_signatures.validation.related</a></span> <span class="kn">import</span> <span class="n">Related</span>
 
 
-<span class="nd">@validate</span><span class="p">(</span><span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">related</span><span class="o">=</span><span class="p">[</span><span class="n">Related</span><span class="p">(</span><span class="n">should_be_greater</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">)])</span>
-<span class="k">def</span> <span class="nf">my_func</span><span class="p">(</span>
-    <span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">arg</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">IntDefault</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">IntMin</span><span class="p">(</span><span class="mi">0</span><span class="p">)]),</span> 
-    <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">arg</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">IntDefault</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">IntMin</span><span class="p">(</span><span class="mi">0</span><span class="p">)])</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> 
-    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+<span class="k">def</span> <span class="nf">should_be_greater</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">a</span> <span class="o">&lt;=</span> <span class="n">b</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidatorFailed</span><span class="p">(</span><span class="s2">&quot;a should be greater than b&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@validate</span><span class="p">(</span><span class="n">related</span><span class="o">=</span><span class="p">[</span><span class="n">Related</span><span class="p">(</span><span class="n">should_be_greater</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="s2">&quot;input_a&quot;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s2">&quot;input_b&quot;</span><span class="p">)])</span>
+<span class="k">def</span> <span class="nf">related</span><span class="p">(</span><span class="n">input_a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">input_b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> 
+    <span class="k">return</span> <span class="n">input_a</span> <span class="o">+</span> <span class="n">input_b</span>
+
+
+<span class="n">related</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>  <span class="c1"># OK</span>
+<span class="n">related</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>  <span class="c1"># ValidationError: Parameters &#39;[&#39;input_a&#39;, &#39;input_b&#39;]&#39; are invalid. a should be greater than b.</span>
 </code></pre>
 </div>
 
-<p>Type hints of non-builtins will also work, as long as they are not generics (they inherit from <code>typing.Generic</code>) for handling custom generics see the
-section on extending the library.</p>
+<h3 id="builtin-related-validators">Builtin related validators</h3>
 
-<p>For example, say your parameter is a <code>pydantic.BaseModel</code></p>
+<p><code>FancySignatures</code> also provides a number of builtin related validators which can be found in the <code><a href="fancy_signatures/validation/related.html">fancy_signatures.validation.related</a></code> module.</p>
+
+<h2 id="more-on-type-validating-and-typecasting">More on type validating and typecasting</h2>
+
+<p>To perform type vaidation and typecasting <code>FancySignatures</code> uses the <code>TypeCaster</code> interface. Internally, a number of <code>TypeCaster</code> objects are implemented for all common type hints. </p>
+
+<p>To create a <code>TypeCaster</code> for a type hint, you can use the <code>typecaster_factory</code> function. It takes a type hint and return the <code>TypeCaster</code> for that hint. </p>
+
+<p><strong>Note</strong> Type hints that consist of other type hints, like <code>GenericAlias</code> types and <code>Union</code> are recursively checked. E.g. <code>list[int]</code> will return a typecaster for <code>list</code> and once the <code>TypeCaster</code> is called, it will call <code>typecaster_factory</code> again to validate the <code>int</code> type.</p>
+
+<p>Each <code>TypeCaster</code> has a <code>validate</code> and <code>cast</code> method, to validate the type hint and cast to the given type hint respectively.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">arg</span> 
+<pre><span></span><code><span class="kn">from</span> <span class="nn"><a href="fancy_signatures/typecasting.html">fancy_signatures.typecasting</a></span> <span class="kn">import</span> <span class="n">typecaster_factory</span>
 
-<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="n">typecaster</span> <span class="o">=</span> <span class="n">typecaster_factory</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">typecaster</span><span class="p">)</span>  <span class="c1"># &lt;<a href="fancy_signatures/typecasting/generic_alias.html#ListTupleSetTypeCaster">fancy_signatures.typecasting.generic_alias.ListTupleSetTypeCaster</a> object&gt;</span>
+
+<span class="c1"># In this case the typecaster will internally call the typecaster for int.</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">typecaster</span><span class="o">.</span><span class="n">validate</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">]))</span>  <span class="c1"># False</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">typecaster</span><span class="o">.</span><span class="n">validate</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span>  <span class="c1"># False</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">typecaster</span><span class="o">.</span><span class="n">cast</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">]))</span>  <span class="c1"># [1, 2]</span>
+</code></pre>
+</div>
+
+<h3 id="how-a-typecaster-and-type-are-matched">How a <code>TypeCaster</code> and type are matched</h3>
+
+<p><code>FancySignatures</code> internally keeps track of which <code>TypeCaster</code> belongs to which type hint. This is done in 2 dictionaries.</p>
+
+<ol>
+<li><p><code>STRICT_CUSTOM_HANLDERS</code> are only invoked if the type hint exactly matches the type hint the <code>TypeCaster</code> was created for</p></li>
+<li><p><code>CUSTOM_HANDLERS</code> are invoked in case of an exact match <strong>or</strong> a subclass.</p></li>
+<li><p>If no match is found in both of the aforementioned dictionaries, the <code>DefaultTypeCaster</code> is used. Which unpacks lists or dicts and tries to call the given type with the provided parameters.</p></li>
+</ol>
+
+<h3 id="adding-a-typecaster">Adding a <code>TypeCaster</code></h3>
+
+<p>If you define your own class inheriting from <code>typing.Generic</code>, <code>FancySignatures</code> will be able to handle it. </p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span>
 
 
-<span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MyClass</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">param</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_param</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_param</span> <span class="o">=</span> <span class="n">param</span>
 
 
 <span class="nd">@validate</span>
-<span class="k">def</span> <span class="nf">pydantic_func</span><span class="p">(</span><span class="n">persons</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Person</span><span class="p">],</span> <span class="n">min_age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">arg</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">Person</span><span class="p">:</span>
-    <span class="o">...</span>
+<span class="k">def</span> <span class="nf">custom_generic</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">MyClass</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="n">param</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">custom_generic</span><span class="p">(</span><span class="n">MyClass</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>  <span class="c1"># 1</span>
+
+<span class="c1"># However no guarantees for the Generic subscription can be given. </span>
+<span class="nb">print</span><span class="p">(</span><span class="n">custom_generic</span><span class="p">(</span><span class="n">MyClass</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)))</span>  <span class="c1"># &quot;a&quot;</span>
 </code></pre>
 </div>
 
-<p>Because of the auto-typecasting done by <code><a href="">fancy_signatures</a></code> you can pass a <code>dict</code> of kwargs and it'll be unpacked for you.</p>
+<p>To overcome the problem of <code>FancySignatures</code> not knowing how to handle your custom <code>Generic</code> classes. You can add your own typecaster by registering it with <code>FancySignatures</code></p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">input_dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;persons&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="s2">&quot;27&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="s2">&quot;25&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">],</span>
-    <span class="s2">&quot;min_age&quot;</span><span class="p">:</span> <span class="s2">&quot;20&quot;</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="n">pydantic_func</span><span class="p">(</span><span class="o">**</span><span class="n">input_dict</span><span class="p">)</span>  <span class="c1"># OK</span>
-
-<span class="c1"># Partial unpacking is also supported</span>
-
-<span class="n">persons_list</span> <span class="o">=</span>  <span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="s2">&quot;27&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="s2">&quot;25&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-<span class="p">]</span>
-
-<span class="n">pydantic_func</span><span class="p">(</span><span class="n">persons</span><span class="o">=</span><span class="n">persons_list</span><span class="p">,</span> <span class="n">max_age</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># Also OK</span>
-</code></pre>
-</div>
-
-<h2 id="extending-the-package">Extending the package</h2>
-
-<p>The package is built with extension support in mind. </p>
-
-<p>You can provide your own custom validator. Just inherit from the <code>Validator</code> base class.</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">arg</span>
-<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/core/interface.html">fancy_signatures.core.interface</a></span> <span class="kn">import</span> <span class="n">Validator</span>
-<span class="kn">from</span> <span class="nn">fancy_signatures.core.exceptions</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">get_args</span>
+<span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">TypeCaster</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/typecasting.html">fancy_signatures.typecasting</a></span> <span class="kn">import</span> <span class="n">register_typecaster</span><span class="p">,</span> <span class="n">typecaster_factory</span>
 
 
-<span class="k">class</span> <span class="nc">ValidateDevisibleByTwo</span><span class="p">(</span><span class="n">Validator</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">obj</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Should be divisible by 2&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">obj</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MyClass</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">param</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_param</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_param</span> <span class="o">=</span> <span class="n">param</span>
+
+
+<span class="k">class</span> <span class="nc">MyTypeCaster</span><span class="p">(</span><span class="n">TypeCaster</span><span class="p">[</span><span class="n">MyClass</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">type_hint</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_subtype</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">type_hint</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_value</span><span class="p">,</span> <span class="n">MyClass</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_value</span><span class="o">.</span><span class="n">param</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subtype</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">cast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MyClass</span><span class="p">:</span>
+        <span class="c1"># If its not MyClass, create a new myclass with the param_value</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_value</span><span class="p">,</span> <span class="n">MyClass</span><span class="p">):</span>
+            <span class="n">param_value</span> <span class="o">=</span> <span class="n">MyClass</span><span class="p">(</span><span class="n">param_value</span><span class="p">)</span>
+        <span class="c1"># Now use the typecaster_factory to create a caster for the subtype</span>
+        <span class="n">param_value</span><span class="o">.</span><span class="n">_param</span> <span class="o">=</span> <span class="n">typecaster_factory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_subtype</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">param_value</span><span class="o">.</span><span class="n">_param</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">param_value</span>
+
+
+<span class="c1"># strict=True, so an exact match is required. To also use this caster for subclasses use strict=False</span>
+<span class="n">register_typecaster</span><span class="p">(</span><span class="n">type_hints</span><span class="o">=</span><span class="p">[</span><span class="n">MyClass</span><span class="p">],</span> <span class="n">handler</span><span class="o">=</span><span class="n">MyTypeCaster</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
 <span class="nd">@validate</span>
-<span class="k">def</span> <span class="nf">custom_validator</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">arg</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">ValidateDevisibleByTwo</span><span class="p">()]))</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">a</span>
+<span class="k">def</span> <span class="nf">custom_generic</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">MyClass</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="n">param</span>
+
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">custom_generic</span><span class="p">(</span><span class="n">MyClass</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="c1"># 1</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>  <span class="c1"># &lt;class &#39;int&#39;&gt;</span>
+
+<span class="n">custom_generic</span><span class="p">(</span><span class="n">MyClass</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]))</span>  <span class="c1"># ValidationError</span>
 </code></pre>
 </div>
 
-<p>Similarly, you can also provide your own <code>Default</code> class. Be aware though that defaults are applied <strong>before</strong> typecasting. Hence,
-you are not guaranteed that the type of the value is actually what you'd expect. It's probably wise to use a try..except block</p>
+<p><strong>Be aware</strong> registering a <code>TypeCaster</code> that already exists (e.g. one for <code>float</code>) is possible and might sometimes even be desirable to add specific functionality. <code>FancySignatures</code> will throw a warning when you do this. A function <code>unregister_typecaster</code> can be used to remove typecasters. <strong>This will not reinstate the previous caster</strong>, in order to do that, re-register the <code>TypeCaster</code></p>
 
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">arg</span>
-<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/core/interface.html">fancy_signatures.core.interface</a></span> <span class="kn">import</span> <span class="n">Default</span>
+<h2 id="settings">Settings</h2>
 
+<p><code>FancySignatures</code> provides a settings module which you can use the customize (for now a limited amount) of behavior.</p>
 
-<span class="k">class</span> <span class="nc">NeverBiggerThanTen</span><span class="p">(</span><span class="n">Default</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">__EmptyArg__</span><span class="p">):</span>
-            <span class="k">return</span> <span class="mi">0</span>
-        <span class="k">elif</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">10</span>
-        <span class="k">return</span> <span class="n">value</span>
-
-
-<span class="nd">@validate</span>
-<span class="k">def</span> <span class="nf">custom_default</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">arg</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">NeverBiggerThanTen</span><span class="p">()))</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">a</span>
-
-
-<span class="n">custom_default</span><span class="p">()</span>  <span class="c1"># Returns 0</span>
-<span class="n">custom_default</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>  <span class="c1"># Returns 8</span>
-<span class="n">custom_default</span><span class="p">(</span><span class="mi">22</span><span class="p">)</span>  <span class="c1"># Returns 10</span>
-</code></pre>
-</div>
-
-<p>As mentioned before, hinting your custom classes should work fine with the only exception of classes that inherit from <code>typing.Generic</code>. 
-If your class does so, you should add a handler to <code>GenericAliasTypecaster</code>.</p>
-
-<p>Support for common generics such as <code>list</code>, <code>dict</code> and <code>tuple</code> are built-in. If your generic is not, it's quite easy to add one.
-Say for example you want to support a <code>numpy.ndarray</code>.</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">get_args</span>
-<span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">arg</span>
-<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/core/interface.html">fancy_signatures.core.interface</a></span> <span class="kn">import</span> <span class="n">TypeCaster</span>
-<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/typecasting.html">fancy_signatures.typecasting</a></span> <span class="kn">import</span> <span class="n">GenericAliasTypecaster</span><span class="p">,</span> <span class="n">typecaster_factory</span>
-
-
-<span class="k">def</span> <span class="nf">handle_np_array</span><span class="p">(</span><span class="n">type_hint</span><span class="p">:</span> <span class="nb">type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TypeCaster</span><span class="p">:</span>
-    <span class="n">elements_type</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">type_hint</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">_handler_func</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">typecaster_factory</span><span class="p">(</span><span class="n">elements_type</span><span class="p">)(</span><span class="n">el</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
-
-    <span class="k">return</span> <span class="n">TypeCaster</span><span class="p">(</span><span class="n">_handler_func</span><span class="p">)</span>
-
-
-<span class="n">GenericAliasTypecaster</span><span class="o">.</span><span class="n">add_handler</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">handle_np_array</span><span class="p">)</span>
-
-
-<span class="nd">@validate</span>
-<span class="k">def</span> <span class="nf">custom_handler</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">arr</span>
-</code></pre>
-</div>
-
-<p>Note how <code>typecaster_factory</code> is used here once we are back to a type that can be handled by the built-in functionality again.
-Internally, each <code>TypeCaster</code> casts one origin type hint and calls <code>typecaster_factory</code> again for the next hint. This way you will only have
-to add minimal code.</p>
-
-<h1 id="caveats">Caveats</h1>
+<p>Currently there are 2 settigns:</p>
 
 <ul>
-<li>For Union, the order matters. Typecasting will be attempted in the specified order.
-e.g. if you provide <code>int | float</code> and pass <code>1.2</code>, the casted result will be <code>1</code>. To omit this specify float first, or register an <code>IntTypeCaster</code> which fails in such cases.
-This also happens for <code>list | tuple</code> for example. Passing <code>(1, 2)</code> will resulkt in <code>[1, 2]</code>. Either specify the type you want to default to first, or implement your own specific handler.</li>
+<li><code>WARN_ON_HANDLER_OVERRIDE</code>: bool = True -> Whether to raise a warning when a <code>TypeCaster</code> is overriden (e.g. registering a caster for <code>list</code>)</li>
+<li><code>PROTOCOL_HANDLING</code>: ProtocolHandlingLevel = ProtocolHandlingLevel.ALLOW -> Whether to allow a <code>typing.Protocol</code> as type hints. (Can be <code>WARN</code> to raise a warning or <code>DISALLOW</code> to raise an <code>Exception</code>)</li>
 </ul>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">from</span> <span class="nn"><a href="fancy_signatures/settings.html">fancy_signatures.settings</a></span> <span class="kn">import</span> <span class="nb">set</span><span class="p">,</span> <span class="n">ProtocolHandlingLevel</span>
+
+<span class="c1"># Change a settings</span>
+<span class="nb">set</span><span class="p">(</span><span class="s2">&quot;PROTOCOL_HANDLING&quot;</span><span class="p">,</span> <span class="n">ProtocolHandlingLevel</span><span class="o">.</span><span class="n">WARN</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>You can use <code>settings.reset()</code> to reset all settings to their original values.</p>
+
+<p>You can use <code>settings.get_typecast_handlers()</code> to get a dictionairy of all registered <code>TypeCasters</code></p>
+
+<h2 id="classes-and-methods">Classes and methods</h2>
+
+<p>Decorating methods and classes is possible. Be aware that for classes, internally the <code>__init__</code> method will be wrapped.</p>
+
+<p>So:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">argument</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/validation.html">fancy_signatures.validation</a></span> <span class="kn">import</span> <span class="n">GE</span>
+
+
+<span class="nd">@validate</span>
+<span class="k">class</span> <span class="nc">MyClass</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">GE</span><span class="p">(</span><span class="mi">0</span><span class="p">)]),</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;msg&quot;</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
+</code></pre>
+</div>
+
+<p>Is equivalent to:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">argument</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/validation.html">fancy_signatures.validation</a></span> <span class="kn">import</span> <span class="n">GE</span>
+
+
+<span class="k">class</span> <span class="nc">MyClass</span><span class="p">:</span>
+    <span class="nd">@validate</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">GE</span><span class="p">(</span><span class="mi">0</span><span class="p">)]),</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;msg&quot;</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
+</code></pre>
+</div>
+
+<p>You might find it cleare to directly decorate the <code>__init__</code> method, up to you!</p>
+
+<p>With <code>dataclasses</code></p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">argument</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/validation.html">fancy_signatures.validation</a></span> <span class="kn">import</span> <span class="n">GE</span>
+
+
+<span class="nd">@validate</span>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">MyClass</span><span class="p">:</span>
+    <span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">GE</span><span class="p">(</span><span class="mi">0</span><span class="p">)])</span>
+    <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;msg&quot;</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<h2 id="exceptions">Exceptions</h2>
+
+<p>While internally <code>FancySignatures</code> uses a number of different exceptions. When using <code>@validate</code> only a <code>ValidationError</code> (when <code>lazy=False</code>) or <code>ValidationErrorGroup</code> (when <code>lazy=True</code>) will be raised. This means you only need to catch one exception based on the <code>lazy</code> parameter. Additionally, <code>ValidationErrorGroup</code> offers a <code>to_dict()</code> mthod to convert the <code>ExceptionGroup</code> to a dictionairy.</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">argument</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/validation.html">fancy_signatures.validation</a></span> <span class="kn">import</span> <span class="n">GE</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/exceptions.html">fancy_signatures.exceptions</a></span> <span class="kn">import</span> <span class="n">ValidationErrorGroup</span>
+
+
+<span class="nd">@validate</span><span class="p">(</span><span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">my_func</span><span class="p">(</span>
+    <span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">GE</span><span class="p">(</span><span class="mi">0</span><span class="p">)]),</span>
+    <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">GE</span><span class="p">(</span><span class="mi">0</span><span class="p">)]),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">my_func</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="s2">&quot;no_int&quot;</span><span class="p">})</span>
+<span class="k">except</span> <span class="n">ValidationErrorGroup</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Returns:</span>
+
+<span class="sd">{</span>
+<span class="sd">    &#39;Parameter validation for my_func failed (2 sub-exceptions)&#39;: [</span>
+<span class="sd">        {</span>
+<span class="sd">            &quot;Errors during validation of &#39;a&#39; (1 sub-exception)&quot;: [</span>
+<span class="sd">                &quot;Parameter &#39;a&#39; is invalid. Value should be greater than or equal to 0.&quot;</span>
+<span class="sd">            ]</span>
+<span class="sd">        }, </span>
+<span class="sd">        &quot;Parameter &#39;b&#39; is invalid. Couldn&#39;t cast to the correct type. message: Couldn&#39;t cast to correct type: &lt;class &#39;int&#39;&gt;. Couldn&#39;t cast to correct type: &lt;class &#39;int&#39;&gt;. invalid literal for int() with base 10: &#39;no_int&#39;.&quot;</span>
+<span class="sd">    ]</span>
+<span class="sd">}</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</code></pre>
+</div>
+
+<h2 id="full-example">Full example</h2>
+
+<p>Below a working example of how to use the library is provided.
+Put some errors in the input data (or remove the default for <code>cost</code> for example) to see how <code>FancySignatures</code> returns errors</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">from</span> <span class="nn">fancy_signatures</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">argument</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/validation/related.html">fancy_signatures.validation.related</a></span> <span class="kn">import</span> <span class="n">switch_dependent_arguments</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/exceptions.html">fancy_signatures.exceptions</a></span> <span class="kn">import</span> <span class="n">ValidationErrorGroup</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/validation/validators.html">fancy_signatures.validation.validators</a></span> <span class="kn">import</span> <span class="n">GE</span><span class="p">,</span> <span class="n">LE</span>
+<span class="kn">from</span> <span class="nn"><a href="fancy_signatures/default.html">fancy_signatures.default</a></span> <span class="kn">import</span> <span class="n">DefaultValue</span>
+
+
+<span class="nd">@validate</span><span class="p">(</span><span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">related</span><span class="o">=</span><span class="p">[</span><span class="n">switch_dependent_arguments</span><span class="p">(</span><span class="s2">&quot;cost&quot;</span><span class="p">,</span> <span class="n">switch_arg</span><span class="o">=</span><span class="s2">&quot;in_stock&quot;</span><span class="p">)])</span>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Course</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">argument</span><span class="p">()</span>
+    <span class="n">in_stock</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">DefaultValue</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
+
+
+<span class="nd">@validate</span><span class="p">(</span><span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Student</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">courses</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Course</span><span class="p">]</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;course_ids&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@validate</span><span class="p">(</span><span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ClassRoom</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">GE</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">LE</span><span class="p">(</span><span class="mi">50</span><span class="p">)],</span> <span class="n">default</span><span class="o">=</span><span class="n">DefaultValue</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+
+
+<span class="nd">@validate</span><span class="p">(</span><span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">load_students</span><span class="p">(</span>
+    <span class="n">budget</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">GE</span><span class="p">(</span><span class="mi">0</span><span class="p">)]),</span> 
+    <span class="n">students</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Student</span><span class="p">]</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;student_info_&quot;</span><span class="p">),</span>
+    <span class="n">classrooms</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ClassRoom</span><span class="p">]</span> <span class="o">=</span> <span class="n">argument</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;rooms&quot;</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">budget</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">students</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">classrooms</span><span class="p">)</span>
+
+
+<span class="n">input_data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;budget&quot;</span><span class="p">:</span> <span class="s2">&quot;125000&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rooms&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;1A&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="s2">&quot;5&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;1B&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="s2">&quot;3&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;2A&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="s2">&quot;10&quot;</span>
+        <span class="p">},</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;student_info_&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Pete&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span>
+            <span class="s2">&quot;courses&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="s2">&quot;1.2&quot;</span><span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Sarah&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+            <span class="s2">&quot;course_ids&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="s2">&quot;11.2&quot;</span><span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">load_students</span><span class="p">(</span><span class="o">**</span><span class="n">input_data</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ValidationErrorGroup</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</code></pre>
+</div>
 </div>
 
                         <input id="mod-fancy_signatures-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -377,9 +688,11 @@ This also happens for <code>list | tuple</code> for example. Passing <code>(1, 2
 </span><span id="L-2"><a href="#L-2"><span class="linenos">2</span></a><span class="sd">.. include:: ../README.md</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">3</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">4</span></a>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">5</span></a><span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">arg</span><span class="p">,</span> <span class="n">validate</span>  <span class="c1"># noqa</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">5</span></a><span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">argument</span><span class="p">,</span> <span class="n">validate</span>  <span class="c1"># noqa</span>
 </span><span id="L-6"><a href="#L-6"><span class="linenos">6</span></a><span class="kn">from</span> <span class="nn">.core.interface</span> <span class="kn">import</span> <span class="n">TypeCaster</span><span class="p">,</span> <span class="n">Validator</span><span class="p">,</span> <span class="n">Default</span>  <span class="c1"># noqa</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos">7</span></a><span class="kn">from</span> <span class="nn">.core.empty</span> <span class="kn">import</span> <span class="n">is_empty</span>  <span class="c1"># noqa</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">8</span></a><span class="kn">from</span> <span class="nn">.typecasting.handlers</span> <span class="kn">import</span> <span class="n">register_typecaster</span><span class="p">,</span> <span class="n">unregister_typecaster</span><span class="p">,</span> <span class="n">unregister_strict_typecaster</span>  <span class="c1"># noqa</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">9</span></a><span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="nb">set</span> <span class="k">as</span> <span class="n">adjust_setting</span><span class="p">,</span> <span class="n">reset</span> <span class="k">as</span> <span class="n">reset_settings</span>  <span class="c1"># noqa</span>
 </span></pre></div>
 
 

@@ -76,7 +76,7 @@ def exactly_one(*args: str, allow_none: bool = True) -> Related:
 
 
 def complementary_args(*args: str, allow_none: bool = True) -> Related:
-    """Validate all the arguments are given, or no of the arguments is given
+    """Validate all the arguments are given, or none of the arguments are given
 
     Args:
         allow_none (bool, optional): Whether to consider `None` as not provided. Defaults to True.
@@ -125,3 +125,35 @@ def hierarchical_args(owner: str, slaves: list[str], allow_none: bool = True) ->
     _validation_func.__name__ = hierarchical_args.__name__
 
     return Related(_validation_func, *slaves, owner_value=owner)
+
+
+def switch_dependent_arguments(
+    *dependent_args: str, switch_arg: str, switch_value: Any = True, allow_none: bool = True
+) -> Related:
+    """If the switch_arg has the switch_value, all dependent arguments should be provided as well
+
+    Args:
+        switch_arg (str): The name of the switch argument
+        switch_value (Any, optional): The value that considers the switch argument as 'on'. Defaults to True.
+        allow_none (bool, optional): Whether to consider `None` as not provided. Defaults to True.
+
+    Returns:
+        Related: Related object which can be provided to @validate
+    """
+
+    def _validation_func(*, switch: Any, **dependent_kwargs: Any) -> None:
+        if switch == switch_value:
+            if allow_none:
+                any_dependent_empty = any([is_empty(slave) or slave is None for slave in dependent_kwargs.values()])
+            else:
+                any_dependent_empty = any([is_empty(slave) for slave in dependent_kwargs.values()])
+
+            if any_dependent_empty:
+                raise ValidatorFailed(
+                    f"The switch argument '{switch_arg}' is provided, so all dependent arguments '{dependent_args}' "
+                    "should also be provided."
+                )
+
+    _validation_func.__name__ = switch_dependent_arguments.__name__
+
+    return Related(_validation_func, *dependent_args, switch=switch_arg)

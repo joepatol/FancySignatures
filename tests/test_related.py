@@ -10,6 +10,7 @@ from fancy_signatures.validation.related.validators import (
     complementary_args,
     hierarchical_args,
     exactly_x,
+    switch_dependent_arguments,
 )
 
 
@@ -141,3 +142,18 @@ def test__dont_allow_none_hierarchical_args() -> None:
 
     with does_not_raise():
         v(a=1, b=None)
+
+
+@pytest.mark.parametrize(
+    "switch, val_a, val_b, expectation",
+    [
+        pytest.param(True, None, 1, pytest.raises(ValidationError)),
+        pytest.param(True, 1, 1, does_not_raise()),
+        pytest.param(True, __EmptyArg__(), 1, pytest.raises(ValidationError)),
+    ],
+)
+def test__switch_dependent_arguments(switch: Any, val_a: Any, val_b: Any, expectation: ContextManager) -> None:
+    v = switch_dependent_arguments("val_a", "val_b", switch_arg="switch")
+
+    with expectation:
+        v(val_a=val_a, val_b=val_b, switch=switch)

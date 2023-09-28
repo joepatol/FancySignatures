@@ -190,8 +190,8 @@
 </span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>            <span class="k">else</span><span class="p">:</span>
 </span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>                <span class="k">try</span><span class="p">:</span>
 </span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">param_value</span><span class="p">)</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>                <span class="k">except</span> <span class="n">TypeCastError</span><span class="p">:</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>                    <span class="k">raise</span> <span class="n">TypeCastError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_type_hint</span><span class="p">)</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>                <span class="k">except</span> <span class="n">TypeCastError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>                    <span class="k">raise</span> <span class="n">TypeCastError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_type_hint</span><span class="p">,</span> <span class="n">extra_info</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 </span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>        <span class="k">return</span> <span class="n">param_value</span>
 </span></pre></div>
 
@@ -425,8 +425,8 @@ In case of no errors, the input value should be returned</p>
 </span><span id="TypeCaster-108"><a href="#TypeCaster-108"><span class="linenos">108</span></a>            <span class="k">else</span><span class="p">:</span>
 </span><span id="TypeCaster-109"><a href="#TypeCaster-109"><span class="linenos">109</span></a>                <span class="k">try</span><span class="p">:</span>
 </span><span id="TypeCaster-110"><a href="#TypeCaster-110"><span class="linenos">110</span></a>                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">param_value</span><span class="p">)</span>
-</span><span id="TypeCaster-111"><a href="#TypeCaster-111"><span class="linenos">111</span></a>                <span class="k">except</span> <span class="n">TypeCastError</span><span class="p">:</span>
-</span><span id="TypeCaster-112"><a href="#TypeCaster-112"><span class="linenos">112</span></a>                    <span class="k">raise</span> <span class="n">TypeCastError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_type_hint</span><span class="p">)</span>
+</span><span id="TypeCaster-111"><a href="#TypeCaster-111"><span class="linenos">111</span></a>                <span class="k">except</span> <span class="n">TypeCastError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="TypeCaster-112"><a href="#TypeCaster-112"><span class="linenos">112</span></a>                    <span class="k">raise</span> <span class="n">TypeCastError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_type_hint</span><span class="p">,</span> <span class="n">extra_info</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 </span><span id="TypeCaster-113"><a href="#TypeCaster-113"><span class="linenos">113</span></a>        <span class="k">return</span> <span class="n">param_value</span>
 </span></pre></div>
 

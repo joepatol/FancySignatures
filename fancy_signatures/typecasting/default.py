@@ -12,6 +12,10 @@ class DefaultTypeCaster(TypeCaster[Any]):
     """
 
     def validate(self, param_value: Any) -> bool:
+        # If there is an origin, we check against that. Subscripted generics
+        # cannot be used for instance checks.
+        if hasattr(self._type_hint, "__origin__"):
+            return isinstance(param_value, self._type_hint.__origin__)
         return isinstance(param_value, self._type_hint)
 
     def cast(self, param_value: Any) -> Any:
@@ -21,5 +25,20 @@ class DefaultTypeCaster(TypeCaster[Any]):
             if isinstance(param_value, (tuple, list)):
                 return self._type_hint(*param_value)
             return self._type_hint(param_value)
-        except (TypeError, ValueError):
-            raise TypeCastError(self._type_hint)
+        except (TypeError, ValueError) as e:
+            raise TypeCastError(self._type_hint, extra_info=str(e))
+
+
+class IntOrFloatTypeCaster(TypeCaster[int | float]):
+    """Caster for integers and floats, to make the errors a bit more specific
+    as opposed to DefaultTypeCaster
+    """
+
+    def validate(self, param_value: Any) -> bool:
+        return isinstance(param_value, self._type_hint)
+
+    def cast(self, param_value: Any) -> int | float:
+        try:
+            return self._type_hint(param_value)
+        except (ValueError, TypeError) as e:
+            raise TypeCastError(self._type_hint, extra_info=str(e))

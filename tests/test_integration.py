@@ -3,13 +3,14 @@ from dataclasses import dataclass
 from fancy_signatures import validate, argument
 from fancy_signatures.validation.validators import GE, MaxLength
 from fancy_signatures.exceptions import ValidationErrorGroup
+from fancy_signatures.default import EmptyList
 
 
 @validate(lazy=True)
 @dataclass
 class Course:
     name: str
-    cost: float = argument(validators=[GE(0)])
+    cost: float = argument(validators=[GE(0)], default=EmptyList)
 
 
 @validate(lazy=True)
@@ -17,7 +18,7 @@ class Course:
 class Student:
     name: str
     age: int = argument(validators=[GE(0)])
-    courses: list[Course] = argument(alias="course_ids")
+    courses: list[Course] = argument(alias="course_ids", default=EmptyList)
 
 
 @validate(lazy=True)

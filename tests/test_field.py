@@ -6,7 +6,7 @@ from fancy_signatures.core.field import TypedArgField, UnTypedArgField
 from fancy_signatures.typecasting.factory import typecaster_factory
 from fancy_signatures.default import DefaultValue, Default, DefaultFactory, EmptyList
 from fancy_signatures.core.empty import __EmptyArg__
-from fancy_signatures.exceptions import ValidationErrorGroup, ValidationError
+from fancy_signatures.exceptions import ValidationErrorGroup, ValidationError, MissingArgument
 from fancy_signatures.validation.validators import GT, MultipleOfValidator
 from .conftest import ExceptionNotRaised
 
@@ -19,7 +19,7 @@ def test__required_and_no_default_raises() -> None:
         default=DefaultValue(),
     )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(MissingArgument):
         field.execute("test-field", __EmptyArg__(), False, False)
 
 
