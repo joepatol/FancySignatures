@@ -1,6 +1,7 @@
 .vscode
 
 todo.txt
+__test__main__.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

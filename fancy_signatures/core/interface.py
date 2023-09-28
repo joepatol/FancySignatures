@@ -107,6 +107,6 @@ class TypeCaster(Generic[T], ABC):
             else:
                 try:
                     return self.cast(param_value)
-                except TypeCastError:
-                    raise TypeCastError(self._type_hint)
+                except TypeCastError as e:
+                    raise TypeCastError(self._type_hint, extra_info=str(e))
         return param_value

@@ -21,5 +21,5 @@ class DefaultTypeCaster(TypeCaster[Any]):
             if isinstance(param_value, (tuple, list)):
                 return self._type_hint(*param_value)
             return self._type_hint(param_value)
-        except (TypeError, ValueError):
-            raise TypeCastError(self._type_hint)
+        except (TypeError, ValueError) as e:
+            raise TypeCastError(self._type_hint, extra_info=str(e))
