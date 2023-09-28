@@ -31,13 +31,13 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
-                    <a class="function" href="#register_handler">register_handler</a>
+                    <a class="function" href="#register_typecaster">register_typecaster</a>
             </li>
             <li>
-                    <a class="function" href="#unregister_handler">unregister_handler</a>
+                    <a class="function" href="#unregister_typecaster">unregister_typecaster</a>
             </li>
             <li>
-                    <a class="function" href="#unregister_strict_handler">unregister_strict_handler</a>
+                    <a class="function" href="#unregister_strict_typecaster">unregister_strict_typecaster</a>
             </li>
     </ul>
 
@@ -67,7 +67,7 @@
 </span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">Settings</span>
 </span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>
 </span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="k">def</span> <span class="nf">register_handler</span><span class="p">(</span><span class="n">type_hints</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">],</span> <span class="n">handler</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Type</span><span class="p">[</span><span class="n">TypeCaster</span><span class="p">],</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="k">def</span> <span class="nf">register_typecaster</span><span class="p">(</span><span class="n">type_hints</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">],</span> <span class="n">handler</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Type</span><span class="p">[</span><span class="n">TypeCaster</span><span class="p">],</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Register a TypeCaster object that handles a set of type hints.</span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">    Args:</span>
@@ -84,14 +84,14 @@
 </span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>        <span class="n">_set_maybe_warn</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">handler_dict</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
 </span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>
 </span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="k">def</span> <span class="nf">unregister_handler</span><span class="p">(</span><span class="n">type_hint</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="k">def</span> <span class="nf">unregister_typecaster</span><span class="p">(</span><span class="n">type_hint</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="kn">from</span> <span class="nn">.__handler_lib</span> <span class="kn">import</span> <span class="n">CUSTOM_HANDLERS</span>
 </span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>
 </span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="k">if</span> <span class="n">type_hint</span> <span class="ow">in</span> <span class="n">CUSTOM_HANDLERS</span><span class="p">:</span>
 </span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>        <span class="k">del</span> <span class="n">CUSTOM_HANDLERS</span><span class="p">[</span><span class="n">type_hint</span><span class="p">]</span>
 </span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>
 </span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="k">def</span> <span class="nf">unregister_strict_handler</span><span class="p">(</span><span class="n">type_hint</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="k">def</span> <span class="nf">unregister_strict_typecaster</span><span class="p">(</span><span class="n">type_hint</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="kn">from</span> <span class="nn">.__handler_lib</span> <span class="kn">import</span> <span class="n">STRICT_CUSTOM_HANDLERS</span>
 </span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>
 </span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="k">if</span> <span class="n">type_hint</span> <span class="ow">in</span> <span class="n">STRICT_CUSTOM_HANDLERS</span><span class="p">:</span>
@@ -108,32 +108,32 @@
 
 
             </section>
-                <section id="register_handler">
-                            <input id="register_handler-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                <section id="register_typecaster">
+                            <input id="register_typecaster-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">register_handler</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">type_hints</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">]</span>,</span><span class="param">	<span class="n">handler</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n"><a href="../core/interface.html#TypeCaster">fancy_signatures.core.interface.TypeCaster</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">register_typecaster</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">type_hints</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">]</span>,</span><span class="param">	<span class="n">handler</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n"><a href="../core/interface.html#TypeCaster">fancy_signatures.core.interface.TypeCaster</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
 
-                <label class="view-source-button" for="register_handler-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="register_typecaster-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#register_handler"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="register_handler-9"><a href="#register_handler-9"><span class="linenos"> 9</span></a><span class="k">def</span> <span class="nf">register_handler</span><span class="p">(</span><span class="n">type_hints</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">],</span> <span class="n">handler</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Type</span><span class="p">[</span><span class="n">TypeCaster</span><span class="p">],</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="register_handler-10"><a href="#register_handler-10"><span class="linenos">10</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Register a TypeCaster object that handles a set of type hints.</span>
-</span><span id="register_handler-11"><a href="#register_handler-11"><span class="linenos">11</span></a>
-</span><span id="register_handler-12"><a href="#register_handler-12"><span class="linenos">12</span></a><span class="sd">    Args:</span>
-</span><span id="register_handler-13"><a href="#register_handler-13"><span class="linenos">13</span></a><span class="sd">        type_hints (list[TypeAlias]): the type hints supported by this handler</span>
-</span><span id="register_handler-14"><a href="#register_handler-14"><span class="linenos">14</span></a><span class="sd">        handler (Type[TypeCaster]): the TypeCaster to handle the value</span>
-</span><span id="register_handler-15"><a href="#register_handler-15"><span class="linenos">15</span></a><span class="sd">        strict (bool): Whether the caster is invoked only if the type matches exactly (True)</span>
-</span><span id="register_handler-16"><a href="#register_handler-16"><span class="linenos">16</span></a><span class="sd">        or if it&#39;s also invoked for all subclasses of type_hints</span>
-</span><span id="register_handler-17"><a href="#register_handler-17"><span class="linenos">17</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="register_handler-18"><a href="#register_handler-18"><span class="linenos">18</span></a>    <span class="kn">from</span> <span class="nn">.__handler_lib</span> <span class="kn">import</span> <span class="n">STRICT_CUSTOM_HANDLERS</span><span class="p">,</span> <span class="n">CUSTOM_HANDLERS</span>
-</span><span id="register_handler-19"><a href="#register_handler-19"><span class="linenos">19</span></a>
-</span><span id="register_handler-20"><a href="#register_handler-20"><span class="linenos">20</span></a>    <span class="n">handler_dict</span> <span class="o">=</span> <span class="n">STRICT_CUSTOM_HANDLERS</span> <span class="k">if</span> <span class="n">strict</span> <span class="k">else</span> <span class="n">CUSTOM_HANDLERS</span>
-</span><span id="register_handler-21"><a href="#register_handler-21"><span class="linenos">21</span></a>
-</span><span id="register_handler-22"><a href="#register_handler-22"><span class="linenos">22</span></a>    <span class="k">for</span> <span class="n">hint</span> <span class="ow">in</span> <span class="n">type_hints</span><span class="p">:</span>
-</span><span id="register_handler-23"><a href="#register_handler-23"><span class="linenos">23</span></a>        <span class="n">_set_maybe_warn</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">handler_dict</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+    <a class="headerlink" href="#register_typecaster"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="register_typecaster-9"><a href="#register_typecaster-9"><span class="linenos"> 9</span></a><span class="k">def</span> <span class="nf">register_typecaster</span><span class="p">(</span><span class="n">type_hints</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">],</span> <span class="n">handler</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Type</span><span class="p">[</span><span class="n">TypeCaster</span><span class="p">],</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="register_typecaster-10"><a href="#register_typecaster-10"><span class="linenos">10</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Register a TypeCaster object that handles a set of type hints.</span>
+</span><span id="register_typecaster-11"><a href="#register_typecaster-11"><span class="linenos">11</span></a>
+</span><span id="register_typecaster-12"><a href="#register_typecaster-12"><span class="linenos">12</span></a><span class="sd">    Args:</span>
+</span><span id="register_typecaster-13"><a href="#register_typecaster-13"><span class="linenos">13</span></a><span class="sd">        type_hints (list[TypeAlias]): the type hints supported by this handler</span>
+</span><span id="register_typecaster-14"><a href="#register_typecaster-14"><span class="linenos">14</span></a><span class="sd">        handler (Type[TypeCaster]): the TypeCaster to handle the value</span>
+</span><span id="register_typecaster-15"><a href="#register_typecaster-15"><span class="linenos">15</span></a><span class="sd">        strict (bool): Whether the caster is invoked only if the type matches exactly (True)</span>
+</span><span id="register_typecaster-16"><a href="#register_typecaster-16"><span class="linenos">16</span></a><span class="sd">        or if it&#39;s also invoked for all subclasses of type_hints</span>
+</span><span id="register_typecaster-17"><a href="#register_typecaster-17"><span class="linenos">17</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="register_typecaster-18"><a href="#register_typecaster-18"><span class="linenos">18</span></a>    <span class="kn">from</span> <span class="nn">.__handler_lib</span> <span class="kn">import</span> <span class="n">STRICT_CUSTOM_HANDLERS</span><span class="p">,</span> <span class="n">CUSTOM_HANDLERS</span>
+</span><span id="register_typecaster-19"><a href="#register_typecaster-19"><span class="linenos">19</span></a>
+</span><span id="register_typecaster-20"><a href="#register_typecaster-20"><span class="linenos">20</span></a>    <span class="n">handler_dict</span> <span class="o">=</span> <span class="n">STRICT_CUSTOM_HANDLERS</span> <span class="k">if</span> <span class="n">strict</span> <span class="k">else</span> <span class="n">CUSTOM_HANDLERS</span>
+</span><span id="register_typecaster-21"><a href="#register_typecaster-21"><span class="linenos">21</span></a>
+</span><span id="register_typecaster-22"><a href="#register_typecaster-22"><span class="linenos">22</span></a>    <span class="k">for</span> <span class="n">hint</span> <span class="ow">in</span> <span class="n">type_hints</span><span class="p">:</span>
+</span><span id="register_typecaster-23"><a href="#register_typecaster-23"><span class="linenos">23</span></a>        <span class="n">_set_maybe_warn</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">handler_dict</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -148,44 +148,44 @@
 
 
                 </section>
-                <section id="unregister_handler">
-                            <input id="unregister_handler-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                <section id="unregister_typecaster">
+                            <input id="unregister_typecaster-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">unregister_handler</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">type_hint</span><span class="p">:</span> <span class="n">TypeAlias</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">unregister_typecaster</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">type_hint</span><span class="p">:</span> <span class="n">TypeAlias</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
 
-                <label class="view-source-button" for="unregister_handler-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="unregister_typecaster-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#unregister_handler"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="unregister_handler-26"><a href="#unregister_handler-26"><span class="linenos">26</span></a><span class="k">def</span> <span class="nf">unregister_handler</span><span class="p">(</span><span class="n">type_hint</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="unregister_handler-27"><a href="#unregister_handler-27"><span class="linenos">27</span></a>    <span class="kn">from</span> <span class="nn">.__handler_lib</span> <span class="kn">import</span> <span class="n">CUSTOM_HANDLERS</span>
-</span><span id="unregister_handler-28"><a href="#unregister_handler-28"><span class="linenos">28</span></a>
-</span><span id="unregister_handler-29"><a href="#unregister_handler-29"><span class="linenos">29</span></a>    <span class="k">if</span> <span class="n">type_hint</span> <span class="ow">in</span> <span class="n">CUSTOM_HANDLERS</span><span class="p">:</span>
-</span><span id="unregister_handler-30"><a href="#unregister_handler-30"><span class="linenos">30</span></a>        <span class="k">del</span> <span class="n">CUSTOM_HANDLERS</span><span class="p">[</span><span class="n">type_hint</span><span class="p">]</span>
+    <a class="headerlink" href="#unregister_typecaster"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="unregister_typecaster-26"><a href="#unregister_typecaster-26"><span class="linenos">26</span></a><span class="k">def</span> <span class="nf">unregister_typecaster</span><span class="p">(</span><span class="n">type_hint</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="unregister_typecaster-27"><a href="#unregister_typecaster-27"><span class="linenos">27</span></a>    <span class="kn">from</span> <span class="nn">.__handler_lib</span> <span class="kn">import</span> <span class="n">CUSTOM_HANDLERS</span>
+</span><span id="unregister_typecaster-28"><a href="#unregister_typecaster-28"><span class="linenos">28</span></a>
+</span><span id="unregister_typecaster-29"><a href="#unregister_typecaster-29"><span class="linenos">29</span></a>    <span class="k">if</span> <span class="n">type_hint</span> <span class="ow">in</span> <span class="n">CUSTOM_HANDLERS</span><span class="p">:</span>
+</span><span id="unregister_typecaster-30"><a href="#unregister_typecaster-30"><span class="linenos">30</span></a>        <span class="k">del</span> <span class="n">CUSTOM_HANDLERS</span><span class="p">[</span><span class="n">type_hint</span><span class="p">]</span>
 </span></pre></div>
 
 
     
 
                 </section>
-                <section id="unregister_strict_handler">
-                            <input id="unregister_strict_handler-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                <section id="unregister_strict_typecaster">
+                            <input id="unregister_strict_typecaster-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">unregister_strict_handler</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">type_hint</span><span class="p">:</span> <span class="n">TypeAlias</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">unregister_strict_typecaster</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">type_hint</span><span class="p">:</span> <span class="n">TypeAlias</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
 
-                <label class="view-source-button" for="unregister_strict_handler-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="unregister_strict_typecaster-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#unregister_strict_handler"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="unregister_strict_handler-33"><a href="#unregister_strict_handler-33"><span class="linenos">33</span></a><span class="k">def</span> <span class="nf">unregister_strict_handler</span><span class="p">(</span><span class="n">type_hint</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="unregister_strict_handler-34"><a href="#unregister_strict_handler-34"><span class="linenos">34</span></a>    <span class="kn">from</span> <span class="nn">.__handler_lib</span> <span class="kn">import</span> <span class="n">STRICT_CUSTOM_HANDLERS</span>
-</span><span id="unregister_strict_handler-35"><a href="#unregister_strict_handler-35"><span class="linenos">35</span></a>
-</span><span id="unregister_strict_handler-36"><a href="#unregister_strict_handler-36"><span class="linenos">36</span></a>    <span class="k">if</span> <span class="n">type_hint</span> <span class="ow">in</span> <span class="n">STRICT_CUSTOM_HANDLERS</span><span class="p">:</span>
-</span><span id="unregister_strict_handler-37"><a href="#unregister_strict_handler-37"><span class="linenos">37</span></a>        <span class="k">del</span> <span class="n">STRICT_CUSTOM_HANDLERS</span><span class="p">[</span><span class="n">type_hint</span><span class="p">]</span>
+    <a class="headerlink" href="#unregister_strict_typecaster"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="unregister_strict_typecaster-33"><a href="#unregister_strict_typecaster-33"><span class="linenos">33</span></a><span class="k">def</span> <span class="nf">unregister_strict_typecaster</span><span class="p">(</span><span class="n">type_hint</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="unregister_strict_typecaster-34"><a href="#unregister_strict_typecaster-34"><span class="linenos">34</span></a>    <span class="kn">from</span> <span class="nn">.__handler_lib</span> <span class="kn">import</span> <span class="n">STRICT_CUSTOM_HANDLERS</span>
+</span><span id="unregister_strict_typecaster-35"><a href="#unregister_strict_typecaster-35"><span class="linenos">35</span></a>
+</span><span id="unregister_strict_typecaster-36"><a href="#unregister_strict_typecaster-36"><span class="linenos">36</span></a>    <span class="k">if</span> <span class="n">type_hint</span> <span class="ow">in</span> <span class="n">STRICT_CUSTOM_HANDLERS</span><span class="p">:</span>
+</span><span id="unregister_strict_typecaster-37"><a href="#unregister_strict_typecaster-37"><span class="linenos">37</span></a>        <span class="k">del</span> <span class="n">STRICT_CUSTOM_HANDLERS</span><span class="p">[</span><span class="n">type_hint</span><span class="p">]</span>
 </span></pre></div>
 
 

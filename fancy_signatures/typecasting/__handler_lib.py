@@ -6,6 +6,7 @@ from ..core.interface import TypeCaster
 from . import generic_alias
 from . import union
 from . import special_origins
+from . import default
 
 
 # Type should exactly match
@@ -17,6 +18,8 @@ STRICT_CUSTOM_HANDLERS: dict[typing.TypeAlias, typing.Type[TypeCaster]] = {
     typing.Union: union.UnionTypeCaster,
     types.UnionType: union.UnionTypeCaster,
     type(None): special_origins.NoneTypeCaster,
+    int: default.IntOrFloatTypeCaster,
+    float: default.IntOrFloatTypeCaster,
 }
 
 
