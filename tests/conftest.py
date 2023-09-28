@@ -35,9 +35,11 @@ class IntTypeCaster(TypeCaster[int]):
 
 @pytest.fixture(scope="function")
 def custom_int_handler() -> Generator[bool, None, None]:
+    set("WARN_ON_HANDLER_OVERRIDE", False)
     register_typecaster(type_hints=[int], handler=IntTypeCaster, strict=True)
     yield True
     unregister_strict_typecaster(int)
+    settings_reset()
 
 
 @pytest.fixture(scope="function")
