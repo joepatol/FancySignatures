@@ -1,0 +1,33 @@
+name: Publish to TestPyPi
+
+on: 
+  push:
+    branches:
+      - 'main'
+
+
+jobs:
+  pypi-publish:
+    name: Publish release to PyPI (test)
+    runs-on: ubuntu-latest
+    environment: env-publish
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: build
+        run: |
+          pip install build
+          python3 -m build
+      
+      - name: Publish package distributions to PyPI test
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
