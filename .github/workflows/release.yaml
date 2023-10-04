@@ -1,9 +1,4 @@
-name: Publish release
-
-on: 
-  push:
-    branches:
-      - 'main'
+name: Publish to PyPi
 
 
 jobs:
@@ -29,4 +24,3 @@ jobs:
       
       - name: Publish package distributions to PyPI test
         uses: pypa/gh-action-pypi-publish@release/v1
-
