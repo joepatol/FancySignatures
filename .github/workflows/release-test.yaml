@@ -10,7 +10,7 @@ jobs:
   pypi-publish:
     name: Publish release to PyPI (test)
     runs-on: ubuntu-latest
-    environment: env-publish
+    environment: env-test-publish
     permissions:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
