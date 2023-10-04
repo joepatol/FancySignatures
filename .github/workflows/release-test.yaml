@@ -1,4 +1,9 @@
-name: Publish to PyPi
+name: Publish to TestPyPi
+
+on: 
+  push:
+    branches:
+      - 'main'
 
 
 jobs:
@@ -24,3 +29,5 @@ jobs:
       
       - name: Publish package distributions to PyPI test
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
