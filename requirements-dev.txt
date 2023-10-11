@@ -7,4 +7,3 @@ pre-commit
 coverage
 pytest-cov
 pdoc
-maturin
