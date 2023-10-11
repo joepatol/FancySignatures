@@ -6,7 +6,7 @@ import inspect
 from .validation.related import Related
 from .typecasting import typecaster_factory
 from .default import DefaultValue
-from .core.field import UnTypedArgField, TypedArgField
+from .core.field import UnTypedArgField, TypedArgField, ReturnField
 from .core.interface import Validator, Default
 from .exceptions import ValidationErrorGroup, ValidationError
 from .core.empty import __EmptyArg__
@@ -40,6 +40,25 @@ def argument(
     default = default if default is not None else DefaultValue()
     validators = validators if validators is not None else []
     return UnTypedArgField(required, default=default, validators=validators, alias=alias)
+
+
+def result(type_hint: Any, serializer: Callable[[Any], Any] | None = None) -> Any:
+    """A function result, use this to provide extra metadata to the return type annotation
+    of a function or method
+
+    Args:
+        type_hint (Any): type hint for the result value
+        serializer (Callable[[Any], Any] | None, optional): Serializer to apply
+        to the return result, e.g. `json.dumps`. If `None` the raw result is returned
+        Defaults to None.
+
+    Returns:
+        ReturnField: Object used by `validate`
+    """
+    return ReturnField(
+        typecaster=typecaster_factory(type_hint),
+        serializer=serializer,
+    )
 
 
 @overload
@@ -103,6 +122,65 @@ def validate(
         return wrapper(__func_or_cls)
 
 
+@overload
+def validate_dataclass(__cls: CallableT) -> CallableT:
+    ...
+
+
+@overload
+def validate_dataclass(
+    *, related: list[Related] | None = None, lazy: bool = False, type_strict: bool = False, **dataclass_kwargs: Any
+) -> Callable[[CallableT], CallableT]:
+    ...
+
+
+def validate_dataclass(
+    __cls: CallableT | None = None,
+    *,
+    related: list[Related] | None = None,
+    lazy: bool = False,
+    type_strict: bool = False,
+    **dataclass_kwargs: Any,
+) -> Callable[[CallableT], CallableT]:
+    """Convenience decorator to apply '@validate' and '@dataclass' at once
+
+    Args:
+        __func_or_cls (FuncT, optional): The decorated callable. Can be a class, method, or function.
+        lazy (bool, optional): Whether to immediately raise `ValidationErrors` once they occur,
+        or collect them in a `ValidationErrorGroup`.
+        or whether to validate all parameters and raise an ExceptionGroup with the errors found per parameter.
+        Defaults to False.
+        Related (list[Related], optional): Related validators that apply a validation function on two or more arguments.
+        Defaults to None
+        type_strict (bool, optional): Whether to raise an error if a typecheck fails, or attempt a typecast first
+        **dataclass_kwargs: keyword arguments to pass to '@dataclass'
+
+    Raises:
+        ValidationError: error that occurred during validation of parameters
+        ValidationErrorGroup: group of validation errors
+
+    Returns:
+        Callable[[CallableT], CallableT]: decorated dataclass
+    """
+    from dataclasses import dataclass
+
+    def wrap(__cls: CallableT) -> CallableT:
+        frozen = dataclass_kwargs.pop("frozen", False)
+
+        if frozen:
+            raise ValueError("Frozen dataclasses are not supported with '@validate'")
+
+        validate_wrapper = validate(related=related, lazy=lazy, type_strict=type_strict)
+        dataclass_wrapper = dataclass(**dataclass_kwargs)
+
+        return validate_wrapper(dataclass_wrapper(__cls))  # type: ignore
+
+    if __cls is None:
+        return wrap
+    else:
+        return wrap(__cls)
+
+
 class _FunctionWrapper:
     __slots__ = (
         "_lazy",
@@ -111,6 +189,7 @@ class _FunctionWrapper:
         "_fields",
         "_related",
         "_strict",
+        "_return_field",
         "__name__",
         "__qualname__",
         "__annotations__",
@@ -129,7 +208,13 @@ class _FunctionWrapper:
 
         annotations_dict = wrapped_func.__annotations__
         signature = inspect.signature(wrapped_func)
-        _ = annotations_dict.pop("return", Any)
+        return_ann = annotations_dict.pop("return", Any)
+
+        if isinstance(return_ann, ReturnField):
+            return_field = return_ann
+        else:
+            return_field = result(type_hint=return_ann)
+
         named_fields: dict[str, TypedArgField] = {}
 
         prepared_arg: UnTypedArgField
@@ -151,6 +236,7 @@ class _FunctionWrapper:
         self._fields = named_fields
         self._related = related_validators
         self._strict = type_strict
+        self._return_field = return_field
 
         # Copying all interesting stuff from the wrapped function (much like functools.wraps)
         self.__name__ = wrapped_func.__name__
@@ -224,4 +310,5 @@ class _FunctionWrapper:
                 f"Related parameter validation for {self._wrapped_func.__fancy_signature_name__} failed", errors
             )
 
-        return self._wrapped_func(**kwargs)
+        func_result = self._wrapped_func(**kwargs)
+        return self._return_field.execute(func_result, self._strict)

@@ -30,13 +30,14 @@ class AnyTypeCaster(TypeCaster[Any]):
 class AnnotatedTypeCaster(TypeCaster[_AnnotatedAlias]):
     def __init__(self, type_hint: Any) -> None:
         super().__init__(type_hint)
-        self._origin = get_args(type_hint)[0]
+        origin = get_args(type_hint)[0]
+        self._origin_caster = typecaster_factory(origin)
 
     def validate(self, param_value: Any) -> bool:
-        return typecaster_factory(self._origin).validate(param_value)
+        return self._origin_caster.validate(param_value)
 
     def cast(self, param_value: Any) -> Any:
-        return typecaster_factory(self._origin).cast(param_value)
+        return self._origin_caster.cast(param_value)
 
 
 class BooleanTypeCaster(TypeCaster[bool]):

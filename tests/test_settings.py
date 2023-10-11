@@ -21,7 +21,7 @@ def test__change_setting(reset_settings: bool) -> None:
 
 def test_default_handlers() -> None:
     handlers_dict = get_typecast_handlers()
-    assert len(handlers_dict["strict_handlers"]) == 8
+    assert len(handlers_dict["strict_handlers"]) == 9
     assert len(handlers_dict["handlers"]) == 5
 
 

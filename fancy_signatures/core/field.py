@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any
+from typing import Any, Callable
 
 from .interface import TypeCaster, Default, Validator
 from ..exceptions import ValidationError, ValidationErrorGroup, TypeValidationError, TypeCastError, MissingArgument
@@ -72,5 +72,28 @@ class TypedArgField(UnTypedArgField):
 
         if errors:
             raise ValidationErrorGroup(f"Errors during validation of '{name}'", errors)
+
+        return typecasted_value
+
+
+class ReturnField:
+    __slots__ = ("_typecaster", "_serializer")
+
+    def __init__(self, typecaster: TypeCaster, serializer: Callable[[Any], Any] | None) -> None:
+        self._typecaster = typecaster
+        self._serializer = serializer
+
+    def execute(self, value: Any, strict: bool) -> Any:
+        name = "Return"
+
+        try:
+            typecasted_value = self._typecaster(value, strict)
+        except TypeValidationError as e:
+            raise ValidationError(f"Type validation failed. message: {e}", name)
+        except TypeCastError as e:
+            raise ValidationError(f"Couldn't cast to the correct type. message: {e}", name)
+
+        if self._serializer:
+            return self._serializer(typecasted_value)
 
         return typecasted_value
