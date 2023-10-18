@@ -684,15 +684,16 @@ Put some errors in the input data (or remove the default for <code>cost</code> f
 
                         <label class="view-source-button" for="mod-fancy_signatures-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">1</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">2</span></a><span class="sd">.. include:: ../README.md</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos">3</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos">4</span></a>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">5</span></a><span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">argument</span><span class="p">,</span> <span class="n">validate</span>  <span class="c1"># noqa</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos">6</span></a><span class="kn">from</span> <span class="nn">.core.interface</span> <span class="kn">import</span> <span class="n">TypeCaster</span><span class="p">,</span> <span class="n">Validator</span><span class="p">,</span> <span class="n">Default</span>  <span class="c1"># noqa</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos">7</span></a><span class="kn">from</span> <span class="nn">.core.empty</span> <span class="kn">import</span> <span class="n">is_empty</span>  <span class="c1"># noqa</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos">8</span></a><span class="kn">from</span> <span class="nn">.typecasting.handlers</span> <span class="kn">import</span> <span class="n">register_typecaster</span><span class="p">,</span> <span class="n">unregister_typecaster</span><span class="p">,</span> <span class="n">unregister_strict_typecaster</span>  <span class="c1"># noqa</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos">9</span></a><span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="nb">set</span> <span class="k">as</span> <span class="n">adjust_setting</span><span class="p">,</span> <span class="n">reset</span> <span class="k">as</span> <span class="n">reset_settings</span>  <span class="c1"># noqa</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">.. include:: ../README.md</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">argument</span><span class="p">,</span> <span class="n">validate</span><span class="p">,</span> <span class="n">validate_dataclass</span><span class="p">,</span> <span class="n">result</span>  <span class="c1"># noqa</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">from</span> <span class="nn">.core.interface</span> <span class="kn">import</span> <span class="n">TypeCaster</span><span class="p">,</span> <span class="n">Validator</span><span class="p">,</span> <span class="n">Default</span>  <span class="c1"># noqa</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">from</span> <span class="nn">.core.empty</span> <span class="kn">import</span> <span class="n">is_empty</span>  <span class="c1"># noqa</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span> <span class="nn">.typecasting.handlers</span> <span class="kn">import</span> <span class="n">register_typecaster</span><span class="p">,</span> <span class="n">unregister_typecaster</span><span class="p">,</span> <span class="n">unregister_strict_typecaster</span>  <span class="c1"># noqa</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="kn">from</span> <span class="nn">.settings</span> <span class="kn">import</span> <span class="nb">set</span> <span class="k">as</span> <span class="n">adjust_setting</span><span class="p">,</span> <span class="n">reset</span> <span class="k">as</span> <span class="n">reset_settings</span>  <span class="c1"># noqa</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="kn">from</span> <span class="nn">.__version__</span> <span class="kn">import</span> <span class="n">__version__</span>  <span class="c1"># noqa</span>
 </span></pre></div>
 
 

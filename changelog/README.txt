@@ -1,1 +1,0 @@
-Add new changes to the 'unreleased' folder so they can be processed when releasing.

@@ -42,7 +42,7 @@ def argument(
     return UnTypedArgField(required, default=default, validators=validators, alias=alias)
 
 
-def result(type_hint: Any, serializer: Callable[[Any], Any] | None = None) -> Any:
+def result(type_hint: Any, *, serializer: Callable[[Any], Any] | None = None) -> Any:
     """A function result, use this to provide extra metadata to the return type annotation
     of a function or method
 

@@ -57,6 +57,18 @@
                 </ul>
 
             </li>
+            <li>
+                    <a class="class" href="#ReturnField">ReturnField</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#ReturnField.__init__">ReturnField</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ReturnField.execute">execute</a>
+                        </li>
+                </ul>
+
+            </li>
     </ul>
 
 
@@ -79,7 +91,7 @@
                         <label class="view-source-button" for="mod-field-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a>
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">from</span> <span class="nn">.interface</span> <span class="kn">import</span> <span class="n">TypeCaster</span><span class="p">,</span> <span class="n">Default</span><span class="p">,</span> <span class="n">Validator</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ValidationError</span><span class="p">,</span> <span class="n">ValidationErrorGroup</span><span class="p">,</span> <span class="n">TypeValidationError</span><span class="p">,</span> <span class="n">TypeCastError</span><span class="p">,</span> <span class="n">MissingArgument</span>
@@ -154,6 +166,29 @@
 </span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>            <span class="k">raise</span> <span class="n">ValidationErrorGroup</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Errors during validation of &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="p">)</span>
 </span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>
 </span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>        <span class="k">return</span> <span class="n">typecasted_value</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>
+</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>
+</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a><span class="k">class</span> <span class="nc">ReturnField</span><span class="p">:</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_typecaster&quot;</span><span class="p">,</span> <span class="s2">&quot;_serializer&quot;</span><span class="p">)</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>
+</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">typecaster</span><span class="p">:</span> <span class="n">TypeCaster</span><span class="p">,</span> <span class="n">serializer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_typecaster</span> <span class="o">=</span> <span class="n">typecaster</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_serializer</span> <span class="o">=</span> <span class="n">serializer</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a>
+</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a>        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Return&quot;</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a>
+</span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a>            <span class="n">typecasted_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_typecaster</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">strict</span><span class="p">)</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos">91</span></a>        <span class="k">except</span> <span class="n">TypeValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos">92</span></a>            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Type validation failed. message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos">93</span></a>        <span class="k">except</span> <span class="n">TypeCastError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos">94</span></a>            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t cast to the correct type. message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos">95</span></a>
+</span><span id="L-96"><a href="#L-96"><span class="linenos">96</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serializer</span><span class="p">:</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos">97</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serializer</span><span class="p">(</span><span class="n">typecasted_value</span><span class="p">)</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos">98</span></a>
+</span><span id="L-99"><a href="#L-99"><span class="linenos">99</span></a>        <span class="k">return</span> <span class="n">typecasted_value</span>
 </span></pre></div>
 
 
@@ -392,6 +427,94 @@
 
             </div>
                                 </dl>
+                            </div>
+                </section>
+                <section id="ReturnField">
+                            <input id="ReturnField-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">ReturnField</span>:
+
+                <label class="view-source-button" for="ReturnField-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#ReturnField"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ReturnField-80"><a href="#ReturnField-80"><span class="linenos"> 80</span></a><span class="k">class</span> <span class="nc">ReturnField</span><span class="p">:</span>
+</span><span id="ReturnField-81"><a href="#ReturnField-81"><span class="linenos"> 81</span></a>    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_typecaster&quot;</span><span class="p">,</span> <span class="s2">&quot;_serializer&quot;</span><span class="p">)</span>
+</span><span id="ReturnField-82"><a href="#ReturnField-82"><span class="linenos"> 82</span></a>
+</span><span id="ReturnField-83"><a href="#ReturnField-83"><span class="linenos"> 83</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">typecaster</span><span class="p">:</span> <span class="n">TypeCaster</span><span class="p">,</span> <span class="n">serializer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="ReturnField-84"><a href="#ReturnField-84"><span class="linenos"> 84</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_typecaster</span> <span class="o">=</span> <span class="n">typecaster</span>
+</span><span id="ReturnField-85"><a href="#ReturnField-85"><span class="linenos"> 85</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_serializer</span> <span class="o">=</span> <span class="n">serializer</span>
+</span><span id="ReturnField-86"><a href="#ReturnField-86"><span class="linenos"> 86</span></a>
+</span><span id="ReturnField-87"><a href="#ReturnField-87"><span class="linenos"> 87</span></a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+</span><span id="ReturnField-88"><a href="#ReturnField-88"><span class="linenos"> 88</span></a>        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Return&quot;</span>
+</span><span id="ReturnField-89"><a href="#ReturnField-89"><span class="linenos"> 89</span></a>
+</span><span id="ReturnField-90"><a href="#ReturnField-90"><span class="linenos"> 90</span></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="ReturnField-91"><a href="#ReturnField-91"><span class="linenos"> 91</span></a>            <span class="n">typecasted_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_typecaster</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">strict</span><span class="p">)</span>
+</span><span id="ReturnField-92"><a href="#ReturnField-92"><span class="linenos"> 92</span></a>        <span class="k">except</span> <span class="n">TypeValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="ReturnField-93"><a href="#ReturnField-93"><span class="linenos"> 93</span></a>            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Type validation failed. message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</span><span id="ReturnField-94"><a href="#ReturnField-94"><span class="linenos"> 94</span></a>        <span class="k">except</span> <span class="n">TypeCastError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="ReturnField-95"><a href="#ReturnField-95"><span class="linenos"> 95</span></a>            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t cast to the correct type. message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</span><span id="ReturnField-96"><a href="#ReturnField-96"><span class="linenos"> 96</span></a>
+</span><span id="ReturnField-97"><a href="#ReturnField-97"><span class="linenos"> 97</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serializer</span><span class="p">:</span>
+</span><span id="ReturnField-98"><a href="#ReturnField-98"><span class="linenos"> 98</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serializer</span><span class="p">(</span><span class="n">typecasted_value</span><span class="p">)</span>
+</span><span id="ReturnField-99"><a href="#ReturnField-99"><span class="linenos"> 99</span></a>
+</span><span id="ReturnField-100"><a href="#ReturnField-100"><span class="linenos">100</span></a>        <span class="k">return</span> <span class="n">typecasted_value</span>
+</span></pre></div>
+
+
+    
+
+                            <div id="ReturnField.__init__" class="classattr">
+                                        <input id="ReturnField.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="name">ReturnField</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">typecaster</span><span class="p">:</span> <span class="n"><a href="interface.html#TypeCaster">fancy_signatures.core.interface.TypeCaster</a></span>,</span><span class="param">	<span class="n">serializer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span></span>)</span>
+
+                <label class="view-source-button" for="ReturnField.__init__-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#ReturnField.__init__"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ReturnField.__init__-83"><a href="#ReturnField.__init__-83"><span class="linenos">83</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">typecaster</span><span class="p">:</span> <span class="n">TypeCaster</span><span class="p">,</span> <span class="n">serializer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="ReturnField.__init__-84"><a href="#ReturnField.__init__-84"><span class="linenos">84</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_typecaster</span> <span class="o">=</span> <span class="n">typecaster</span>
+</span><span id="ReturnField.__init__-85"><a href="#ReturnField.__init__-85"><span class="linenos">85</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_serializer</span> <span class="o">=</span> <span class="n">serializer</span>
+</span></pre></div>
+
+
+    
+
+                            </div>
+                            <div id="ReturnField.execute" class="classattr">
+                                        <input id="ReturnField.execute-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">execute</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Any</span>, </span><span class="param"><span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span></span><span class="return-annotation">) -> <span class="n">Any</span>:</span></span>
+
+                <label class="view-source-button" for="ReturnField.execute-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#ReturnField.execute"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ReturnField.execute-87"><a href="#ReturnField.execute-87"><span class="linenos"> 87</span></a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+</span><span id="ReturnField.execute-88"><a href="#ReturnField.execute-88"><span class="linenos"> 88</span></a>        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Return&quot;</span>
+</span><span id="ReturnField.execute-89"><a href="#ReturnField.execute-89"><span class="linenos"> 89</span></a>
+</span><span id="ReturnField.execute-90"><a href="#ReturnField.execute-90"><span class="linenos"> 90</span></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="ReturnField.execute-91"><a href="#ReturnField.execute-91"><span class="linenos"> 91</span></a>            <span class="n">typecasted_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_typecaster</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">strict</span><span class="p">)</span>
+</span><span id="ReturnField.execute-92"><a href="#ReturnField.execute-92"><span class="linenos"> 92</span></a>        <span class="k">except</span> <span class="n">TypeValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="ReturnField.execute-93"><a href="#ReturnField.execute-93"><span class="linenos"> 93</span></a>            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Type validation failed. message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</span><span id="ReturnField.execute-94"><a href="#ReturnField.execute-94"><span class="linenos"> 94</span></a>        <span class="k">except</span> <span class="n">TypeCastError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="ReturnField.execute-95"><a href="#ReturnField.execute-95"><span class="linenos"> 95</span></a>            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t cast to the correct type. message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</span><span id="ReturnField.execute-96"><a href="#ReturnField.execute-96"><span class="linenos"> 96</span></a>
+</span><span id="ReturnField.execute-97"><a href="#ReturnField.execute-97"><span class="linenos"> 97</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serializer</span><span class="p">:</span>
+</span><span id="ReturnField.execute-98"><a href="#ReturnField.execute-98"><span class="linenos"> 98</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serializer</span><span class="p">(</span><span class="n">typecasted_value</span><span class="p">)</span>
+</span><span id="ReturnField.execute-99"><a href="#ReturnField.execute-99"><span class="linenos"> 99</span></a>
+</span><span id="ReturnField.execute-100"><a href="#ReturnField.execute-100"><span class="linenos">100</span></a>        <span class="k">return</span> <span class="n">typecasted_value</span>
+</span></pre></div>
+
+
+    
+
                             </div>
                 </section>
     </main>

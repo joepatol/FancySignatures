@@ -1,6 +1,7 @@
 from contextlib import suppress
 import importlib.metadata
 from pathlib import Path
+import sys
 
 
 def extract_version() -> str:
@@ -14,3 +15,11 @@ def extract_version() -> str:
 
 
 __version__ = extract_version()
+
+
+def main() -> None:
+    sys.stdout.write(__version__)
+
+
+if __name__ == "__main__":
+    main()

@@ -8,3 +8,5 @@ pre-commit
 coverage
 pytest-cov
 pdoc
+click
+markdown

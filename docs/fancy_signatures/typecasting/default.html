@@ -107,13 +107,13 @@
 </span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>
 </span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
 </span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="k">class</span> <span class="nc">IntOrFloatTypeCaster</span><span class="p">(</span><span class="n">TypeCaster</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">]):</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Caster for integers and floats, to make the errors a bit more specific </span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Caster for integers and floats, to make the errors a bit more specific</span>
 </span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">    as opposed to DefaultTypeCaster</span>
 </span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>
 </span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_hint</span><span class="p">)</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>
 </span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="k">def</span> <span class="nf">cast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
 </span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_hint</span><span class="p">(</span><span class="n">param_value</span><span class="p">)</span>
@@ -255,13 +255,13 @@ If the typecast fails, a <code><a href="../exceptions.html#TypeCastError">fancy_
     </div>
     <a class="headerlink" href="#IntOrFloatTypeCaster"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="IntOrFloatTypeCaster-33"><a href="#IntOrFloatTypeCaster-33"><span class="linenos">33</span></a><span class="k">class</span> <span class="nc">IntOrFloatTypeCaster</span><span class="p">(</span><span class="n">TypeCaster</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">]):</span>
-</span><span id="IntOrFloatTypeCaster-34"><a href="#IntOrFloatTypeCaster-34"><span class="linenos">34</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Caster for integers and floats, to make the errors a bit more specific </span>
+</span><span id="IntOrFloatTypeCaster-34"><a href="#IntOrFloatTypeCaster-34"><span class="linenos">34</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Caster for integers and floats, to make the errors a bit more specific</span>
 </span><span id="IntOrFloatTypeCaster-35"><a href="#IntOrFloatTypeCaster-35"><span class="linenos">35</span></a><span class="sd">    as opposed to DefaultTypeCaster</span>
 </span><span id="IntOrFloatTypeCaster-36"><a href="#IntOrFloatTypeCaster-36"><span class="linenos">36</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="IntOrFloatTypeCaster-37"><a href="#IntOrFloatTypeCaster-37"><span class="linenos">37</span></a>    
+</span><span id="IntOrFloatTypeCaster-37"><a href="#IntOrFloatTypeCaster-37"><span class="linenos">37</span></a>
 </span><span id="IntOrFloatTypeCaster-38"><a href="#IntOrFloatTypeCaster-38"><span class="linenos">38</span></a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="IntOrFloatTypeCaster-39"><a href="#IntOrFloatTypeCaster-39"><span class="linenos">39</span></a>        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_hint</span><span class="p">)</span>
-</span><span id="IntOrFloatTypeCaster-40"><a href="#IntOrFloatTypeCaster-40"><span class="linenos">40</span></a>    
+</span><span id="IntOrFloatTypeCaster-40"><a href="#IntOrFloatTypeCaster-40"><span class="linenos">40</span></a>
 </span><span id="IntOrFloatTypeCaster-41"><a href="#IntOrFloatTypeCaster-41"><span class="linenos">41</span></a>    <span class="k">def</span> <span class="nf">cast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
 </span><span id="IntOrFloatTypeCaster-42"><a href="#IntOrFloatTypeCaster-42"><span class="linenos">42</span></a>        <span class="k">try</span><span class="p">:</span>
 </span><span id="IntOrFloatTypeCaster-43"><a href="#IntOrFloatTypeCaster-43"><span class="linenos">43</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_hint</span><span class="p">(</span><span class="n">param_value</span><span class="p">)</span>
@@ -270,7 +270,7 @@ If the typecast fails, a <code><a href="../exceptions.html#TypeCastError">fancy_
 </span></pre></div>
 
 
-            <div class="docstring"><p>Caster for integers and floats, to make the errors a bit more specific 
+            <div class="docstring"><p>Caster for integers and floats, to make the errors a bit more specific
 as opposed to DefaultTypeCaster</p>
 </div>
 
