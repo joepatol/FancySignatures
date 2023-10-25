@@ -8,16 +8,28 @@ CHANGELOG_FOLDER = "./changelog"
 UNRELEASED_FOLDER = f"{CHANGELOG_FOLDER}/unreleased"
 
 
-@click.command()
-@click.option("--version", help="The version releasing the changes")
-def process(version: str) -> None:
+@click.group()
+def release_notes() -> None:
+    pass
+
+
+@release_notes.command(name="compile")
+@click.option("--version", help="The version releasing the changes", required=True)
+@click.option("--clean", help="Remove the compiled markdown files", is_flag=True, default=False)
+def process(version: str, clean: bool) -> None:
     print(f"Creating release notes for version {version}")
     print("Processing changelog files")
     result_text = merge_files_in_folder(UNRELEASED_FOLDER, skip=[README_FILENAME])
     print("Converting to html")
     text_with_header = append_header(result_text, get_header_text(version), 1)
     write_html_output(version, text_with_header)
-    print("Cleaning up")
+    if clean:
+        print("Cleaning up")
+        make_folder_empty(UNRELEASED_FOLDER, skip=[README_FILENAME])
+
+
+@release_notes.command(name="clean")
+def cleanup() -> None:
     make_folder_empty(UNRELEASED_FOLDER, skip=[README_FILENAME])
 
 
@@ -32,7 +44,7 @@ def merge_files_in_folder(folder: str, skip: list[str]) -> str:
             abspath = os.path.abspath(f"{UNRELEASED_FOLDER}/{file}")
             print(f"Processing {abspath}")
             file_content = read_markdown_file(abspath)
-            file_with_header = append_header(file_content, file, 2)
+            file_with_header = append_header(file_content, file.rstrip(".md"), 2)
             files.append(file_with_header)
     return "\n".join(files)
 
@@ -64,4 +76,4 @@ def get_header_text(version: str) -> str:
 
 
 if __name__ == "__main__":
-    process()
+    release_notes()
