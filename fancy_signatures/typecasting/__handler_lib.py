@@ -1,5 +1,6 @@
 import typing
 import types
+from collections.abc import Sequence, Mapping
 
 from ..core.interface import TypeCaster
 
@@ -14,6 +15,7 @@ STRICT_CUSTOM_HANDLERS: dict[typing.TypeAlias, typing.Type[TypeCaster]] = {
     bool: special_origins.BooleanTypeCaster,
     str: special_origins.StringTypeCaster,
     typing.Any: special_origins.AnyTypeCaster,
+    ...: special_origins.AnyTypeCaster,
     typing.Annotated: special_origins.AnnotatedTypeCaster,
     typing.Union: union.UnionTypeCaster,
     types.UnionType: union.UnionTypeCaster,
@@ -21,14 +23,14 @@ STRICT_CUSTOM_HANDLERS: dict[typing.TypeAlias, typing.Type[TypeCaster]] = {
     None: special_origins.NoneTypeCaster,
     int: default.IntOrFloatTypeCaster,
     float: default.IntOrFloatTypeCaster,
+    tuple: generic_alias.TupleTypeCaster,
+    set: generic_alias.SequenceTypeCaster,
 }
 
 
 # Exact match, metaclass match or subclass
 CUSTOM_HANDLERS: dict[typing.TypeAlias, typing.Type[TypeCaster]] = {
-    list: generic_alias.ListTupleSetTypeCaster,
-    tuple: generic_alias.ListTupleSetTypeCaster,
-    set: generic_alias.ListTupleSetTypeCaster,
-    dict: generic_alias.DictTypeCaster,
+    Sequence: generic_alias.SequenceTypeCaster,
+    Mapping: generic_alias.MappingTypeCaster,
     typing._ProtocolMeta: special_origins.ProtocolTypecaster,
 }

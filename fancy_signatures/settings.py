@@ -15,17 +15,20 @@ class ProtocolHandlingLevel(Enum):
 class Settings:
     WARN_ON_HANDLER_OVERRIDE: bool = True
     PROTOCOL_HANDLING: ProtocolHandlingLevel = ProtocolHandlingLevel.ALLOW
+    ALLOW_TUPLE_ADDITIONAL_PARAMS: bool = False
 
 
 class _SettingsTypes:
     WARN_ON_HANDLER_OVERRIDE = bool
     PROTOCOL_HANDLING = ProtocolHandlingLevel
+    ALLOW_TUPLE_ADDITIONAL_PARAMS = bool
 
 
 def reset() -> None:
     """Reset all settings to their default values"""
     Settings.WARN_ON_HANDLER_OVERRIDE = True
     Settings.PROTOCOL_HANDLING = ProtocolHandlingLevel.ALLOW
+    Settings.ALLOW_TUPLE_ADDITIONAL_PARAMS = False
 
 
 def set(setting: str, value: Any) -> None:

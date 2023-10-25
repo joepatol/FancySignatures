@@ -10,14 +10,13 @@ from fancy_signatures.validation.validators import (
     MultipleOfValidator,
     OptionalLT,
 )
-from fancy_signatures.default import DefaultValue, EmptyList
+from fancy_signatures.default import EmptyList, Zero
 from fancy_signatures.validation.related.validators import exactly_one
 from fancy_signatures.exceptions import ValidationError, ValidationErrorGroup
 from fancy_signatures.core.empty import __EmptyArg__, is_empty
 from .conftest import ExceptionNotRaised
 
 
-Zero: DefaultValue[int] = DefaultValue(0)
 ExBlacklisted: BlackListedValues[int] = BlackListedValues(10, 20)
 PositiveInt: GE[int] = GE(0)
 MaxInputListLength: MaxLength[list] = MaxLength(20)

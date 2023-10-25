@@ -114,15 +114,15 @@ def test__strict_union_type() -> None:
 
 
 def test__strict_generic_alias_and_union() -> None:
-    caster = typecaster_factory(list[str] | tuple[str])
+    caster = typecaster_factory(list[str] | set[str])
     caster(["A", "B"], True)
-    caster(("A", "B"), True)
+    caster({"A", "B"}, True)
 
     with pytest.raises(TypeValidationError):
         caster([1, "B"], True)
 
     with pytest.raises(TypeValidationError):
-        caster((1, 3), True)
+        caster({1, 3}, True)
 
 
 def test__strict_custom_type() -> None:

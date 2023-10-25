@@ -1,9 +1,12 @@
 from __future__ import annotations
-from typing import Any, Callable
+from typing import Any, Callable, TypeVar
 
 from .interface import TypeCaster, Default, Validator
 from ..exceptions import ValidationError, ValidationErrorGroup, TypeValidationError, TypeCastError, MissingArgument
 from .empty import is_empty
+
+
+T = TypeVar("T")
 
 
 class UnTypedArgField:
@@ -51,14 +54,12 @@ class TypedArgField(UnTypedArgField):
         elif value_is_empty:
             return value_or_default
 
-        try:
-            typecasted_value = self._typecaster(value_or_default, strict)
-        except TypeValidationError as e:
-            raise ValidationError(f"Type validation failed. message: {e}", name)
-        except TypeCastError as e:
-            raise ValidationError(f"Couldn't cast to the correct type. message: {e}", name)
-        except MissingArgument as e:
-            raise ValidationError(str(e), name)
+        typecasted_value = _typecast_value(
+            value_or_default,
+            self._typecaster,
+            strict,
+            name,
+        )
 
         errors: list[ValidationError] = []
         for validator in self._validators:
@@ -84,16 +85,25 @@ class ReturnField:
         self._serializer = serializer
 
     def execute(self, value: Any, strict: bool) -> Any:
-        name = "Return"
-
-        try:
-            typecasted_value = self._typecaster(value, strict)
-        except TypeValidationError as e:
-            raise ValidationError(f"Type validation failed. message: {e}", name)
-        except TypeCastError as e:
-            raise ValidationError(f"Couldn't cast to the correct type. message: {e}", name)
+        typecasted_value = _typecast_value(
+            value,
+            self._typecaster,
+            strict,
+            "Return",
+        )
 
         if self._serializer:
             return self._serializer(typecasted_value)
 
         return typecasted_value
+
+
+def _typecast_value(value: Any, typecaster: TypeCaster[T], strict: bool, name: str) -> T:
+    try:
+        return typecaster(value, strict)
+    except TypeValidationError as e:
+        raise ValidationError(f"Type validation failed. message: {e}", name)
+    except TypeCastError as e:
+        raise ValidationError(f"Couldn't cast to the correct type. message: {e}", name)
+    except MissingArgument as e:
+        raise ValidationError(str(e), name)

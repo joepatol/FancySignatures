@@ -1,6 +1,6 @@
 import pytest
 import typing
-from fancy_signatures.typecasting.generic_alias import ListTupleSetTypeCaster, DictTypeCaster
+from fancy_signatures.typecasting.generic_alias import SequenceTypeCaster, MappingTypeCaster, TupleTypeCaster
 from fancy_signatures.exceptions import TypeCastError
 
 
@@ -16,7 +16,7 @@ from fancy_signatures.exceptions import TypeCastError
     ],
 )
 def test__list_caster_validate(origin: type, value: list | tuple | set, expectation: bool) -> None:
-    caster = ListTupleSetTypeCaster(origin)
+    caster = SequenceTypeCaster(origin)
 
     assert caster.validate(value) is expectation
 
@@ -33,7 +33,7 @@ def test__list_caster_validate(origin: type, value: list | tuple | set, expectat
     ],
 )
 def test__tuple_caster_validate(origin: type, value: list | tuple | set, expectation: bool) -> None:
-    caster = ListTupleSetTypeCaster(origin)
+    caster = SequenceTypeCaster(origin)
 
     assert caster.validate(value) is expectation
 
@@ -49,7 +49,7 @@ def test__tuple_caster_validate(origin: type, value: list | tuple | set, expecta
     ],
 )
 def test__set_caster_validate(origin: type, value: list | tuple | set, expectation: bool) -> None:
-    caster = ListTupleSetTypeCaster(origin)
+    caster = SequenceTypeCaster(origin)
 
     assert caster.validate(value) is expectation
 
@@ -65,7 +65,7 @@ def test__set_caster_validate(origin: type, value: list | tuple | set, expectati
     ],
 )
 def test__dict_caster_validate(origin: type, value: dict, expectation: bool) -> None:
-    caster = DictTypeCaster(origin)
+    caster = MappingTypeCaster(origin)
 
     assert caster.validate(value) == expectation
 
@@ -82,7 +82,7 @@ def test__dict_caster_validate(origin: type, value: dict, expectation: bool) -> 
     ],
 )
 def test__list_caster_cast(origin: type, value: list | tuple | set, expectation: list | tuple | set) -> None:
-    caster = ListTupleSetTypeCaster(origin)
+    caster = SequenceTypeCaster(origin)
 
     assert caster.cast(value) == expectation
 
@@ -99,7 +99,7 @@ def test__list_caster_cast(origin: type, value: list | tuple | set, expectation:
     ],
 )
 def test__tuple_caster_cast(origin: type, value: list | tuple | set, expectation: bool) -> None:
-    caster = ListTupleSetTypeCaster(origin)
+    caster = SequenceTypeCaster(origin)
 
     assert caster.cast(value) == expectation
 
@@ -114,7 +114,7 @@ def test__tuple_caster_cast(origin: type, value: list | tuple | set, expectation
     ],
 )
 def test__set_caster_cast(origin: type, value: list | tuple | set, expectation: bool) -> None:
-    caster = ListTupleSetTypeCaster(origin)
+    caster = SequenceTypeCaster(origin)
 
     assert caster.cast(value) == expectation
 
@@ -129,7 +129,7 @@ def test__set_caster_cast(origin: type, value: list | tuple | set, expectation: 
     ],
 )
 def test__dict_caster_cast(origin: type, value: dict, expectation: bool) -> None:
-    caster = DictTypeCaster(origin)
+    caster = MappingTypeCaster(origin)
 
     assert caster.cast(value) == expectation
 
@@ -145,7 +145,7 @@ def test__dict_caster_cast(origin: type, value: dict, expectation: bool) -> None
     ],
 )
 def test__list_tuple_set_cast_fail(origin: type, value: typing.Any) -> None:
-    caster = ListTupleSetTypeCaster(origin)
+    caster = SequenceTypeCaster(origin)
 
     with pytest.raises(TypeCastError):
         caster.cast(value)
@@ -161,14 +161,50 @@ def test__list_tuple_set_cast_fail(origin: type, value: typing.Any) -> None:
     ],
 )
 def test__dict_typecaster_cast_fail(value: typing.Any) -> None:
-    caster = DictTypeCaster(dict)
+    caster = MappingTypeCaster(dict)
 
     with pytest.raises(TypeCastError):
         caster.cast(value)
 
 
-def test__tuple_ellipsis() -> None:
-    c = ListTupleSetTypeCaster(tuple[int, ...])
+@pytest.mark.parametrize(
+    "input, result",
+    [
+        ((1, "a"), True),
+        ((1, "a", "foo"), True),
+        (("1", "2"), False),
+    ],
+)
+def test__tuple_typecaster_ellipsis_validate(input: typing.Any, result: bool) -> None:
+    c = TupleTypeCaster(tuple[int, ...])
 
-    assert c.validate((1, 2, 3)) is True
-    assert c.cast((1, "2", 3)) == (1, 2, 3)
+    assert c.validate(input) is result
+
+
+@pytest.mark.parametrize(
+    "input, result",
+    [
+        ((1, "a"), False),
+        ((1, "a", "foo"), True),
+        (("1", "2", "4"), False),
+        ((1, "a", "foo", 10), False),
+    ],
+)
+def test__tuple_parametrized_validate(input: typing.Any, result: bool) -> None:
+    c = TupleTypeCaster(tuple[int, str, str])
+
+    assert c.validate(input) is result
+
+
+@pytest.mark.parametrize(
+    "input, result",
+    [
+        ((1, "a", 1), (1, "a", "1")),
+        (("1", "a", "foo"), (1, "a", "foo")),
+        (("1", "2", "4"), (1, "2", "4")),
+    ],
+)
+def test__tuple_parametrized_cast(input: typing.Any, result: tuple) -> None:
+    c = TupleTypeCaster(tuple[int, str, str])
+
+    assert c.cast(input) == result

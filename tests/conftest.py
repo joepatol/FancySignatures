@@ -11,7 +11,7 @@ class ExceptionNotRaised(Exception):
     def __init__(self) -> None:
         super().__init__(
             "This test expected an error to be raised and test the resulting error."
-            "However, the test was not raised at all."
+            "However, the error was not raised at all."
         )
 
 

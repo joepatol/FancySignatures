@@ -24,8 +24,8 @@ def test__union_validate(origin: type, value: Any, expectation: bool) -> None:
 @pytest.mark.parametrize(
     "origin",
     [
-        pytest.param(list[float | int] | tuple[float | int]),
-        pytest.param(Union[List[Union[float, int]], Tuple[Union[float, int]]]),
+        pytest.param(list[float | int] | tuple[float | int, float | int]),
+        pytest.param(Union[List[Union[float, int]], Tuple[Union[float, int], Union[float, int]]]),
     ],
 )
 @pytest.mark.parametrize(
