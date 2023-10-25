@@ -1,0 +1,3 @@
+- Added script for automatically building documentation
+- Added script for building and pushing documentation to git
+- Added github action for docs build when merging to main

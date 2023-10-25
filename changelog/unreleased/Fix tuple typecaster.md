@@ -1,0 +1,3 @@
+- Fixed the tuple typecaster which would only consider the first parametrized argument
+- Also added a setting whether tuple's are allowed to have more arguments that typehinted 
+    - Default is `False`

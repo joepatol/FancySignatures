@@ -1,0 +1,3 @@
+- Swapped ListTupleSetTypeCaster with a `SequenceTypeCaster` which works for all sequences
+    - This typecaster is also used for `set`
+- Implemented a `MappingTypeCaster` which works for all mappings (including `dict`)
