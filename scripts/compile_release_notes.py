@@ -9,14 +9,14 @@ UNRELEASED_FOLDER = f"{CHANGELOG_FOLDER}/unreleased"
 
 
 @click.group()
-def release_notes() -> None:
+def main() -> None:
     pass
 
 
-@release_notes.command(name="compile")
+@main.command(name="compile")
 @click.option("--version", help="The version releasing the changes", required=True)
 @click.option("--clean", help="Remove the compiled markdown files", is_flag=True, default=False)
-def process(version: str, clean: bool) -> None:
+def compile(version: str, clean: bool) -> None:
     print(f"Creating release notes for version {version}")
     print("Processing changelog files")
     result_text = merge_files_in_folder(UNRELEASED_FOLDER, skip=[README_FILENAME])
@@ -28,7 +28,7 @@ def process(version: str, clean: bool) -> None:
         make_folder_empty(UNRELEASED_FOLDER, skip=[README_FILENAME])
 
 
-@release_notes.command(name="clean")
+@main.command(name="clean")
 def cleanup() -> None:
     make_folder_empty(UNRELEASED_FOLDER, skip=[README_FILENAME])
 
@@ -76,4 +76,4 @@ def get_header_text(version: str) -> str:
 
 
 if __name__ == "__main__":
-    release_notes()
+    main()
