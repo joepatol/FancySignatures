@@ -3,6 +3,8 @@ This package provides an extensive, easy to use API to validate input arguments 
 validate and/or cast to a given type. It also provides a way to perform additional validation on one or more parameters. Also convenience tools are provided
 for easily parsing data.
 
+[Api docs](https://joepatol.github.io/FancySignatures/fancy_signatures.html) 
+
 ## Basic usage
 
 The most basic use case is to validate provided function arguments against their type hints.
