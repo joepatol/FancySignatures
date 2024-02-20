@@ -42,25 +42,6 @@ def argument(
     return UnTypedArgField(required, default=default, validators=validators, alias=alias)
 
 
-def result(type_hint: Any, *, serializer: Callable[[Any], Any] | None = None) -> Any:
-    """A function result, use this to provide extra metadata to the return type annotation
-    of a function or method
-
-    Args:
-        type_hint (Any): type hint for the result value
-        serializer (Callable[[Any], Any] | None, optional): Serializer to apply
-        to the return result, e.g. `json.dumps`. If `None` the raw result is returned
-        Defaults to None.
-
-    Returns:
-        ReturnField: Object used by `validate`
-    """
-    return ReturnField(
-        typecaster=typecaster_factory(type_hint),
-        serializer=serializer,
-    )
-
-
 @overload
 def validate(
     *, related: list[Related] | None = None, lazy: bool = False, type_strict: bool = False
@@ -210,10 +191,7 @@ class _FunctionWrapper:
         signature = inspect.signature(wrapped_func)
         return_ann = annotations_dict.pop("return", Any)
 
-        if isinstance(return_ann, ReturnField):
-            return_field = return_ann
-        else:
-            return_field = result(type_hint=return_ann)
+        return_field = ReturnField(typecaster=typecaster_factory(return_ann))
 
         named_fields: dict[str, TypedArgField] = {}
 

@@ -78,11 +78,10 @@ class TypedArgField(UnTypedArgField):
 
 
 class ReturnField:
-    __slots__ = ("_typecaster", "_serializer")
+    __slots__ = ("_typecaster")
 
-    def __init__(self, typecaster: TypeCaster, serializer: Callable[[Any], Any] | None) -> None:
+    def __init__(self, typecaster: TypeCaster) -> None:
         self._typecaster = typecaster
-        self._serializer = serializer
 
     def execute(self, value: Any, strict: bool) -> Any:
         typecasted_value = _typecast_value(
@@ -91,9 +90,6 @@ class ReturnField:
             strict,
             "Return",
         )
-
-        if self._serializer:
-            return self._serializer(typecasted_value)
 
         return typecasted_value
 
